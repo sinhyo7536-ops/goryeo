@@ -138,9 +138,14 @@ export function showSessionCard(root, session, save, chapters) {
   });
 }
 
-export function showMenu(root, { muted, quality }, onChange) {
+export function showMenu(root, { muted, quality, storageOk = true }, onChange) {
   return new Promise(resolve => {
     const close = v => { el.remove(); resolve(v); };
+    const leave = h('div', { class: 'confirm', hidden: true },
+      h('p', {}, '이 기기에서는 저장되지 않아서, 장 선택으로 나가면 지금까지 한 것이 사라져요.'),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn danger', type: 'button', onclick: () => close('map') }, '그래도 나가기'),
+        h('button', { class: 'btn', type: 'button', onclick: () => { leave.hidden = true; } }, '계속하기')));
     const qb = (lv, label) => h('button', { class: `btn ${quality === lv ? 'on' : ''}`, type: 'button', onclick: () => { onChange({ quality: lv }); close('close'); } }, label);
     const el = screen(root, 'menu',
       h('div', { class: 'card' },
@@ -150,8 +155,9 @@ export function showMenu(root, { muted, quality }, onChange) {
         h('p', {}, '화질'),
         h('div', { class: 'row' }, qb('low', '낮음'), qb('medium', '보통'), qb('high', '높음')),
         h('div', { class: 'row' },
-          h('button', { class: 'btn', type: 'button', onclick: () => close('map') }, '장 선택으로'),
-          h('button', { class: 'btn primary', type: 'button', onclick: () => close('close') }, '닫기'))));
+          h('button', { class: 'btn', type: 'button', onclick: () => (storageOk ? close('map') : (leave.hidden = false)) }, '장 선택으로'),
+          h('button', { class: 'btn primary', type: 'button', onclick: () => close('close') }, '닫기')),
+        leave));
   });
 }
 

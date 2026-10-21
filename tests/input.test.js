@@ -86,3 +86,15 @@ test('audio: starts quiet and can be muted before any sound', () => {
   eq(a.muted, true);
   a.play('tap'); // 음소거 상태에서는 아무것도 하지 않음
 });
+
+test('input: lost pointer capture releases the joystick', () => {
+  const { input, joyZone, done } = setup();
+  const pe = (type, x, y) => joyZone.dispatchEvent(new PointerEvent(type, { pointerId: 9, clientX: x, clientY: y, bubbles: true }));
+  pe('pointerdown', 100, 100); pe('pointermove', 100, 200);
+  joyZone.dispatchEvent(new PointerEvent('lostpointercapture', { pointerId: 9, bubbles: true }));
+  eq(input.move(), { x: 0, z: 0 });
+  pe('pointerdown', 50, 50); pe('pointermove', 90, 50);
+  ok(input.move().x > 0.5, 'a new touch works again');
+  pe('pointerup', 90, 50);
+  done();
+});

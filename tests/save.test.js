@@ -65,3 +65,33 @@ test('save: corrupt stored data falls back to empty', () => {
   eq(save.data, { name: '', chapters: {}, current: null });
   ok(true);
 });
+
+test('save: storage whose getter throws (blocked site data)', () => {
+  const s = createStorage(() => { throw new Error('SecurityError'); });
+  eq(s.available, false);
+  eq(s.get('k'), null);
+  eq(s.set('k', 1), false);
+});
+
+test('save: abandonCurrent clears the in-progress chapter and persists', () => {
+  const backend = memoryBackend();
+  const a = createSave(createStorage(backend));
+  a.checkpoint('ch1', 'explore');
+  a.abandonCurrent();
+  const b = createSave(createStorage(backend)); b.load();
+  eq(b.data.current, null);
+});
+
+test('save: default storage works when window.localStorage itself throws', () => {
+  const desc = Object.getOwnPropertyDescriptor(window, 'localStorage') || Object.getOwnPropertyDescriptor(Window.prototype, 'localStorage');
+  Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new DOMException('blocked', 'SecurityError'); } });
+  try {
+    const s = createStorage();
+    eq(s.available, false);
+    const save = createSave(s); save.load(); save.setName('김고려');
+    eq(save.data.name, '김고려');
+  } finally {
+    if (Object.getOwnPropertyDescriptor(Window.prototype, 'localStorage')) delete window.localStorage;
+    else Object.defineProperty(window, 'localStorage', desc);
+  }
+});

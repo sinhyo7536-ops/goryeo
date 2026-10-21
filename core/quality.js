@@ -16,7 +16,7 @@ export function guessInitialQuality({ dpr = 1, cores = 4, memory } = {}) {
 }
 
 export function createQualityController({ initial = 'medium', onChange = () => {} } = {}) {
-  let elapsed = 0, frames = 0, auto = true;
+  let elapsed = 0, frames = 0, auto = true, manual = false;
   const q = {
     level: initial,
     sample(dt) {
@@ -30,7 +30,9 @@ export function createQualityController({ initial = 'medium', onChange = () => {
         onChange(q.level);
       } else auto = false; // 한 번 충분히 빠르면 측정을 끝냄
     },
-    set(level) { auto = false; q.level = level; onChange(level); },
+    set(level) { auto = false; manual = true; q.level = level; onChange(level); },
+    // 장이 시작될 때 다시 잰다 (첫 화면은 장면이 가벼워서 측정에 쓰지 않는다). 직접 고른 화질은 그대로 둔다.
+    restart() { if (!manual) { auto = true; elapsed = 0; frames = 0; } },
   };
   return q;
 }

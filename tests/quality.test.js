@@ -47,3 +47,18 @@ test('quality: a single long frame (tab switch) is ignored', () => {
 test('quality: S6 Lite guess is medium', () => eq(guessInitialQuality({ dpr: 2, cores: 8, memory: 4 }), 'medium'));
 test('quality: strong device guess is high', () => eq(guessInitialQuality({ dpr: 2, cores: 8, memory: 8 }), 'high'));
 test('quality: unknown memory guess is medium', () => eq(guessInitialQuality({ dpr: 1, cores: 8, memory: undefined }), 'medium'));
+
+test('quality: restart measures again after an earlier fast window', () => {
+  const q = createQualityController({ initial: 'medium' });
+  for (let i = 0; i < 200; i++) q.sample(1 / 60); // 첫 화면은 빠르다
+  q.restart();                                     // 장이 시작되면 다시 잰다
+  for (let i = 0; i < 100; i++) q.sample(1 / 30);
+  eq(q.level, 'low');
+});
+
+test('quality: restart keeps a manual choice', () => {
+  const q = createQualityController({ initial: 'medium' });
+  q.set('high'); q.restart();
+  for (let i = 0; i < 100; i++) q.sample(1 / 30);
+  eq(q.level, 'high');
+});

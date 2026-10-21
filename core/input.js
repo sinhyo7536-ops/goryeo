@@ -60,6 +60,7 @@ export function createInput({ target = window, joyZone, actionButton }) {
   joyZone.addEventListener('pointermove', onMove);
   joyZone.addEventListener('pointerup', endJoy);
   joyZone.addEventListener('pointercancel', endJoy);
+  joyZone.addEventListener('lostpointercapture', endJoy);
   actionButton.addEventListener('click', onAction);
 
   const input = {
@@ -84,6 +85,7 @@ export function createInput({ target = window, joyZone, actionButton }) {
       joyZone.removeEventListener('pointermove', onMove);
       joyZone.removeEventListener('pointerup', endJoy);
       joyZone.removeEventListener('pointercancel', endJoy);
+      joyZone.removeEventListener('lostpointercapture', endJoy);
       actionButton.removeEventListener('click', onAction);
       base.remove();
     },

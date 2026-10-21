@@ -110,3 +110,20 @@ test('dialogue: quiz marks correct with ○ and wrong with ×', async () => {
   eq(await p, { correct: true });
   done();
 });
+
+test('dialogue: a tap that started before the choices opened is ignored even after the guard', async () => {
+  const { d, q, done } = setup();
+  try {
+  let picked = null;
+  d.choose({ who: 'sonn', text: '고르기' }, ['가', '나']).then(i => { picked = i; });
+  await sleep(320);
+  const b = q('.dlg-choices button');
+  b.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })); // 손가락은 선택지가 뜨기 전에 내려왔다
+  await sleep(20);
+  eq(picked, null);
+  b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+  b.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+  await until(() => picked !== null);
+  eq(picked, 0);
+  } finally { done(); }
+});

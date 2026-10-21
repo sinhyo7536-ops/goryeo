@@ -111,3 +111,18 @@ test('screens: title button is really clickable with HUD layers on top', async (
   ui.innerHTML = '';
   ok(hud);
 });
+
+test('menu: leaving to the map without storage asks first', async () => {
+  const { showMenu } = await import('../core/screens.js');
+  const el = root();
+  let result = null;
+  showMenu(el, { muted: false, quality: 'medium', storageOk: false }, () => {}).then(r => { result = r; });
+  btn(el, '장 선택으로').click();
+  await sleep(10);
+  eq(result, null);
+  ok(el.textContent.includes('사라져요'));
+  btn(el, '그래도 나가기').click();
+  await sleep(10);
+  eq(result, 'map');
+  el.remove();
+});

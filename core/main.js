@@ -49,11 +49,11 @@ function boot() {
   let inChapter = false;
   const openMenu = async () => {
     if (!inChapter) return;
-    const choice = await showMenu(ui, { muted: audio.muted, quality: quality.level }, change => {
+    const choice = await showMenu(ui, { muted: audio.muted, quality: quality.level, storageOk: storage.available }, change => {
       if ('muted' in change) { audio.setMuted(change.muted); storage.set(PREF_MUTED, change.muted); }
       if (change.quality) { quality.set(change.quality); storage.set(PREF_QUALITY, change.quality); }
     });
-    if (choice === 'map') location.reload(); // 체크포인트가 저장되어 있어 첫 화면에서 이어할 수 있다
+    if (choice === 'map') { save.abandonCurrent(); location.reload(); } // 하던 장을 버리고 새로 열면 첫 화면 → 지도
   };
   input.onMenu(openMenu);
   hud.menuBtn.addEventListener('click', openMenu);
@@ -68,12 +68,14 @@ function boot() {
     onAction(fn) { actionHandlers.add(fn); return () => actionHandlers.delete(fn); },
   };
 
-  let last = performance.now();
+  let last = performance.now(), wasTalking = false;
   const frame = now => {
     const raw = (now - last) / 1000; last = now;
-    quality.sample(raw);
+    if (inChapter && world.level.children.length) quality.sample(raw); // 장면이 있을 때만 잰다
     const dt = Math.min(raw, 0.1);
     const talking = dialogue && dialogue.isOpen();
+    if (talking && !wasTalking) input.releaseJoystick(); // 대화가 열리면 조이스틱을 놓는다
+    wasTalking = talking;
     hud.setTouchVisible(inChapter && !talking);
     world.step(dt, talking ? { x: 0, z: 0 } : input.move());
     world.render();
@@ -84,6 +86,7 @@ function boot() {
   async function playChapter(meta, stage) {
     const mod = (await meta.load()).default;
     world.clearLevel();
+    quality.restart();
     world.camMode = 'follow';
     world.setMood(mod.mood);
     dialogue = createDialogue(ui, mod.script.speakers, { reduceMotion });

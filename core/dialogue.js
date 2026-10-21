@@ -56,9 +56,14 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
         b.innerHTML = '<span class="num"></span><span class="txt"></span>';
         b.querySelector('.num').textContent = String(i + 1);
         b.querySelector('.txt').textContent = text;
+        let downAt = -1;
+        b.addEventListener('pointerdown', () => { downAt = performance.now(); });
         b.addEventListener('click', e => {
           e.stopPropagation();
-          if (performance.now() - openedAt < CLICK_GUARD_MS) return;
+          // 손가락(마우스)으로 누른 클릭은 선택지가 뜬 뒤에 눌리기 시작한 것만 받는다.
+          // 키보드 엔터처럼 포인터 없는 클릭(detail 0)은 열린 직후만 막는다.
+          const pointerTap = e.detail > 0;
+          if (pointerTap ? downAt < openedAt : performance.now() - openedAt < CLICK_GUARD_MS) return;
           dialogue.pick(i);
         });
         choicesEl.appendChild(b);

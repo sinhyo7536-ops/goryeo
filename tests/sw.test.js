@@ -20,3 +20,10 @@ test('sw: every PRECACHE file exists on the server', async () => {
     ok(r.ok, `${f} → ${r.status}`);
   }
 });
+import { cacheKeyFor } from '../core/precache.js';
+
+test('sw: opening the folder address offline uses the cached index.html', () => {
+  eq(cacheKeyFor('https://example.org/game/', 'navigate', 'https://example.org/game/sw.js'), 'index.html');
+  eq(cacheKeyFor('https://example.org/game/?debug=x', 'navigate', 'https://example.org/game/sw.js'), 'index.html');
+  eq(cacheKeyFor('https://example.org/game/core/main.js', 'cors', 'https://example.org/game/sw.js'), null);
+});

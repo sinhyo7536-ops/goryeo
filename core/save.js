@@ -29,6 +29,8 @@ export function createSave(storage) {
       save.persist();
     },
     chapterResult(id) { return save.data.chapters[id] || null; },
+    // 메뉴에서 장 선택으로 나갈 때: 하던 장을 버려서 다음에는 지도부터 보이게 한다
+    abandonCurrent() { save.data.current = null; save.persist(); },
   };
   return save;
 }
