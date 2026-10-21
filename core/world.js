@@ -12,6 +12,20 @@ export const MOODS = {
     hemi: [0xffd9b8, 0x3e4a3a, 0.5],
     particles: 'embers',
   },
+  snow: {
+    skyTop: 0x8e9aa8, skyHorizon: 0xd9dee3, skyBottom: 0x9aa3a8,
+    fog: [0xd5dbe0, 30, 120],
+    sun: { color: 0xe8eef5, intensity: 0.8, dir: [20, 30, 10] },
+    hemi: [0xeef3f8, 0x8a9096, 0.9],
+    particles: 'snow',
+  },
+  storm: {
+    skyTop: 0x3b4652, skyHorizon: 0x76828c, skyBottom: 0x4a5258,
+    fog: [0x5f6b74, 20, 90],
+    sun: { color: 0xc8d2dc, intensity: 0.5, dir: [10, 30, 20] },
+    hemi: [0xb4c0cc, 0x3a4038, 0.75],
+    particles: 'rain',
+  },
 };
 
 const SPEED = 6.5;

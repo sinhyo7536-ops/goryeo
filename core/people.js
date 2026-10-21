@@ -38,6 +38,11 @@ export function makePerson({ robe, hat, trim = 0x2b241c }) {
   } else if (hat === 'helmet') {
     part(new THREE.ConeGeometry(0.38, 0.5, 7), 0x5d5a55, 0, 2.38, 0, g);
     part(new THREE.SphereGeometry(0.09, 5, 4), 0xb8452f, 0, 2.66, 0, g);
+  } else if (hat === 'general') {
+    part(new THREE.ConeGeometry(0.4, 0.55, 8), 0x8a8478, 0, 2.4, 0, g);
+    part(new THREE.SphereGeometry(0.11, 6, 5), 0xb8452f, 0, 2.72, 0, g);
+    for (const sx of [-0.48, 0.48]) part(new THREE.BoxGeometry(0.34, 0.14, 0.46), 0x8a8478, sx, 1.72, 0, g);
+    part(new THREE.BoxGeometry(0.62, 0.5, 0.5), 0x8a8478, 0, 1.45, 0, g);
   } else if (hat === 'fur') {
     part(new THREE.CylinderGeometry(0.4, 0.36, 0.34, 8), 0x5a4130, 0, 2.3, 0, g);
   }
