@@ -21,3 +21,28 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 #ui > * { pointer-events: auto; }
 #rotate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--ink); font-size: 22px; text-align: center; padding: 24px; }
 #rotate[hidden] { display: none; }
+
+/* 대화창: 한지 위에 먹글씨 */
+.dlg {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 20;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: min(780px, calc(100% - 32px)); box-sizing: border-box;
+  background: var(--hanji); color: var(--text-ink); border: 2px solid #3b2f22; border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45); padding: 16px 18px 14px;
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: start;
+}
+.dlg[hidden] { display: none; }
+.dlg-portrait { grid-row: span 3; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-size: 26px; color: var(--hanji); border: 2px solid #3b2f22; }
+.dlg-name { font-family: var(--font-display); font-weight: 700; color: var(--dan-red); font-size: 18px; }
+.dlg-text { font-size: 19px; line-height: 1.6; min-height: 3.2em; min-width: 0; }
+.dlg-next { justify-self: end; font-size: 14px; color: var(--muted); }
+.dlg-choices { grid-column: 1 / -1; display: grid; gap: 8px; margin-top: 4px; }
+.dlg-choices[hidden] { display: none; }
+.dlg-choices button {
+  text-align: left; min-height: 52px; padding: 10px 14px; font-size: 18px; line-height: 1.45;
+  background: var(--ink-2); color: var(--hanji); border: 2px solid transparent; border-radius: 4px;
+  display: flex; gap: 10px; align-items: baseline;
+}
+.dlg-choices button:hover { border-color: var(--gold); }
+.dlg-choices .num { flex: none; color: var(--gold); font-family: var(--font-display); }
+@media (max-width: 600px) { .dlg-text { font-size: 17px; } .dlg-portrait { width: 44px; height: 44px; font-size: 20px; } }
