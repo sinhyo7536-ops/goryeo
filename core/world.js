@@ -75,7 +75,19 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
   const camTarget = new THREE.Vector3();
   const tmp = new THREE.Vector3();
   const updaters = [];
-  let goal = null, elapsed = 0;
+  let goal = null, elapsed = 0, fit = null;
+  const projected = new THREE.Vector3();
+  function applyFit() {
+    camera.updateProjectionMatrix();
+    for (let d = 8; d <= 160; d += 0.5) {
+      camera.position.copy(fit.target).addScaledVector(fit.dir, d);
+      camera.lookAt(fit.target);
+      camera.updateMatrixWorld();
+      if (fit.points.every(p => { projected.copy(p).project(camera); return Math.abs(projected.x) <= fit.margin && Math.abs(projected.y) <= fit.margin; })) break;
+    }
+    camTarget.copy(fit.target);
+    fit.aspect = camera.aspect;
+  }
 
   const world = {
     scene, camera, renderer, level, player, goalArrow,
@@ -138,8 +150,15 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
     setGoal(target) { goal = target; },
     getGoal() { return goal; },
     setFixedCamera(pos, target) {
-      world.camMode = 'fixed';
+      world.camMode = 'fixed'; fit = null;
       camera.position.set(...pos); camTarget.set(...target); camera.lookAt(camTarget);
+    },
+    // 고정 카메라를 target에서 dir 방향으로 물리며, points가 모두 화면 안(margin)에 들 때까지 거리를 늘린다.
+    // 화면 비율이 바뀌면(창 크기 변경) 다음 프레임에 다시 맞춘다.
+    fitFixedCamera(target, dir, points, margin = 0.85) {
+      world.camMode = 'fixed';
+      fit = { target: new THREE.Vector3(...target), dir: new THREE.Vector3(...dir).normalize(), points: points.map(p => new THREE.Vector3(...p)), margin, aspect: null };
+      applyFit();
     },
     snapCamera() {
       camera.position.copy(player.position).add(world.camOffset());
@@ -177,6 +196,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
         goalArrow.rotation.y = Math.atan2(dx, dz);
       } else goalArrow.visible = false;
       for (const fn of [...updaters]) fn(dt, elapsed); // 도중에 해제해도 안전하도록 복사본을 돈다
+      if (world.camMode === 'fixed' && fit && fit.aspect !== camera.aspect) applyFit();
       if (world.camMode === 'follow') {
         const a = 1 - Math.exp(-dt * 4);
         camera.position.lerp(tmp.copy(p).add(world.camOffset()), a);

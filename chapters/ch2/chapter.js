@@ -196,8 +196,8 @@ export default {
     scene.ring.visible = false;
     await ctx.fade(true);
     world.player.visible = false;
-    world.setFixedCamera(scene.wallCam.pos, scene.wallCam.target);
-    scene.khitanFront.visible = false; // 성벽 앞 줄이 사다리 밑동을 가리지 않게
+    world.fitFixedCamera(scene.wallFit.target, scene.wallFit.dir, scene.wallFit.points); // 어떤 화면 비율에서도 사다리가 다 보이게
+    scene.khitan.visible = false; // 카메라와 성벽 사이의 거란 진영(줄·천막)이 사다리를 가리지 않게
     await ctx.fade(false);
     await showHowTo(ctx.ui, script.wall.howto);
     const a = await runWithRetries(ctx, easy => wallDefense(ctx, easy), { failHint: script.wall.failHint });

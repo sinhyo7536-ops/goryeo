@@ -85,7 +85,7 @@ test('ch2: a ladder is carried in and raised by a Khitan soldier before anyone c
     await sleep(50);
     s.ui.querySelector('.screen.howto button.primary').click(); // 방법 카드 '시작'
     await sleep(20);
-    eq(sc.khitanFront.visible, false, 'front line cleared so ladders are visible');
+    eq(sc.khitan.visible, false, 'Khitan camp cleared so ladders are visible');
     // 첫 사다리가 나오는 순간까지 시간을 보낸다
     let l = null;
     for (let i = 0; i < 40 && !l; i++) { s.w.step(0.05, { x: 0, z: 0 }); l = sc.ladders.find(x => x.group.visible); }
@@ -102,3 +102,26 @@ test('ch2: a ladder is carried in and raised by a Khitan soldier before anyone c
     ok(btn && Number(btn.style.getPropertyValue('--p')) > 0, 'push button shows how high the climber is');
   } finally { s.done(); }
 }, { timeout: 20000 });
+
+import * as THREE from 'three';
+test('ch2: all six ladders (base and top) are on screen at any screen shape', async () => {
+  for (const aspect of [0.6, 0.75, 1, 1.33, 1.78, 2.2]) {
+    const s = touchSetup(ch2Script.speakers);
+    try {
+      const sc = ch2.buildScene(s.w, s.ctx);
+      s.w.camera.aspect = aspect; s.w.camera.updateProjectionMatrix();
+      ch2.minigame(s.ctx); // 성벽 방어 카메라까지만 본다
+      await sleep(30);
+      s.w.step(0.016, { x: 0, z: 0 });
+      s.w.camera.updateMatrixWorld();
+      const v = new THREE.Vector3();
+      for (const l of sc.ladders) {
+        l.group.visible = true; l.group.updateMatrixWorld(true);
+        for (const p of [l.group.getWorldPosition(new THREE.Vector3()), l.top.getWorldPosition(new THREE.Vector3())]) {
+          v.copy(p).project(s.w.camera);
+          ok(Math.abs(v.x) < 0.92 && Math.abs(v.y) < 0.92, `aspect ${aspect}, ladder ${l.x}: ${v.x.toFixed(2)}, ${v.y.toFixed(2)}`);
+        }
+      }
+    } finally { s.done(); }
+  }
+}, { timeout: 30000 });

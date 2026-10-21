@@ -119,6 +119,12 @@ export function buildCh2Scene(world) {
   return {
     ring, stairs: { x: 0, z: -6, r: 1.6 }, ladders, captives, khitan, khitanFront,
     wallCam: { pos: [0, 10.5, -36], target: [0, 2.5, -13] },
+    // 성벽 방어 카메라가 화면 비율과 상관없이 담아야 할 점들: 성벽 양 끝과 사다리 6개의 밑동·꼭대기
+    wallFit: {
+      target: [0, 2.5, -13], dir: [0, 8, -23],
+      points: [[-14.4, 0, -14.5], [14.4, 0, -14.5], [-14.4, WALL_H + 1, -13.6], [14.4, WALL_H + 1, -13.6],
+        ...[-10, -6, -2, 2, 6, 10].flatMap(x => [[x, 0, LADDER_Z], [x, WALL_H + 0.8, -HALF - 1.6]])],
+    },
     field: { bounds: { x0: -24, x1: 24, z0: 28, z1: 72 }, start: [0, 34], lostZ: 30 },
     start: [0, 6],
   };
