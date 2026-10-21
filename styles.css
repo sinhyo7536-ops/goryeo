@@ -46,3 +46,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .dlg-choices button:hover { border-color: var(--gold); }
 .dlg-choices .num { flex: none; color: var(--gold); font-family: var(--font-display); }
 @media (max-width: 600px) { .dlg-text { font-size: 17px; } .dlg-portrait { width: 44px; height: 44px; font-size: 20px; } }
+
+/* 터치 조작 */
+.joyzone { position: fixed; left: 0; bottom: 0; width: 55%; height: 60%; touch-action: none; z-index: 5; }
+.joy { position: absolute; width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(242,234,217,.55); background: rgba(27,31,29,.3); transform: translate(-50%,-50%); pointer-events: none; }
+.joy[hidden] { display: none; }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(242,234,217,.85); }
+.talkbtn {
+  position: fixed; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); z-index: 6;
+  width: 88px; height: 88px; border-radius: 50%; border: 3px solid var(--hanji); background: var(--dan-red); color: var(--hanji);
+  font-size: 19px; font-weight: 700; box-shadow: 0 6px 16px rgba(0,0,0,.4);
+}
+.talkbtn:disabled { background: rgba(42,48,45,.7); border-color: rgba(242,234,217,.35); color: rgba(242,234,217,.5); }
+.talkbtn[hidden], .joyzone[hidden] { display: none; }
