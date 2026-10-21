@@ -86,10 +86,10 @@ export function buildCh3Scene(world) {
 
   // 귀주 벌판: 남쪽 고려군, 북쪽 거란군, 동쪽에서 오는 지원군
   const guju = new THREE.Group(); L.add(guju);
-  const gujuFlags = [];
+  const gujuFlags = [], gujuKhitan = [];
   for (let i = 0; i < 12; i++) {
     const p = makePerson({ robe: 0x2f6b5e, hat: 'helmet' }); p.position.set(-11 + i * 2, 0, GUJU_Z + 6); p.rotation.y = Math.PI; guju.add(p);
-    const q = makePerson({ robe: 0x6e5a44, hat: 'fur' }); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); guju.add(q);
+    const q = makePerson({ robe: 0x6e5a44, hat: 'fur' }); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); guju.add(q); gujuKhitan.push(q);
   }
   for (const [x, c] of [[-8, 0xb8452f], [0, 0xd9a441], [8, 0xb8452f]]) {
     mk(new THREE.CylinderGeometry(0.08, 0.08, 5, 5), 0x5a3f2a, x, 2.5, GUJU_Z + 8, guju);
@@ -110,7 +110,7 @@ export function buildCh3Scene(world) {
   // 깃발 방향: 북쪽(-z)으로 휘날리면 rotation.y = +PI/2, 남쪽이면 -PI/2
   let flagDir = -Math.PI / 2;
   const scene = {
-    hides, damWall, ring, wave, rain, flagPoles, gujuFlags, reinforcements, guju,
+    hides, damWall, ring, wave, rain, flagPoles, gujuFlags, gujuKhitan, reinforcements, guju,
     dam: { x: DAM_X, z: -2.5, r: 1.6 },
     river: { army, setCross, zNorth, zSouth },
     damCam: { pos: [6, 12, 12], target: [-4, 0, -9] },

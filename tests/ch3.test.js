@@ -25,3 +25,46 @@ test('ch3: scene builds with 6 hides and a dam', () => {
   ok(z0 < s.river.zNorth && z1 > s.river.zSouth, `${z0} → ${z1}`);
   w.dispose();
 });
+
+import ch3 from '../chapters/ch3/chapter.js';
+import { runChapter } from '../core/flow.js';
+import { CHAPTERS } from '../chapters/index.js';
+import { touchSetup, touchBot, memSave } from './bot.js';
+const answers = new Set(ch3Script.quizzes.map(q => q.options[q.answer]));
+
+test('ch3: completes with touch-only actions', async () => {
+  const s = touchSetup(ch3Script.speakers);
+  const bot = touchBot(s, { answers });
+  try {
+    const r = await runChapter(CHAPTERS[2], ch3, s.ctx, memSave());
+    eq(r.quizCorrect, 2);
+    eq(r.easyModeUsed, false);
+    eq(r.stars, 3);
+  } finally { bot.stop(); s.done(); }
+}, { timeout: 150000 });
+
+test('ch3: early press fails with a hint and retries', async () => {
+  const s = touchSetup(ch3Script.speakers);
+  const said = [];
+  const say = s.dialogue.say;
+  s.dialogue.say = l => { said.push(l.text); return say(l); };
+  const bot = touchBot(s, { answers, pressEarlyOnce: true });
+  try {
+    ch3.buildScene(s.w, s.ctx);
+    ch3.enterStage(s.ctx, 'minigame');
+    const r = await ch3.minigame(s.ctx);
+    ok(said.includes(ch3Script.dam.early), 'early hint shown');
+    eq(r.easyModeUsed, false);
+  } finally { bot.stop(); s.done(); }
+}, { timeout: 150000 });
+
+test('ch3: resume at quiz shows guju aftermath', () => {
+  const s = touchSetup(ch3Script.speakers);
+  try {
+    const sc = ch3.buildScene(s.w, s.ctx);
+    ch3.enterStage(s.ctx, 'quiz');
+    eq(s.w.bounds, sc.gujuBounds);
+    eq(sc.reinforcements.visible, true);
+    eq(sc.damWall.visible, true);
+  } finally { s.done(); }
+});

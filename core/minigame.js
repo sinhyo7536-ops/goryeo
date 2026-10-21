@@ -29,7 +29,8 @@ export async function runWithRetries(ctx, attempt, { failHint }) {
     if (easy) easyModeUsed = true;
     if (await attempt(easy)) return { easyModeUsed };
     fails += 1;
-    await ctx.dialogue.say({ who: 'guide', text: fails === 3 ? `${failHint} 이번에는 조금 쉽게 해 볼게요.` : failHint });
+    const hint = typeof failHint === 'function' ? failHint() : failHint;
+    await ctx.dialogue.say({ who: 'guide', text: fails === 3 ? `${hint} 이번에는 조금 쉽게 해 볼게요.` : hint });
     ctx.dialogue.close();
   }
 }

@@ -7,7 +7,8 @@
   // 장별 대사에서 출처가 달린 문장을 모아 선생님 대조용 마크다운 표를 만든다.
   import ch1 from '../chapters/ch1/script.js';
   import ch2 from '../chapters/ch2/script.js';
-  const chapters = [['1장 서희의 외교 담판', ch1], ['2장 양규와 흥화진', ch2]];
+  import ch3 from '../chapters/ch3/script.js';
+  const chapters = [['1장 서희의 외교 담판', ch1], ['2장 양규와 흥화진', ch2], ['3장 강감찬과 귀주 대첩', ch3]];
   const rows = [];
   const esc = s => String(s).replace(/\|/g, '\\|');
   function visit(node, speakers) {

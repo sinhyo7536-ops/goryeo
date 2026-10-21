@@ -89,3 +89,12 @@ test('hud: timer and counter show and hide', () => {
   ok(ui.querySelector('.hud-timer').hidden && ui.querySelector('.hud-counter').hidden);
   ui.remove();
 });
+
+test('minigame: fail hint can depend on how the attempt failed', async () => {
+  const ctx = fakeCtx();
+  let why = '';
+  const outcomes = ['early', 'late', 'ok'];
+  await runWithRetries(ctx, async () => { why = outcomes.shift(); return why === 'ok'; }, { failHint: () => (why === 'early' ? '너무 일찍' : '너무 늦게') });
+  eq(ctx.said, ['너무 일찍', '너무 늦게']);
+  ctx.done();
+});
