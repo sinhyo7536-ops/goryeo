@@ -18,7 +18,7 @@ button { font-family: var(--font-ui); cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 #stage, #stage canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; }
-#ui > * { pointer-events: auto; }
+:where(#ui) > * { pointer-events: auto; } /* 낮은 우선순위: .fade, .prompt의 pointer-events: none이 이기도록 */
 #rotate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--ink); font-size: 22px; text-align: center; padding: 24px; }
 #rotate[hidden] { display: none; }
 
@@ -91,16 +91,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .warn { color: var(--gold); margin: 0; }
 .controls { font-size: 15px; color: #c9c1b0; margin: 0; line-height: 1.6; }
 
-.mapscreen { align-content: start; gap: 12px; }
-.map-head { width: min(720px, 100%); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.map { position: relative; width: min(480px, 100%, 60vh); aspect-ratio: 3 / 4; }
+.map-wrap { width: min(900px, 100%); display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
+.map { position: relative; flex: 0 1 300px; width: min(300px, 70vw); max-height: 75vh; aspect-ratio: 3 / 4; }
+.map-side { flex: 1 1 320px; min-width: 0; display: grid; gap: 12px; }
+.chapter-pick { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pick { width: 100%; min-height: 52px; display: grid; grid-template-columns: 3em 1fr auto; align-items: center; gap: 8px; text-align: left; padding: 8px 12px; border-radius: 4px; border: 2px solid var(--gold); background: var(--hanji); color: var(--text-ink); font-size: 17px; }
+.pick b { color: var(--dan-red); font-family: var(--font-display); }
+.pick small { font-size: 14px; color: #6b6152; white-space: nowrap; }
+.pick.done { background: #e9dcb8; }
+.pick:disabled { opacity: .5; border-color: #6b6152; cursor: default; }
+.dot { position: absolute; transform: translate(-50%, -50%); width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 700; background: #6b6152; color: var(--hanji); border: 2px solid var(--hanji); }
+.dot.open { background: var(--dan-red); }
+.dot.done { background: var(--gold); color: var(--ink); }
 .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map .land { fill: #3c4a3f; stroke: var(--gold); stroke-width: 1.5; }
-.pin { position: absolute; transform: translate(-10%, -50%); min-height: 48px; max-width: 58%; text-align: left; padding: 6px 10px; border-radius: 4px; border: 2px solid var(--gold); background: var(--hanji); color: var(--text-ink); font-size: 15px; line-height: 1.3; display: grid; }
-.pin b { color: var(--dan-red); }
-.pin small { font-size: 13px; color: #6b6152; }
-.pin.done { background: #e9dcb8; }
-.pin:disabled { opacity: .55; border-color: #6b6152; cursor: default; }
 
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; text-align: center; }
 .stats div { border: 1px solid var(--hanji-edge); border-radius: 4px; padding: 8px 4px; display: grid; gap: 2px; }

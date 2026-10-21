@@ -122,6 +122,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       return best;
     },
     setGoal(target) { goal = target; },
+    getGoal() { return goal; },
     setFixedCamera(pos, target) {
       world.camMode = 'fixed';
       camera.position.set(...pos); camTarget.set(...target); camera.lookAt(camTarget);

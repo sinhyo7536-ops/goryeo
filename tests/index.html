@@ -2,8 +2,10 @@
 <html lang="ko">
 <meta charset="utf-8">
 <title>tests</title>
+<link rel="stylesheet" href="../styles.css">
 <script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
-<pre id="out">RUNNING</pre>
+<pre id="out" style="position:relative;z-index:100;background:#fff;color:#000">RUNNING</pre>
+<div id="ui"></div>
 <div id="sandbox" style="position:fixed;left:0;top:0;width:800px;height:500px;visibility:hidden"></div>
 <script type="module">
   import { run } from './harness.js';

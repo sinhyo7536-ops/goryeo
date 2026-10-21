@@ -13,7 +13,7 @@ try {
   $url = "http://localhost:$Port/tests/index.html"
   if ($Only) { $url += '?only=' + [Uri]::EscapeDataString($Only) }
   $dom = & $edge --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist --no-first-run "--user-data-dir=$profileDir" --virtual-time-budget=60000 --dump-dom $url 2>$null | Out-String
-  $m = [regex]::Match($dom, '<pre id="out">([\s\S]*?)</pre>')
+  $m = [regex]::Match($dom, '<pre id="out"[^>]*>([\s\S]*?)</pre>')
   $text = if ($m.Success) { [System.Net.WebUtility]::HtmlDecode($m.Groups[1].Value) } else { "NO OUTPUT`n$dom" }
   Write-Output $text
   if ($text -match 'RESULT pass=\d+ fail=0') { exit 0 } else { exit 1 }

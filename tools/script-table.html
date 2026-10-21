@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>script table</title>
+<pre id="out">RUNNING</pre>
+<script type="module">
+  // 장별 대사에서 출처가 달린 문장을 모아 선생님 대조용 마크다운 표를 만든다.
+  import ch1 from '../chapters/ch1/script.js';
+  const chapters = [['1장 서희의 외교 담판', ch1]];
+  const rows = [];
+  const esc = s => String(s).replace(/\|/g, '\\|');
+  function visit(node, speakers) {
+    if (Array.isArray(node)) return node.forEach(n => visit(n, speakers));
+    if (!node || typeof node !== 'object') return;
+    if (node.kind === 'quiz') {
+      rows.push(['퀴즈', `${node.question} → ${node.options[node.answer]}`, node.src]);
+      return;
+    }
+    if (node.kind === 'choice') {
+      visit(node.prompt, speakers);
+      for (const o of node.options) {
+        if (o.correct) rows.push(['담판 정답', o.text, node.src]);
+        if (o.reply) visit(o.reply, speakers);
+      }
+      return;
+    }
+    if (typeof node.text === 'string' && node.who) {
+      if (node.src) rows.push([node.who === 'narr' ? '해설' : (speakers[node.who]?.name || node.who), node.text, node.src]);
+      return;
+    }
+    for (const [k, v] of Object.entries(node)) if (k !== 'speakers') visit(v, speakers);
+  }
+  const out = [];
+  for (const [title, s] of chapters) {
+    rows.length = 0;
+    visit(s, s.speakers);
+    out.push(`## ${title} 문장별 출처`, '', '| 말하는 사람 | 문장 | 출처 |', '|---|---|---|');
+    for (const [who, text, src] of rows) out.push(`| ${esc(who)} | ${esc(text)} | ${src.join(', ')} |`);
+    out.push('');
+  }
+  document.getElementById('out').textContent = out.join('\n');
+</script>
+</html>

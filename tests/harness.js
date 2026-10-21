@@ -1,7 +1,7 @@
 // 브라우저에서 도는 작은 테스트 하네스. 결과는 <pre id="out">에 쓴다.
 const tests = [];
 
-export function test(name, fn) { tests.push({ name, fn }); }
+export function test(name, fn, { timeout = 8000 } = {}) { tests.push({ name, fn, timeout }); }
 
 export class Skip extends Error {}
 export function skip(reason) { throw new Skip(reason); }
@@ -25,7 +25,7 @@ export async function run() {
     try {
       await Promise.race([
         t.fn(),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout 8s')), 8000)),
+        new Promise((_, rej) => setTimeout(() => rej(new Error(`timeout ${t.timeout}ms`)), t.timeout)),
       ]);
       pass += 1; lines.push(`PASS ${t.name}`);
     } catch (e) {

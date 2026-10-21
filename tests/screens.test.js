@@ -97,3 +97,17 @@ test('screens: session card lists chapters with stars and wrong quiz answers', a
   await p;
   el.remove();
 });
+
+test('screens: title button is really clickable with HUD layers on top', async () => {
+  const ui = document.getElementById('ui');
+  const { createHud } = await import('../core/screens.js');
+  const hud = createHud(ui, { touch: true });
+  const p = showTitle(ui, { savedName: '', hasProgress: false, storageOk: true });
+  const b = btn(ui, '처음부터');
+  const r = b.getBoundingClientRect();
+  const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  ok(hit === b || b.contains(hit), `top element is ${hit && (hit.className || hit.tagName)}`);
+  b.click(); await p;
+  ui.innerHTML = '';
+  ok(hud);
+});

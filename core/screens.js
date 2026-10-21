@@ -34,7 +34,7 @@ export function showTitle(root, { savedName, hasProgress, storageOk }) {
         h('h1', {}, '고려를 ', h('span', {}, '지켜라')),
         h('p', { class: 'lead' }, '거란과 몽골이 쳐들어왔을 때, 고려 사람들은 외교와 전투와 끈질긴 항쟁으로 나라를 지켰어요. 젊은 고려 병사가 되어 그 현장을 걸어 보세요.'),
         h('div', { class: 'row' },
-          hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `${savedName || '저장된 기록'}로 이어하기`),
+          hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || "저장된 기록"})`),
           h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터')),
         confirm,
         !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
@@ -65,21 +65,23 @@ export function showMap(root, chapters, save, { onSessionCard } = {}) {
     const svg = `<svg viewBox="0 0 300 400" aria-hidden="true"><polygon points="${MAP_OUTLINE}" class="land"/><ellipse cx="120" cy="388" rx="16" ry="8" class="land"/></svg>`;
     const map = h('div', { class: 'map' });
     map.innerHTML = svg;
+    const list = h('ol', { class: 'chapter-pick' });
     for (const c of chapters) {
       const r = save.chapterResult(c.id);
       const open = isUnlocked(c, save);
-      const b = h('button', {
-        class: `pin ${r ? 'done' : ''}`, type: 'button', 'data-chapter': c.id, disabled: !open,
-        style: `left:${c.mapXY[0]}%;top:${c.mapXY[1]}%`,
+      map.appendChild(h('span', { class: `dot ${open ? 'open' : ''} ${r ? 'done' : ''}`, style: `left:${c.mapXY[0]}%;top:${c.mapXY[1]}%` }, String(c.no)));
+      list.appendChild(h('li', {}, h('button', {
+        class: `pick ${r ? 'done' : ''}`, type: 'button', 'data-chapter': c.id, disabled: !open,
         onclick: () => { el.remove(); resolve(c.id); },
-      }, h('b', {}, `${c.no}장`), ` ${c.title}`, h('small', {}, r ? starText(r.stars) : c.load ? `${c.years} · ${c.place}` : '준비 중'));
-      map.appendChild(b);
+      }, h('b', {}, `${c.no}장`), h('span', { class: 'pick-title' }, c.title),
+      h('small', {}, r ? starText(r.stars) : c.load ? `${c.years} · ${c.place}` : '준비 중'))));
     }
     const sessionButtons = [1, 2].filter(s => chapters.some(c => c.session === s && save.chapterResult(c.id)))
       .map(s => h('button', { class: 'btn', type: 'button', onclick: () => onSessionCard && onSessionCard(s) }, `${s}차시 결과 카드`));
     const el = screen(root, 'mapscreen',
-      h('div', { class: 'map-head' }, h('h2', {}, '어디로 갈까요?'), h('div', { class: 'row' }, sessionButtons)),
-      map);
+      h('div', { class: 'map-wrap' },
+        map,
+        h('div', { class: 'map-side' }, h('h2', {}, '어디로 갈까요?'), list, h('div', { class: 'row' }, sessionButtons))));
   });
 }
 
