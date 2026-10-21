@@ -1,0 +1,93 @@
+// 터치만 쓰는 학생처럼 게임을 진행하는 테스트용 봇과 준비 도구. 모든 장 테스트가 같이 쓴다.
+import { createWorld } from '../core/world.js';
+import { createHud } from '../core/screens.js';
+import { createInput } from '../core/input.js';
+import { createDialogue } from '../core/dialogue.js';
+import { createStorage } from '../core/storage.js';
+import { createSave } from '../core/save.js';
+
+export const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+export function fakeRenderer() {
+  let ratio = 1;
+  return {
+    domElement: document.createElement('canvas'), shadowMap: { enabled: false, type: null },
+    setPixelRatio(r) { ratio = r; }, getPixelRatio() { return ratio; }, setSize() {}, render() {}, dispose() {}, forceContextLoss() {},
+  };
+}
+export function testWorld(quality = 'medium') {
+  return createWorld(document.getElementById('sandbox'), { quality, renderer: fakeRenderer() });
+}
+export function memSave() {
+  const m = new Map();
+  return createSave(createStorage({ getItem: k => m.get(k) ?? null, setItem: (k, v) => m.set(k, v), removeItem: k => m.delete(k) }));
+}
+
+export function touchSetup(speakers) {
+  const w = testWorld();
+  const ui = document.createElement('div'); document.body.appendChild(ui);
+  const hud = createHud(ui, { touch: true });
+  hud.attachCamera(w.camera);
+  const input = createInput({ target: window, joyZone: hud.joyZone, actionButton: hud.talkBtn });
+  const dialogue = createDialogue(ui, speakers, { typeMs: 1 });
+  const actions = new Set();
+  input.onAction(() => { if (dialogue.isOpen()) { if (!dialogue.isChoosing()) dialogue.advance(); return; } actions.forEach(f => f()); });
+  const ctx = {
+    world: w, input, hud, dialogue, ui, testHooks: {}, audio: { play() {} },
+    setGoal: t => hud.setGoal(t), wait: ms => sleep(Math.min(ms, 30)), fade: async () => {},
+    onAction(fn) { actions.add(fn); return () => actions.delete(fn); },
+    screens: { showIntroCard: async () => {} },
+  };
+  hud.joyZone.hidden = false; hud.talkBtn.hidden = false;
+  Object.assign(hud.joyZone.style, { width: '300px', height: '300px', left: '0', top: '0', bottom: 'auto' });
+  return { w, ui, hud, input, dialogue, ctx, done() { input.dispose(); dialogue.dispose(); ui.remove(); w.dispose(); } };
+}
+
+// answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
+// noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false } = {}) {
+  const { w, hud, dialogue, input, ui, ctx } = s;
+  const wrongUsed = new Set(), seenAt = new Map();
+  const zone = hud.joyZone;
+  const pe = (type, x, y) => zone.dispatchEvent(new PointerEvent(type, { pointerId: 3, clientX: x, clientY: y, bubbles: true }));
+  let dragging = false, stopped = false, taps = 0, earlyPressed = !pressEarlyOnce;
+  const release = () => { if (dragging) { pe('pointerup', 100, 100); dragging = false; } };
+  const tick = () => {
+    if (stopped) return;
+    const start = [...ui.querySelectorAll('.screen button')].find(b => b.textContent === '시작');
+    if (start) { start.click(); return; }
+    if (dialogue.isOpen()) {
+      release();
+      if (dialogue.isChoosing()) {
+        const buttons = [...ui.querySelectorAll('.dlg-choices button')];
+        const texts = buttons.map(b => b.querySelector('.txt').textContent);
+        let i = texts.findIndex(t => answers.has(t));
+        const key = texts.join('|');
+        if (!seenAt.has(key)) seenAt.set(key, performance.now());
+        if (performance.now() - seenAt.get(key) < 300) return; // 열린 직후의 탭은 대화창이 무시한다
+        if (wrongFirst.has(texts[i]) && !wrongUsed.has(key)) { wrongUsed.add(key); i = (i + 1) % buttons.length; }
+        buttons[i].click();
+        seenAt.delete(key);
+      } else ui.querySelector('.dlg').click();
+    } else {
+      const target = !noTaps() && [...ui.querySelectorAll('.tap-target')].find(b => !b.hidden);
+      if (target) target.click();
+      const big = ui.querySelector('.big-action');
+      if (big && (ctx.testHooks.ready || !earlyPressed)) { earlyPressed = true; big.click(); }
+      const g = w.getGoal();
+      if (g && w.camMode === 'follow') {
+        const p = w.player.position, dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);
+        if (d > 1.2) {
+          if (!dragging) { pe('pointerdown', 100, 100); dragging = true; }
+          pe('pointermove', 100 + (dx / d) * 40, 100 + (dz / d) * 40);
+        } else {
+          release();
+          if (!hud.talkBtn.disabled) { hud.talkBtn.click(); taps += 1; }
+        }
+      } else release();
+    }
+    w.step(1 / 20, dialogue.isOpen() ? { x: 0, z: 0 } : input.move());
+  };
+  const timer = setInterval(tick, 15);
+  return { stop() { stopped = true; clearInterval(timer); release(); }, get taps() { return taps; } };
+}

@@ -2,7 +2,7 @@ import { test, eq, ok } from './harness.js';
 import * as THREE from 'three';
 import { showHowTo, runWithRetries, createTapTargets, actionButton } from '../core/minigame.js';
 import { createHud } from '../core/screens.js';
-import { testWorld } from './ch1.test.js';
+import { testWorld } from './bot.js';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function fakeCtx() {

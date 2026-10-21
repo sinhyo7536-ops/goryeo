@@ -2,7 +2,7 @@ import { test, eq, ok } from './harness.js';
 import { createWeather } from '../core/weather.js';
 import { MOODS } from '../core/world.js';
 import { makePerson } from '../core/people.js';
-import { testWorld } from './ch1.test.js';
+import { testWorld } from './bot.js';
 
 test('weather: snow count follows quality', () => {
   const w = testWorld('low');
