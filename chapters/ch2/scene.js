@@ -35,7 +35,7 @@ export function buildCh2Scene(world) {
     t.receiveShadow = true; L.add(t);
   }
   // 성벽 (남쪽에 성문)
-  const stone = 0x9a958c;
+  const stone = 0xb3ada2; // 밝은 돌색: 사다리와 거란 병사가 잘 보이도록
   mk(new THREE.BoxGeometry(HALF * 2 + 3.2, WALL_H, 1.6), stone, 0, WALL_H / 2, -HALF - 0.8);
   for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(1.6, WALL_H, HALF * 2 + 3.2), stone, sx * (HALF + 0.8), WALL_H / 2, 0);
   for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(HALF - 2.5 + 1.6, WALL_H, 1.6), stone, sx * (2.5 + (HALF - 2.5 + 1.6) / 2), WALL_H / 2, HALF + 0.8);
@@ -72,9 +72,10 @@ export function buildCh2Scene(world) {
     mk(new THREE.CylinderGeometry(2.1, 2.1, 1.7, 9), 0x8f7556, x, 0.85, z, khitan);
     mk(new THREE.ConeGeometry(2.4, 1.5, 9), 0x5e432c, x, 2.45, z, khitan);
   }
+  const khitanFront = new THREE.Group(); khitan.add(khitanFront); // 성벽 앞 거란군 줄 (성벽 방어 때는 치운다)
   for (let i = 0; i < 10; i++) {
     const k = makePerson({ robe: 0x6e5a44, hat: 'fur' });
-    k.position.set(-18 + i * 4, 0, -24 - (i % 2) * 2); khitan.add(k);
+    k.position.set(-18 + i * 4, 0, -24 - (i % 2) * 2); khitanFront.add(k);
   }
 
   // 사다리 6개와 오르는 거란 병사 (처음엔 숨김)
@@ -83,11 +84,15 @@ export function buildCh2Scene(world) {
   const ladders = [-10, -6, -2, 2, 6, 10].map(x => {
     const group = new THREE.Group(); group.position.set(x, 0, LADDER_Z); group.visible = false; L.add(group);
     const pivot = new THREE.Group(); pivot.rotation.x = tilt; group.add(pivot);
-    for (const sx of [-0.35, 0.35]) mk(new THREE.BoxGeometry(0.12, len, 0.12), 0x6b4a32, sx, len / 2, 0, pivot);
-    for (let y = 0.4; y < len; y += 0.5) mk(new THREE.BoxGeometry(0.7, 0.08, 0.08), 0x6b4a32, 0, y, 0, pivot);
+    // 굵고 밝은 나무 사다리 (멀리서도 보이도록)
+    for (const sx of [-0.42, 0.42]) mk(new THREE.BoxGeometry(0.2, len, 0.2), 0xb07a42, sx, len / 2, 0, pivot);
+    for (let y = 0.4; y < len; y += 0.5) mk(new THREE.BoxGeometry(0.84, 0.12, 0.12), 0xc48a4c, 0, y, 0, pivot);
     const top = new THREE.Object3D(); top.position.set(0, len - 0.3, 0); pivot.add(top);
-    const climber = makePerson({ robe: 0x6e5a44, hat: 'fur' }); climber.scale.setScalar(0.8); pivot.add(climber);
-    return { x, group, pivot, top, climber, len };
+    // 사다리를 타는 병사: 밝은 옷에 붉은 띠로 성벽 위에서 눈에 띄게
+    const climber = makePerson({ robe: 0xa8834f, hat: 'fur', trim: 0xb8452f }); climber.visible = false; pivot.add(climber);
+    // 사다리를 세우는 병사: 사다리 밑동에 서 있다
+    const carrier = makePerson({ robe: 0xa8834f, hat: 'fur', trim: 0xb8452f }); carrier.position.set(0.9, 0, -0.6); carrier.visible = false; group.add(carrier);
+    return { x, group, pivot, top, climber, carrier, len, tilt };
   });
 
   // 들판의 끌려가는 백성 무리 6개
@@ -112,7 +117,7 @@ export function buildCh2Scene(world) {
   world.onUpdate((dt, t) => { if (ring.visible) ring.material.opacity = 0.55 + Math.sin(t * 4) * 0.3; });
 
   return {
-    ring, stairs: { x: 0, z: -6, r: 1.6 }, ladders, captives, khitan,
+    ring, stairs: { x: 0, z: -6, r: 1.6 }, ladders, captives, khitan, khitanFront,
     wallCam: { pos: [0, 10.5, -36], target: [0, 2.5, -13] },
     field: { bounds: { x0: -24, x1: 24, z0: 28, z1: 72 }, start: [0, 34], lostZ: 30 },
     start: [0, 6],

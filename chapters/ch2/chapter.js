@@ -25,8 +25,14 @@ function placePlayer(world, [x, z], ry = Math.PI) {
   world.camMode = 'follow'; world.snapCamera();
 }
 
+const RAISE_SECONDS = 0.8; // 거란 병사가 사다리를 세우는 시간
+const RAISE_LEAN = 1.1;    // 세우기 전 사다리가 뒤로 눕혀진 각도(라디안)
+
 function resetLadders() {
-  for (const l of scene.ladders) { l.group.visible = false; l.pivot.rotation.z = 0; }
+  for (const l of scene.ladders) {
+    l.group.visible = false; l.pivot.rotation.x = l.tilt;
+    l.climber.visible = false; l.carrier.visible = false;
+  }
 }
 
 // 성벽 방어 한 번: 45초 버티면 성공, 사다리 3개가 올라오면 실패. 시간은 월드 시계로 잰다.
@@ -56,20 +62,30 @@ function wallDefense(ctx, easy) {
         if (free.length) {
           slotSeed = (slotSeed * 16807) % 2147483647;
           const l = free[slotSeed % free.length];
-          l.group.visible = true;
+          l.group.visible = true; l.carrier.visible = true; l.climber.visible = false;
+          l.pivot.rotation.x = l.tilt - RAISE_LEAN;
           const a = { t: 0 };
           a.target = taps.add(l.top, {
             label: '밀기',
-            onTap() { blocked += 1; audio.play('tap'); active.delete(l); l.group.visible = false; },
+            onTap() { blocked += 1; audio.play('tap'); active.delete(l); taps.remove(a.target); l.group.visible = false; },
           });
           active.set(l, a);
         }
       }
       for (const [l, a] of active) {
         a.t += dt;
-        const k = Math.min(1, a.t / climbTime);
+        if (a.t < RAISE_SECONDS) {
+          // 사다리를 세우는 중: 뒤로 눕혀 있던 사다리가 성벽 쪽으로 일어선다
+          const r = a.t / RAISE_SECONDS;
+          l.pivot.rotation.x = l.tilt - RAISE_LEAN * (1 - r * r * (3 - 2 * r));
+          continue;
+        }
+        l.pivot.rotation.x = l.tilt;
+        l.climber.visible = true;
+        const k = Math.min(1, (a.t - RAISE_SECONDS) / climbTime);
         l.climber.position.set(0, k * (l.len - 1.2), 0.25);
-        if (a.t >= climbTime) {
+        a.target.btn.style.setProperty('--p', k.toFixed(3)); // 버튼 테두리가 올라온 만큼 차오른다
+        if (a.t >= RAISE_SECONDS + climbTime) {
           breaches += 1; audio.play('wrong');
           taps.remove(a.target); active.delete(l); l.group.visible = false;
           if (breaches >= 3) return finish(false);
@@ -181,6 +197,7 @@ export default {
     await ctx.fade(true);
     world.player.visible = false;
     world.setFixedCamera(scene.wallCam.pos, scene.wallCam.target);
+    scene.khitanFront.visible = false; // 성벽 앞 줄이 사다리 밑동을 가리지 않게
     await ctx.fade(false);
     await showHowTo(ctx.ui, script.wall.howto);
     const a = await runWithRetries(ctx, easy => wallDefense(ctx, easy), { failHint: script.wall.failHint });

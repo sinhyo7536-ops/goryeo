@@ -76,3 +76,29 @@ test('roam: a zone that becomes active while the player stands in it fires', asy
     stop();
   } finally { s.done(); }
 });
+
+test('ch2: a ladder is carried in and raised by a Khitan soldier before anyone climbs', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  try {
+    const sc = ch2.buildScene(s.w, s.ctx);
+    ch2.minigame(s.ctx); // 끝까지 기다리지 않는다
+    await sleep(50);
+    s.ui.querySelector('.screen.howto button.primary').click(); // 방법 카드 '시작'
+    await sleep(20);
+    eq(sc.khitanFront.visible, false, 'front line cleared so ladders are visible');
+    // 첫 사다리가 나오는 순간까지 시간을 보낸다
+    let l = null;
+    for (let i = 0; i < 40 && !l; i++) { s.w.step(0.05, { x: 0, z: 0 }); l = sc.ladders.find(x => x.group.visible); }
+    ok(l, 'a ladder appeared');
+    ok(l.carrier.visible, 'a soldier is raising it');
+    const start = l.pivot.rotation.x;
+    ok(start < l.tilt - 0.3, `ladder starts leaning back (${start} vs ${l.tilt})`);
+    ok(l.climber.visible === false || l.climber.position.y < 0.01, 'nobody climbs while it is raised');
+    for (let i = 0; i < 20; i++) s.w.step(0.05, { x: 0, z: 0 });
+    ok(Math.abs(l.pivot.rotation.x - l.tilt) < 1e-6, 'ladder ends against the wall');
+    for (let i = 0; i < 20; i++) s.w.step(0.05, { x: 0, z: 0 });
+    ok(l.climber.visible && l.climber.position.y > 0.1, 'then a soldier climbs');
+    const btn = [...s.ui.querySelectorAll('.tap-target')].find(b => !b.hidden);
+    ok(btn && Number(btn.style.getPropertyValue('--p')) > 0, 'push button shows how high the climber is');
+  } finally { s.done(); }
+}, { timeout: 20000 });
