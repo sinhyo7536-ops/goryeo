@@ -117,7 +117,7 @@ function boot() {
     const debug = new URLSearchParams(location.search).get('debug');
     if (debug === 'ch1-scene') {
       const mod = (await CHAPTERS[0].load()).default;
-      world.setMood(mod.mood); mod.buildScene(world, ctx); input.enabled = true; inChapter = true;
+      world.setMood(mod.mood); mod.buildScene(world, ctx); world.player.position.set(0, 0, 19); world.snapCamera(); input.enabled = true; inChapter = true;
       return;
     }
     const hasProgress = !!(save.data.name || Object.keys(save.data.chapters).length || save.data.current);

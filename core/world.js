@@ -8,15 +8,16 @@ export const MOODS = {
   sunset: {
     skyTop: 0x4a5a86, skyHorizon: 0xf2b072, skyBottom: 0x8a7a62,
     fog: [0xe7b48c, 45, 150],
-    sun: { color: 0xffc58a, intensity: 1.15, dir: [-30, 28, -24] },
-    hemi: [0xffe2c4, 0x5a6448, 0.75],
+    sun: { color: 0xffcf9a, intensity: 1.7, dir: [-34, 22, -20] },
+    hemi: [0xffd9b8, 0x3e4a3a, 0.5],
     particles: 'embers',
   },
 };
 
 const SPEED = 6.5;
 const PLAYER_R = 0.4;
-const CAM_OFFSET = new THREE.Vector3(0, 12, 13);
+const CAM_OFFSET = new THREE.Vector3(0, 8.5, 12);
+const LOOK_AHEAD = -4; // 카메라는 플레이어보다 조금 앞(북쪽)을 본다
 
 function skyMaterial() {
   return new THREE.ShaderMaterial({
@@ -127,7 +128,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
     },
     snapCamera() {
       camera.position.copy(player.position).add(world.camOffset());
-      camTarget.copy(player.position).setY(1); camera.lookAt(camTarget);
+      camTarget.copy(player.position).setY(1); camTarget.z += LOOK_AHEAD; camera.lookAt(camTarget);
     },
     camOffset() { return tmp.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? 1.45 : 1); },
     onUpdate(fn) { updaters.push(fn); return () => updaters.splice(updaters.indexOf(fn), 1); },
@@ -159,7 +160,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       if (world.camMode === 'follow') {
         const a = 1 - Math.exp(-dt * 4);
         camera.position.lerp(tmp.copy(p).add(world.camOffset()), a);
-        camTarget.lerp(tmp.copy(p).setY(1), a);
+        camTarget.lerp(tmp.copy(p).setY(1).setZ(p.z + LOOK_AHEAD), a);
         camera.lookAt(camTarget);
       }
     },
