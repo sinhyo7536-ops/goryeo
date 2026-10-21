@@ -98,3 +98,28 @@ test('minigame: fail hint can depend on how the attempt failed', async () => {
   eq(ctx.said, ['너무 일찍', '너무 늦게']);
   ctx.done();
 });
+
+test('taps: target button is fixed, at least 72px and really on top where it is drawn', async () => {
+  const ctx = fakeCtx();
+  const taps = createTapTargets(ctx);
+  const obj = new THREE.Object3D(); obj.position.set(0, 1, 0); ctx.world.level.add(obj);
+  taps.add(obj, { label: '밀기', onTap() {} });
+  ctx.world.step(1 / 30, { x: 0, z: 0 });
+  const b = ctx.ui.querySelector('.tap-target');
+  const cs = getComputedStyle(b), r = b.getBoundingClientRect();
+  eq(cs.position, 'fixed');
+  ok(r.width >= 72 && r.height >= 72, `${r.width}x${r.height}`);
+  const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  ok(hit === b || b.contains(hit), `top element: ${hit && hit.className}`);
+  taps.dispose(); ctx.done();
+});
+
+test('action: big button is fixed at the bottom and at least 64px tall', () => {
+  const ctx = fakeCtx();
+  const a = actionButton(ctx, '둑 터뜨리기');
+  const b = ctx.ui.querySelector('.big-action'), cs = getComputedStyle(b), r = b.getBoundingClientRect();
+  eq(cs.position, 'fixed');
+  ok(r.height >= 64, `height ${r.height}`);
+  ok(r.bottom > innerHeight - 120, 'near the bottom');
+  a.remove(); ctx.done();
+});

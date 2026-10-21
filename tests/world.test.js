@@ -115,3 +115,27 @@ test('people: person has two legs and two arms for walking', () => {
   eq(p.userData.legs.length, 2);
   eq(p.userData.arms.length, 2);
 });
+
+test('world: paused world does not run updaters or move the player', () => {
+  const w = makeWorld();
+  let n = 0; w.onUpdate(() => { n += 1; });
+  w.paused = true;
+  w.player.position.set(0, 0, 0);
+  w.step(0.1, { x: 1, z: 0 });
+  eq(n, 0); eq(w.player.position.x, 0);
+  w.paused = false; w.step(0.1, { x: 0, z: 0 });
+  eq(n, 1);
+  w.dispose();
+});
+
+test('world: unsubscribing twice or inside the loop does not remove other updaters', () => {
+  const w = makeWorld();
+  let a = 0, b = 0;
+  const offA = w.onUpdate(() => { a += 1; offA(); });
+  w.onUpdate(() => { b += 1; });
+  w.step(0.016, { x: 0, z: 0 });
+  offA();
+  w.step(0.016, { x: 0, z: 0 });
+  eq(a, 1); eq(b, 2);
+  w.dispose();
+});

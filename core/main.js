@@ -49,10 +49,12 @@ function boot() {
   let inChapter = false;
   const openMenu = async () => {
     if (!inChapter) return;
+    world.paused = true; // 메뉴를 보는 동안 미니게임 시간이 흐르지 않게
     const choice = await showMenu(ui, { muted: audio.muted, quality: quality.level, storageOk: storage.available }, change => {
       if ('muted' in change) { audio.setMuted(change.muted); storage.set(PREF_MUTED, change.muted); }
       if (change.quality) { quality.set(change.quality); storage.set(PREF_QUALITY, change.quality); }
     });
+    world.paused = false;
     if (choice === 'map') { save.abandonCurrent(); location.reload(); } // 하던 장을 버리고 새로 열면 첫 화면 → 지도
   };
   input.onMenu(openMenu);

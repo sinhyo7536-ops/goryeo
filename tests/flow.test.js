@@ -63,3 +63,15 @@ test('flow: wrong quizzes are kept with question, right answer and explanation',
   const r = await runChapter(meta, fakeChapter(log), fakeCtx(log, [2, 1]), save);
   eq(r.wrongQuizzes, [{ question: 'Q1', answer: '가', explain: 'E1' }]);
 });
+
+test('flow: resume at quiz keeps easy mode used in the minigame', async () => {
+  const log = [], save = memSave();
+  runChapter(meta, { ...fakeChapter(log), async minigame() { return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: true }; } },
+    { ...fakeCtx(log, []), dialogue: { quiz: () => new Promise(() => {}), close() {} } }, save); // 퀴즈에서 멈춘 채로 둔다
+  // 퀴즈 도중 멈춘 상태 그대로 새로 불러온다
+  await new Promise(r => setTimeout(r, 20));
+  eq(save.data.current.stage, 'quiz');
+  const r = await runChapter(meta, fakeChapter([]), fakeCtx([], [0, 1]), save, { resumeStage: 'quiz' });
+  eq(r.easyModeUsed, true);
+  eq(r.stars, 2);
+});

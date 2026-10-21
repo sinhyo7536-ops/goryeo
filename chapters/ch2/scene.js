@@ -62,6 +62,7 @@ export function buildCh2Scene(world) {
   for (let i = 0; i < 40; i++) {
     const a = rand() * Math.PI * 2, d = 30 + rand() * 50, x = Math.cos(a) * d, z = Math.sin(a) * d + 20;
     if (Math.abs(x) < 26 && z > 26 && z < 76) continue;
+    if (Math.abs(x) < 32 && z < -14 && z > -60) continue; // 성벽 방어 카메라 앞을 가리지 않게
     mk(new THREE.ConeGeometry(1.4, 3.6, 6), 0x3e5f4a, x, 2.4, z);
     mk(new THREE.ConeGeometry(1.0, 1.2, 6), 0xf2f5f7, x, 3.9, z);
   }
@@ -112,7 +113,7 @@ export function buildCh2Scene(world) {
 
   return {
     ring, stairs: { x: 0, z: -6, r: 1.6 }, ladders, captives, khitan,
-    wallCam: { pos: [0, 8.5, -29], target: [0, 2.5, -13] },
+    wallCam: { pos: [0, 10.5, -36], target: [0, 2.5, -13] },
     field: { bounds: { x0: -24, x1: 24, z0: 28, z1: 72 }, start: [0, 34], lostZ: 30 },
     start: [0, 6],
   };

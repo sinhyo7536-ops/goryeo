@@ -22,7 +22,8 @@ export function createSave(storage) {
     reset() { save.data = empty(); storage.remove(KEY); },
     setName(name) { save.data.name = name; save.persist(); },
     startChapter(id) { save.checkpoint(id, 'intro'); },
-    checkpoint(id, stage) { save.data.current = { id, stage }; save.persist(); },
+    // carry: 다음 단계로 넘겨 줄 점수(예: 미니게임에서 쉬운 모드를 썼는지). 이어하기 때 되살린다.
+    checkpoint(id, stage, carry) { save.data.current = carry ? { id, stage, carry } : { id, stage }; save.persist(); },
     finishChapter(id, result) {
       save.data.chapters[id] = result;
       save.data.current = null;

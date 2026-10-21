@@ -146,8 +146,13 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       camTarget.copy(player.position).setY(1); camTarget.z += LOOK_AHEAD; camera.lookAt(camTarget);
     },
     camOffset() { return tmp.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? 1.45 : 1); },
-    onUpdate(fn) { updaters.push(fn); return () => updaters.splice(updaters.indexOf(fn), 1); },
+    onUpdate(fn) {
+      updaters.push(fn);
+      return () => { const i = updaters.indexOf(fn); if (i >= 0) updaters.splice(i, 1); };
+    },
+    paused: false, // 메뉴가 열려 있는 동안 true: 미니게임 시간과 움직임을 멈춘다
     step(dt, move) {
+      if (world.paused) return;
       elapsed += dt;
       const len = Math.hypot(move.x, move.z), moving = len > 0.01;
       const p = player.position;
@@ -171,7 +176,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
         goalArrow.position.set(p.x, 0.15, p.z);
         goalArrow.rotation.y = Math.atan2(dx, dz);
       } else goalArrow.visible = false;
-      for (const fn of updaters) fn(dt, elapsed);
+      for (const fn of [...updaters]) fn(dt, elapsed); // 도중에 해제해도 안전하도록 복사본을 돈다
       if (world.camMode === 'follow') {
         const a = 1 - Math.exp(-dt * 4);
         camera.position.lerp(tmp.copy(p).add(world.camOffset()), a);

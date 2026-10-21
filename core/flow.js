@@ -7,6 +7,8 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
   const t0 = performance.now();
   const from = Math.max(0, STAGES.indexOf(resumeStage));
   const result = { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: false, quizCorrect: 0, quizTotal: 0, wrongQuizzes: [] };
+  const cur = save.data.current;
+  if (from === 3 && cur && cur.id === meta.id && cur.carry) Object.assign(result, cur.carry); // 미니게임 결과를 되살린다
 
   if (from === 0) {
     save.checkpoint(meta.id, 'intro');
@@ -25,7 +27,7 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
     Object.assign(result, { firstTryCorrect: mg.firstTryCorrect, firstTryTotal: mg.firstTryTotal, easyModeUsed: mg.easyModeUsed });
   }
 
-  save.checkpoint(meta.id, 'quiz');
+  save.checkpoint(meta.id, 'quiz', { firstTryCorrect: result.firstTryCorrect, firstTryTotal: result.firstTryTotal, easyModeUsed: result.easyModeUsed });
   for (const q of chapter.quizzes) {
     const { correct } = await ctx.dialogue.quiz(q);
     result.quizTotal += 1;
@@ -53,7 +55,7 @@ export function roam(ctx, { onTalk, zones = [] }) {
     hud.setTalkEnabled(!!npc);
     const p = world.player.position;
     for (const z of zones) {
-      const now = Math.hypot(p.x - z.x, p.z - z.z) < z.r;
+      const now = (!z.active || z.active()) && Math.hypot(p.x - z.x, p.z - z.z) < z.r; // 비활성 구역은 '안에 있음'으로 치지 않는다
       if (now && !inside.has(z)) { inside.add(z); z.onEnter(); }
       if (!now) inside.delete(z);
     }

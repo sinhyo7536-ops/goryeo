@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 
 const KINDS = {
-  snow: { speed: 1.5, size: 0.18, color: 0xffffff, opacity: 0.9, sway: 0.6 },
+  snow: { speed: 1.5, size: 0.12, color: 0xffffff, opacity: 0.9, sway: 0.6 },
   rain: { speed: 18, size: 0.08, color: 0xb8c6d4, opacity: 0.6, sway: 0 },
 };
 const HALF = 20, TOP = 7; // 카메라(높이 약 8.5) 아래에서만 내려 화면 앞에 큰 점이 생기지 않게 한다

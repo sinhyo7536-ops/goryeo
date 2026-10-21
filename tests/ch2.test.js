@@ -60,3 +60,19 @@ test('ch2: failing the wall three times turns on easy mode', async () => {
     eq(r.easyModeUsed, true);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+import { roam } from '../core/flow.js';
+test('roam: a zone that becomes active while the player stands in it fires', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  try {
+    let active = false, fired = 0;
+    s.w.player.position.set(0, 0, 0);
+    const stop = roam(s.ctx, { onTalk: async () => {}, zones: [{ x: 0, z: 0, r: 2, active: () => active, onEnter: () => { fired += 1; } }] });
+    s.w.step(0.016, { x: 0, z: 0 });
+    eq(fired, 0);
+    active = true;
+    s.w.step(0.016, { x: 0, z: 0 });
+    eq(fired, 1);
+    stop();
+  } finally { s.done(); }
+});

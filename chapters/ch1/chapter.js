@@ -67,7 +67,7 @@ export default {
             else await sayAll(dialogue, n.later);
           } else await sayAll(dialogue, n.always);
         },
-        zones: [{ ...scene.ferry, onEnter() { if (step === 2) { stop(); resolve(); } } }],
+        zones: [{ ...scene.ferry, active: () => step === 2, onEnter() { stop(); resolve(); } }],
       });
     });
   },

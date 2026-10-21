@@ -40,12 +40,15 @@ export function createTapTargets(ctx) {
   const targets = new Set();
   const v = new THREE.Vector3();
   const off = ctx.world.onUpdate(() => {
+    ctx.world.camera.updateMatrixWorld(); // 고정 카메라로 막 바뀐 경우에도 위치가 맞도록
     for (const t of targets) {
       t.obj.getWorldPosition(v).project(ctx.world.camera);
       const inside = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
       t.btn.hidden = !inside || t.used;
-      t.btn.style.left = `${((v.x + 1) / 2) * 100}%`;
-      t.btn.style.top = `${((1 - v.y) / 2) * 100}%`;
+      // 버튼 반지름(약 40px)만큼 화면 안쪽으로 붙잡아 가장자리에서 잘리지 않게 한다
+      const W = innerWidth, H = innerHeight;
+      t.btn.style.left = `${Math.min(W - 44, Math.max(44, ((v.x + 1) / 2) * W))}px`;
+      t.btn.style.top = `${Math.min(H - 44, Math.max(44, ((1 - v.y) / 2) * H))}px`;
     }
   });
   const api = {

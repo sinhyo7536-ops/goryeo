@@ -168,7 +168,7 @@ export default {
             else await sayAll(dialogue, n.later);
           } else await sayAll(dialogue, n.always);
         },
-        zones: [{ ...scene.stairs, onEnter() { if (step === 2) { stop(); resolve(); } } }],
+        zones: [{ ...scene.stairs, active: () => step === 2, onEnter() { stop(); resolve(); } }],
       });
     });
   },
