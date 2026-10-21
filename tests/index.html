@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>tests</title>
+<script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+<pre id="out">RUNNING</pre>
+<div id="sandbox" style="position:fixed;left:0;top:0;width:800px;height:500px;visibility:hidden"></div>
+<script type="module">
+  import { run } from './harness.js';
+  const files = ['smoke'];
+  const failed = [];
+  for (const f of files) {
+    try { await import(`./${f}.test.js`); } catch (e) { failed.push(`FAIL import ${f}: ${e.message}`); }
+  }
+  const r = await run();
+  if (failed.length) {
+    const out = document.getElementById('out');
+    out.textContent = failed.join('\n') + '\n' + out.textContent.replace(/fail=(\d+)/, (_, n) => `fail=${+n + failed.length}`);
+  }
+</script>
+</html>

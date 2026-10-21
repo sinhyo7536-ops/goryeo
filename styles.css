@@ -1,0 +1,23 @@
+/* 고려를 지켜라: 먹색 바탕 위 단청 색과 한지 패널 (게임 화면이라 단일 테마) */
+:root {
+  --ink: #1b1f1d;
+  --ink-2: #2a302d;
+  --hanji: #f2ead9;
+  --hanji-edge: #d8ccb3;
+  --text-ink: #2b241c;
+  --dan-red: #b8452f;
+  --dan-green: #2f6b5e;
+  --gold: #d9a441;
+  --muted: #8a8172;
+  --font-display: 'Nanum Myeongjo', 'Batang', 'AppleMyungjo', serif;
+  --font-ui: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; overflow: hidden; background: var(--ink); color: var(--hanji); font-family: var(--font-ui); font-size: 17px; }
+button { font-family: var(--font-ui); cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#stage, #stage canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+#rotate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--ink); font-size: 22px; text-align: center; padding: 24px; }
+#rotate[hidden] { display: none; }
