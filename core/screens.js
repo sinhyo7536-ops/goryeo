@@ -169,7 +169,9 @@ export function showMessage(root, title, text) {
 export function createHud(root, { touch }) {
   const goal = h('span', { class: 'goal-text' });
   const chapter = h('div', { class: 'hud-chapter' });
-  const box = h('div', { class: 'hud', hidden: true }, chapter, h('div', { class: 'hud-goal' }, h('span', { class: 'seal' }, '목표'), goal));
+  const timer = h('div', { class: 'hud-timer', hidden: true });
+  const counter = h('div', { class: 'hud-counter', hidden: true });
+  const box = h('div', { class: 'hud', hidden: true }, chapter, h('div', { class: 'hud-goal' }, h('span', { class: 'seal' }, '목표'), goal), h('div', { class: 'hud-row' }, timer, counter));
   const menuBtn = h('button', { class: 'menubtn', type: 'button', hidden: true, 'aria-label': '메뉴' }, '메뉴');
   const prompt = h('div', { class: 'prompt', hidden: true }, touch ? '대화 버튼을 눌러요' : 'E 대화하기');
   const joyZone = h('div', { class: 'joyzone', hidden: true });
@@ -183,6 +185,8 @@ export function createHud(root, { touch }) {
     show(meta) { chapter.textContent = `${meta.no}장 · ${meta.years} ${meta.event}`; box.hidden = false; menuBtn.hidden = false; joyZone.hidden = talkBtn.hidden = !touch; },
     hide() { box.hidden = true; menuBtn.hidden = true; prompt.hidden = true; joyZone.hidden = talkBtn.hidden = true; },
     setGoal(text) { goal.textContent = text; },
+    setTimer(sec) { timer.hidden = sec == null; if (sec != null) timer.textContent = `남은 시간 ${Math.max(0, Math.ceil(sec))}초`; },
+    setCounter(text) { counter.hidden = text == null; if (text != null) counter.textContent = text; },
     setTalkEnabled(b) { talkBtn.disabled = !b; },
     setTouchVisible(b) { joyZone.hidden = talkBtn.hidden = !(touch && b); },
     setPrompt(pos) {

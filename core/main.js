@@ -59,7 +59,7 @@ function boot() {
   hud.menuBtn.addEventListener('click', openMenu);
 
   const ctx = {
-    world, input, audio, hud,
+    world, input, audio, hud, ui, testHooks: {},
     screens: { showIntroCard: (meta, lines) => showIntroCard(ui, meta, lines) },
     get dialogue() { return dialogue; },
     setGoal: text => hud.setGoal(text),
