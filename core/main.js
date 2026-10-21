@@ -118,9 +118,15 @@ function boot() {
 
   async function main() {
     const debug = new URLSearchParams(location.search).get('debug');
-    if (debug === 'ch1-scene') {
-      const mod = (await CHAPTERS[0].load()).default;
-      world.setMood(mod.mood); mod.buildScene(world, ctx); world.player.position.set(0, 0, 19); world.snapCamera(); input.enabled = true; inChapter = true;
+    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다.
+    const dm = /^ch(\d)-(scene|minigame)$/.exec(debug || '');
+    if (dm) {
+      const meta = CHAPTERS[Number(dm[1]) - 1];
+      if (dm[2] === 'minigame') { await playChapter(meta, 'minigame'); return mapLoop(); }
+      const mod = (await meta.load()).default;
+      world.setMood(mod.mood); const sc = mod.buildScene(world, ctx);
+      const [sx, sz] = sc.start || [0, 19];
+      world.player.position.set(sx, 0, sz); world.snapCamera(); input.enabled = true; inChapter = true;
       return;
     }
     const hasProgress = !!(save.data.name || Object.keys(save.data.chapters).length || save.data.current);

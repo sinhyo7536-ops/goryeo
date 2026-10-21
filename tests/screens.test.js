@@ -6,11 +6,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 function root() { const d = document.createElement('div'); document.body.appendChild(d); return d; }
 const btn = (el, text) => [...el.querySelectorAll('button')].find(b => b.textContent.includes(text));
 
-test('chapters: six chapters, only chapter 1 playable for now', () => {
+test('chapters: six chapters, playable ones load and the rest are 준비 중', () => {
   eq(CHAPTERS.length, 6);
   eq(CHAPTERS.map(c => c.session), [1, 1, 1, 2, 2, 2]);
   ok(CHAPTERS[0].load, 'ch1 loads');
-  ok(CHAPTERS.slice(1).every(c => c.load === null));
+  ok(CHAPTERS[1].load, 'ch2 loads');
+  ok(CHAPTERS.slice(3).every(c => c.load === null));
   eq(SESSIONS[1].points.length, 3);
 });
 
@@ -75,7 +76,8 @@ test('map: finished chapter shows stars, unavailable chapters are disabled', asy
   const p = showMap(el, CHAPTERS, save);
   const b1 = el.querySelector('[data-chapter="ch1"]');
   ok(b1.textContent.includes('★★☆'), b1.textContent);
-  eq(el.querySelector('[data-chapter="ch2"]').disabled, true);
+  eq(el.querySelector('[data-chapter="ch2"]').disabled, false, 'ch2 opens after ch1');
+  eq(el.querySelector('[data-chapter="ch4"]').disabled, true, 'ch4 not built yet');
   b1.click();
   eq(await p, 'ch1');
   el.remove();

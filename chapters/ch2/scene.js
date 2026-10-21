@@ -1,0 +1,119 @@
+// 2장 장면: 눈 덮인 흥화진 성, 북쪽의 거란 진영, 성 남쪽의 눈 들판.
+import * as THREE from 'three';
+import { mat, makePerson } from '../../core/people.js';
+import { createWeather } from '../../core/weather.js';
+
+const HALF = 12;          // 성 안쪽 반 너비
+const WALL_H = 4.2;
+const LADDER_Z = -14.5;   // 사다리 밑동 (북쪽 성벽 바깥)
+const FIELD_Z = 50;       // 들판 중심
+
+function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+
+export function buildCh2Scene(world) {
+  const L = world.level, rand = seeded(11);
+  const mk = (geo, color, x, y, z, parent = L, cast = true) => {
+    const m = new THREE.Mesh(geo, mat(color));
+    m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
+  };
+  world.bounds = { x0: -10.5, x1: 10.5, z0: -10.5, z1: 7 };
+
+  // 눈 덮인 땅
+  {
+    const g = new THREE.PlaneGeometry(240, 240, 60, 60); g.rotateX(-Math.PI / 2);
+    const p = g.attributes.position, cols = [], c = new THREE.Color();
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), z = p.getZ(i), far = Math.max(0, Math.hypot(x, z - 20) - 60);
+      p.setY(i, Math.min(far * far * 0.01, 16) + Math.sin(x * 0.3) * Math.cos(z * 0.25) * 0.15);
+      const j = rand() * 0.04;
+      c.setRGB(0.9 + j, 0.92 + j, 0.95 + j);
+      cols.push(c.r, c.g, c.b);
+    }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    g.computeVertexNormals();
+    const t = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    t.receiveShadow = true; L.add(t);
+  }
+  // 성벽 (남쪽에 성문)
+  const stone = 0x9a958c;
+  mk(new THREE.BoxGeometry(HALF * 2 + 3.2, WALL_H, 1.6), stone, 0, WALL_H / 2, -HALF - 0.8);
+  for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(1.6, WALL_H, HALF * 2 + 3.2), stone, sx * (HALF + 0.8), WALL_H / 2, 0);
+  for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(HALF - 2.5 + 1.6, WALL_H, 1.6), stone, sx * (2.5 + (HALF - 2.5 + 1.6) / 2), WALL_H / 2, HALF + 0.8);
+  mk(new THREE.BoxGeometry(5, WALL_H - 1, 0.4), 0x5d4330, 0, (WALL_H - 1) / 2, HALF + 0.8);
+  // 성가퀴 (북쪽 성벽 위)
+  for (let x = -HALF; x <= HALF; x += 1.8) mk(new THREE.BoxGeometry(0.9, 0.8, 0.5), 0x8c877e, x, WALL_H + 0.4, -HALF - 1.4);
+  // 성벽 계단
+  for (let i = 0; i < 6; i++) mk(new THREE.BoxGeometry(3, 0.7 * (i + 1), 0.8), 0x8c877e, 0, 0.35 * (i + 1), -HALF + 0.4 + (5 - i) * 0.8);
+  // 성안 초가와 창고
+  const hut = (x, z, ry) => {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; L.add(g);
+    mk(new THREE.BoxGeometry(4, 2.2, 3), 0xb59a76, 0, 1.1, 0, g);
+    const roof = mk(new THREE.ConeGeometry(3.2, 1.8, 4), 0xeef2f5, 0, 3.1, 0, g); roof.rotation.y = Math.PI / 4; roof.scale.set(1.3, 1, 1);
+    world.addCollider({ x, z, r: 2.4 });
+  };
+  hut(-7, 3, 0.2); hut(7, -2, -0.3); hut(-6, -5, 0); hut(8, 7, 0.4);
+  for (const [x, z] of [[3, 3], [3.8, 3.6], [-2, 8]]) { mk(new THREE.BoxGeometry(1, 1, 1), 0x8a6a45, x, 0.5, z); world.addCollider({ x, z, r: 0.7 }); }
+  for (const [x, z, c] of [[-10, -10, 0xb8452f], [10, -10, 0xd9a441]]) {
+    mk(new THREE.CylinderGeometry(0.07, 0.07, 5, 5), 0x5a3f2a, x, WALL_H + 2.5, z);
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.9).translate(0.65, 0, 0), new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }));
+    f.position.set(x, WALL_H + 4, z); L.add(f);
+  }
+  // 소나무
+  for (let i = 0; i < 40; i++) {
+    const a = rand() * Math.PI * 2, d = 30 + rand() * 50, x = Math.cos(a) * d, z = Math.sin(a) * d + 20;
+    if (Math.abs(x) < 26 && z > 26 && z < 76) continue;
+    mk(new THREE.ConeGeometry(1.4, 3.6, 6), 0x3e5f4a, x, 2.4, z);
+    mk(new THREE.ConeGeometry(1.0, 1.2, 6), 0xf2f5f7, x, 3.9, z);
+  }
+  // 북쪽 거란 진영
+  const khitan = new THREE.Group(); L.add(khitan);
+  for (const [x, z] of [[-14, -36], [-4, -40], [7, -37], [16, -42], [-20, -46], [0, -50], [12, -52]]) {
+    mk(new THREE.CylinderGeometry(2.1, 2.1, 1.7, 9), 0x8f7556, x, 0.85, z, khitan);
+    mk(new THREE.ConeGeometry(2.4, 1.5, 9), 0x5e432c, x, 2.45, z, khitan);
+  }
+  for (let i = 0; i < 10; i++) {
+    const k = makePerson({ robe: 0x6e5a44, hat: 'fur' });
+    k.position.set(-18 + i * 4, 0, -24 - (i % 2) * 2); khitan.add(k);
+  }
+
+  // 사다리 6개와 오르는 거란 병사 (처음엔 숨김)
+  const len = Math.hypot(WALL_H, LADDER_Z + HALF + 1.6 + 0.0);
+  const tilt = Math.atan2(-(LADDER_Z + HALF + 1.6), WALL_H);
+  const ladders = [-10, -6, -2, 2, 6, 10].map(x => {
+    const group = new THREE.Group(); group.position.set(x, 0, LADDER_Z); group.visible = false; L.add(group);
+    const pivot = new THREE.Group(); pivot.rotation.x = tilt; group.add(pivot);
+    for (const sx of [-0.35, 0.35]) mk(new THREE.BoxGeometry(0.12, len, 0.12), 0x6b4a32, sx, len / 2, 0, pivot);
+    for (let y = 0.4; y < len; y += 0.5) mk(new THREE.BoxGeometry(0.7, 0.08, 0.08), 0x6b4a32, 0, y, 0, pivot);
+    const top = new THREE.Object3D(); top.position.set(0, len - 0.3, 0); pivot.add(top);
+    const climber = makePerson({ robe: 0x6e5a44, hat: 'fur' }); climber.scale.setScalar(0.8); pivot.add(climber);
+    return { x, group, pivot, top, climber, len };
+  });
+
+  // 들판의 끌려가는 백성 무리 6개
+  const captives = [];
+  for (let i = 0; i < 6; i++) {
+    const g = new THREE.Group(); g.visible = false; L.add(g);
+    for (let k = 0; k < 3; k++) {
+      const v = makePerson({ robe: [0xe8e2d6, 0xd8cfbf, 0xc9bda8][k] });
+      v.position.set((k - 1) * 0.9, 0, (k % 2) * 0.6); v.rotation.y = Math.PI; g.add(v);
+    }
+    const escort = makePerson({ robe: 0x6e5a44, hat: 'fur' }); escort.position.set(0, 0, -1.4); escort.rotation.y = Math.PI; g.add(escort);
+    captives.push({ group: g, escort, start: [-18 + i * 7.2 + (rand() - 0.5) * 2, FIELD_Z + 10 + rand() * 6] });
+  }
+  createWeather(world, 'snow', { count: 700 });
+
+  world.addNpc('soldier', { robe: 0x7a3b2e, hat: 'helmet' }, 5, 4.5, Math.PI * 0.8);
+  world.addNpc('yanggyu', { robe: 0x7a2a1e, hat: 'general', trim: 0xd9a441 }, -3, -7, 0);
+  world.addNpc('villager', { robe: 0xd8cfbf }, -8, 5.5, Math.PI * 0.6);
+
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.25, 28), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+  ring.rotation.x = -Math.PI / 2; ring.position.set(0, 0.08, -6); ring.visible = false; L.add(ring);
+  world.onUpdate((dt, t) => { if (ring.visible) ring.material.opacity = 0.55 + Math.sin(t * 4) * 0.3; });
+
+  return {
+    ring, stairs: { x: 0, z: -6, r: 1.6 }, ladders, captives, khitan,
+    wallCam: { pos: [0, 8.5, -29], target: [0, 2.5, -13] },
+    field: { bounds: { x0: -24, x1: 24, z0: 28, z1: 72 }, start: [0, 34], lostZ: 30 },
+    start: [0, 6],
+  };
+}
