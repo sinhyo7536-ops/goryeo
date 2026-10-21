@@ -131,4 +131,9 @@ function boot() {
   main();
 }
 
+// 오프라인 캐시는 https 배포 주소에서만 쓴다(개발 중 localhost에서는 수정이 바로 보이도록). 실패해도 게임은 그대로.
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js', { type: 'module' }).catch(() => {});
+}
+
 boot();
