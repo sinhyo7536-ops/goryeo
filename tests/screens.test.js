@@ -128,3 +128,21 @@ test('menu: leaving to the map without storage asks first', async () => {
   eq(result, 'map');
   el.remove();
 });
+
+test('session1: card after chapter 3 lists all three chapters', async () => {
+  const { isSessionDone } = await import('../chapters/index.js');
+  const mk = stars => ({ stars, quizCorrect: 2, quizTotal: 2, seconds: 300, wrongQuizzes: [] });
+  const save = { data: { name: '김고려', chapters: { ch1: mk(3), ch2: mk(2) } } };
+  save.chapterResult = id => save.data.chapters[id] || null;
+  eq(isSessionDone(1, save), false, 'not after two chapters');
+  save.data.chapters.ch3 = mk(1);
+  eq(isSessionDone(1, save), true);
+  eq(isSessionDone(2, save), false);
+  const el = root();
+  const p = showSessionCard(el, 1, save, CHAPTERS);
+  const t = el.textContent;
+  for (const title of ['서희의 외교 담판', '양규와 흥화진', '강감찬과 귀주 대첩']) ok(t.includes(title), title);
+  ok(t.includes('★★★') && t.includes('★★☆') && t.includes('★☆☆'));
+  ok(t.includes('6/6'), 'quiz total over three chapters');
+  btn(el, '닫기').click(); await p; el.remove();
+});

@@ -8,7 +8,7 @@ import { createDialogue } from './dialogue.js';
 import { createQualityController, guessInitialQuality } from './quality.js';
 import { runChapter } from './flow.js';
 import { showTitle, askName, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
-import { CHAPTERS } from '../chapters/index.js';
+import { CHAPTERS, isSessionDone } from '../chapters/index.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
@@ -99,8 +99,7 @@ function boot() {
     hud.hide();
     dialogue.dispose(); dialogue = null;
     await showChapterResult(ui, meta, result);
-    const sessionDone = CHAPTERS.filter(c => c.session === meta.session && c.load).every(c => save.chapterResult(c.id));
-    if (sessionDone) await showSessionCard(ui, meta.session, save, CHAPTERS);
+    if (isSessionDone(meta.session, save)) await showSessionCard(ui, meta.session, save, CHAPTERS);
   }
 
   async function mapLoop() {

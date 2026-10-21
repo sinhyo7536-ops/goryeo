@@ -34,3 +34,8 @@ export function isUnlocked(chapter, save) {
   if (chapter.no === 1 || chapter.no === 4) return true;
   return !!save.chapterResult(`ch${chapter.no - 1}`);
 }
+
+// 차시 결과 카드를 띄울 때: 그 차시의 모든 장을 마쳤는지
+export function isSessionDone(session, save) {
+  return CHAPTERS.filter(c => c.session === session).every(c => save.chapterResult(c.id));
+}
