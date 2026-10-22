@@ -35,10 +35,12 @@ export function showTitle(root, { savedName, hasProgress, storageOk }) {
         h('p', { class: 'lead' }, '거란과 몽골이 쳐들어왔을 때, 고려 사람들은 외교와 전투와 끈질긴 항쟁으로 나라를 지켰어요. 젊은 고려 병사가 되어 그 현장을 걸어 보세요.'),
         h('div', { class: 'row' },
           hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || "저장된 기록"})`),
-          h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터')),
+          h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터'),
+          h('button', { class: 'btn', type: 'button', onclick: () => done('session2') }, '2차시부터 시작')),
         confirm,
         !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
-        h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼')));
+        h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼'),
+        h('p', { class: 'controls' }, h('a', { href: 'teacher.html', target: '_blank', rel: 'noopener', class: 'teacher-link' }, '선생님 안내 (QR코드·수업 흐름)'))));
   });
 }
 

@@ -136,6 +136,12 @@ function boot() {
       save.reset();
       save.setName(await askName(ui, ''));
     }
+    if (choice === 'session2') {
+      // 2차시 수업: 1차시 기록은 그대로 두고 4장부터 시작한다 (하던 장은 내려놓는다)
+      if (!save.data.name) save.setName(await askName(ui, ''));
+      save.abandonCurrent();
+      await playChapter(CHAPTERS.find(c => c.id === 'ch4'), 'intro');
+    }
     await mapLoop();
   }
   main();

@@ -106,11 +106,11 @@ export function orderCards(ctx, { title, cards, easy = false }) {
       const b = el('button', 'order-card', c); b.type = 'button';
       b.addEventListener('click', () => {
         if (c === cards[next]) {
-          slots.append(el('li', null, c)); b.remove(); next += 1;
+          slots.append(el('li', null, `○ ${c}`)); b.remove(); next += 1;
           if (next === cards.length) { setTimeout(() => { screen.remove(); resolve(true); }, 300); return; }
           hint();
         } else {
-          b.classList.add('wrong');
+          b.classList.add('wrong'); b.textContent = `× ${c}`; // 색과 함께 × 표시
           setTimeout(() => { screen.remove(); resolve(false); }, 600);
           buttons.forEach(x => { x.disabled = true; });
         }
@@ -152,6 +152,12 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
         c.setAttribute('cx', x * 100); c.setAttribute('cy', y * 100); c.setAttribute('r', i === 0 ? 5 : 3.5);
         c.setAttribute('class', `trace-dot${i < progress ? ' passed' : ''}${i === 0 ? ' first' : ''}`);
         svg.append(c); dots.push(c);
+        if (i < progress) { // 지나간 점에는 색과 함께 ✓ 표시 (색만으로 구분하지 않게)
+          const m = document.createElementNS(NS, 'text');
+          m.setAttribute('x', x * 100); m.setAttribute('y', y * 100 + 1.6); m.setAttribute('class', 'dot-check');
+          m.textContent = '✓';
+          svg.append(m); dots.push(m);
+        }
       });
     };
     const pos = e => { const r = board.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };

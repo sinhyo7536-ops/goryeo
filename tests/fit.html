@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../styles.css">
+<script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+<div id="ui"></div>
+<script type="module">
+  // 화면 맞춤 검사용: 쿼리에 따라 글자 새기기 판이나 카드 순서 맞추기 화면을 띄운다
+  import { traceGlyph, orderCards } from '../core/minigame.js';
+  const ui = document.getElementById('ui');
+  const kind = new URLSearchParams(location.search).get('kind');
+  if (kind === 'trace') traceGlyph({ ui }, { glyph: '大', strokes: [[[0.2, 0.38], [0.8, 0.38]], [[0.5, 0.15], [0.25, 0.85]]] });
+  else orderCards({ ui }, { title: '고려를 지킨 사람들: 일어난 순서대로 눌러요', cards: ['서희의 담판 (993)', '양규의 흥화진 방어 (1010)', '강감찬의 귀주 대첩 (1019)', '강화도 천도 (1232년 7월)', '김윤후의 처인성 싸움 (1232년 12월)', '팔만대장경 만들기 (1236~1251)', '삼별초의 항쟁 (1270~1273)'] });
+  document.documentElement.dataset.ready = '1';
+</script>
+</html>
