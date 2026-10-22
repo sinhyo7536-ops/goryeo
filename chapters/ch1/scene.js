@@ -1,4 +1,5 @@
 // 1장 장면: 노을 진 고려 진영, 강, 강 건너 거란 진영, 강동 6주 빛기둥.
+import { makeSign } from '../../core/signs.js';
 import * as THREE from 'three';
 import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson, labelSprite } from '../../core/people.js';
@@ -211,6 +212,9 @@ export function buildCh1Scene(world) {
   world.addNpc('seohui', LOOKS.seohui, -11, 1.3, 0.15);
   world.addNpc('archer', LOOKS.archer, -7, 20.5, Math.PI);
   world.addNpc('officer', LOOKS.officer, 15.5, 8, -Math.PI * 0.6);
+  // 안내판(볼거리): 읽지 않아도 장은 끝난다
+  world.addSpot('signGangdong', makeSign('강동 6주'), -1.5, 16.5);
+  world.addSpot('signSong', makeSign('고려와 송, 거란'), 9.5, 18);
 
   const scene = { ring, khitanGroup, gangdongPillars, sonn, emberCount, retreating: false,
     ferry: { x: 8, z: -13.4, r: 1.6 },

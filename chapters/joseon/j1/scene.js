@@ -6,6 +6,7 @@ import { mat, makePerson } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS, look } from '../../../content/characters.js';
 import { createWeather } from '../../../core/weather.js';
+import { addSigns } from '../common.js';
 
 const ISLAND = { rx: 30, rz: 17 }; // 섬 크기(타원 반지름)
 const SOUTH_Z = 22;                // 남쪽 물길 가운데 (회군 때 건너는 곳)
@@ -114,6 +115,11 @@ export function buildJ1Scene(world) {
   }
   const rain = createWeather(world, 'rain', { count: 900 });
   rain.setWind(1.5);
+
+  addSigns(world, [
+    { id: 'signIsland', title: '위화도', x: -2.5, z: 6.8 },
+    { id: 'signArmy', title: '요동 정벌군', x: -16, z: -1.5, ry: Math.PI / 2 },
+  ]);
 
   world.addNpc('archer', LOOKS.archer, -8, 3, Math.PI * 0.25);
   world.addNpc('soldier', look('soldier', { robe: 0x6b3a2e }), 14, -9, -Math.PI * 0.7);

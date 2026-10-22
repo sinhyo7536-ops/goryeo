@@ -1,4 +1,5 @@
 // 2장 장면: 눈 덮인 흥화진 성, 북쪽의 거란 진영, 성 남쪽의 눈 들판.
+import { makeSign } from '../../core/signs.js';
 import * as THREE from 'three';
 import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
@@ -126,6 +127,9 @@ export function buildCh2Scene(world) {
   world.addNpc('soldier', LOOKS.soldier, 5, 4.5, Math.PI * 0.8);
   world.addNpc('yanggyu', LOOKS.yanggyu, -3, -7, 0);
   world.addNpc('villager', LOOKS.villager, -8, 5.5, Math.PI * 0.6);
+  // 안내판(볼거리): 읽지 않아도 장은 끝난다
+  world.addSpot('signHeunghwa', makeSign('흥화진'), 0.5, 2);
+  world.addSpot('signNaju', makeSign('현종의 피란'), 3, -5.5);
 
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.25, 28), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
   ring.rotation.x = -Math.PI / 2; ring.position.set(0, 0.08, -6); ring.visible = false; L.add(ring);

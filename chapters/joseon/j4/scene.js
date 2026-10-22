@@ -5,8 +5,11 @@ import { groundMaterial } from '../../../core/textures.js';
 import { mat } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
+import { addSigns } from '../common.js';
 
 export const STRAIT_Z = -78;       // 견내량 입구
+// 적 배가 기다리는 곳: 견내량 안쪽 깊이(미끼 배가 돌아설 때 넉넉히 떨어져 있게)
+export const ENEMY_WAIT = STRAIT_Z - 32;
 export const WING = { x: 0, z: -44, r: 15 }; // 학익진 가운데와 반지름
 
 function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
@@ -130,17 +133,23 @@ export function buildJ4Scene(world) {
     leadTurtle.visible = fleet.visible;
     goalRing.visible = false;
     enemy.children.forEach(e => { e.userData.smoke.visible = s === 'won'; });
-    if (s === 'lure') { lure.position.set(0, 0, -30); enemy.position.set(0, 0, STRAIT_Z - 10); enemy.rotation.y = 0; }
+    if (s === 'lure') { lure.position.set(0, 0, -30); enemy.position.set(0, 0, ENEMY_WAIT); enemy.rotation.y = 0; }
     if (s === 'wing') { enemy.position.set(0, 0, -78); }
     if (s === 'won') { enemy.position.set(0, 0, -50); }
   };
   // 미끼 배 진행: 0 = 출발(-30), 1 = 견내량 깊숙이(STRAIT_Z - 6)
   const setLure = k => { lure.position.z = -30 + k * (STRAIT_Z - 6 + 30); lure.rotation.y = 0; };
-  // 적이 쫓아 나옴: 0 = 견내량 안, 1 = 넓은 바다(-62)
-  const setChase = k => { enemy.position.z = STRAIT_Z - 10 + k * (-62 - STRAIT_Z + 10); enemy.rotation.y = Math.PI; lure.position.z = STRAIT_Z + 4 + k * 40; lure.rotation.y = Math.PI; };
+  // 적이 쫓아 나옴: 0 = 견내량 안쪽 깊이, 1 = 넓은 바다(-68). 미끼 배와 늘 25 이상 떨어져 있다.
+  const setChase = k => { enemy.position.z = ENEMY_WAIT + k * (-68 - ENEMY_WAIT); enemy.rotation.y = Math.PI; lure.position.z = STRAIT_Z + 4 + k * 40; lure.rotation.y = Math.PI; };
   // 적이 날개 안으로 들어옴: 0 = -70, 1 = -36(날개 안쪽 끝, 우리 배와 겹치지 않음)
   const setAdvance = k => { enemy.position.z = -70 + k * 34; enemy.rotation.y = Math.PI; };
   setStage('harbor');
+
+  addSigns(world, [
+    { id: 'signPanok', title: '판옥선', x: -6.5, z: 5.2 },
+    { id: 'signTurtle', title: '거북선', x: 12, z: 5.4 },
+    { id: 'signWar', title: '임진왜란', x: 2.5, z: 12.5 },
+  ]);
 
   world.addNpc('navy', LOOKS.navy, 7, 6.5, Math.PI);
   world.addNpc('commoner', LOOKS.commoner, -3, 9.6, Math.PI);
@@ -154,6 +163,6 @@ export function buildJ4Scene(world) {
 
   return {
     start: [0, 6.5], turtle, leadTurtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance,
-    seaCam: { pos: [0, 46, -14], target: [0, 0, -56] },
+    seaCam: { pos: [0, 54, -8], target: [0, 0, -64] },
   };
 }

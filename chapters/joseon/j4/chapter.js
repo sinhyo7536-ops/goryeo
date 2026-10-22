@@ -13,11 +13,11 @@ let scene = null;
 export const WING_BOARD = {
   items: Array.from({ length: 5 }, () => ({ id: 'ship', label: '판옥선' })),
   slots: [
-    { id: 'w1', xy: [16, 36], answer: 'ship' }, { id: 'w2', xy: [30, 56], answer: 'ship' }, { id: 'w3', xy: [50, 64], answer: 'ship' },
-    { id: 'w4', xy: [70, 56], answer: 'ship' }, { id: 'w5', xy: [84, 36], answer: 'ship' },
-    { id: 'b1', xy: [22, 86], answer: null }, { id: 'b2', xy: [50, 88], answer: null }, { id: 'b3', xy: [78, 86], answer: null },
+    { id: 'w1', xy: [14, 24], answer: 'ship' }, { id: 'w2', xy: [29, 46], answer: 'ship' }, { id: 'w3', xy: [50, 58], answer: 'ship' },
+    { id: 'w4', xy: [71, 46], answer: 'ship' }, { id: 'w5', xy: [86, 24], answer: 'ship' },
+    { id: 'b1', xy: [27, 84], answer: null }, { id: 'b2', xy: [50, 84], answer: null }, { id: 'b3', xy: [73, 84], answer: null },
   ],
-  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 10] }, { label: '한산도', xy: [6, 66] }, { label: '↓ 남쪽(우리 포구)', xy: [50, 97] }],
+  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 8] }, { label: '한산도 ▸', xy: [7, 62] }, { label: '↓ 남쪽(우리 포구)', xy: [50, 96] }],
 };
 
 export default {

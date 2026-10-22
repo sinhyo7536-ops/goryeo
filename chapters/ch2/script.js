@@ -29,6 +29,12 @@ export default {
     villager: {
       always: [{ who: 'villager', text: '왕(현종)께서는 남쪽 나주까지 피란하셨대요.', src: ['S14'] }],
     },
+    signHeunghwa: { always: [
+      { who: 'narr', text: '흥화진은 압록강 가까이 있는 고려의 성이에요. 거란의 2차 침입 때 가장 먼저 공격받았어요.', src: ['S2'] },
+    ] },
+    signNaju: { always: [
+      { who: 'narr', text: '거란의 2차 침입 때 현종은 남쪽 나주까지 피란했어요.', src: ['S14'] },
+    ] },
     yanggyu: {
       tooEarly: [{ who: 'yanggyu', text: '먼저 성안의 병사에게 소식을 들어 보아라.' }],
       first: [

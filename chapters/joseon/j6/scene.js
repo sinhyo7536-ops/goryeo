@@ -5,6 +5,8 @@ import { groundMaterial } from '../../../core/textures.js';
 import { mat, makePerson } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
+import { hwaseongGate } from '../landmarks.js';
+import { addSigns } from '../common.js';
 
 export const WALL_Z = -10, WALL_H = 3.6;
 export const GAPS = [-6, 0, 6];          // 성벽 빈자리(가운데 x)
@@ -45,12 +47,8 @@ export function buildJ6Scene(world) {
   // 빈자리 표시(빛나는 테두리)
   const gapGlow = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.2, 2.5), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.7 }));
   gapGlow.visible = false; L.add(gapGlow);
-  // 서쪽 성문(문루와 무지개 문)
-  const gate = new THREE.Group(); gate.position.set(-21, 0, WALL_Z); L.add(gate);
-  mk(new THREE.BoxGeometry(6, 4.6, 3.4), 0xb3ada2, 0, 2.3, 0, gate);
-  mk(new THREE.BoxGeometry(2.4, 3, 3.5), 0x3a2c20, 0, 1.5, 0, gate);
-  for (const dx of [-2.4, -0.8, 0.8, 2.4]) mk(new THREE.CylinderGeometry(0.18, 0.18, 2.2, 8), 0xa8392b, dx, 5.7, 0, gate);
-  hipRoof(8, 5.4, 2, 0x3d4846, 0, 6.8, 0, gate);
+  // 북문 장안문: 2층 문루와 성 밖(북쪽)을 둘러싼 반달 옹성
+  const gate = hwaseongGate(); gate.position.set(-22, 0, WALL_Z); gate.rotation.y = Math.PI; L.add(gate);
   // 거중기: 성벽 뒤에 선 두 기둥과 그 위를 가로지르는 들보, 들보를 따라 움직이는 도르래 수레와 매단 돌
   const crane = new THREE.Group(); L.add(crane);
   for (const x of [TRACK[0] - 1, TRACK[1] + 1]) for (const dz of [-1.4, 1.4]) {
@@ -85,6 +83,12 @@ export function buildJ6Scene(world) {
   scatter(world, { kind: 'pine', count: 40, area: { x0: -80, x1: 80, z0: -60, z1: -16 }, seed: 101, scale: [1.1, 1.7], color: 0x4f6b3a });
   scatter(world, { kind: 'bush', count: 20, area: { x0: -30, x1: 30, z0: 13, z1: 30 }, seed: 102, color: 0xb0743a });
   scatter(world, { kind: 'grass', count: 60, area: { x0: -18, x1: 18, z0: 9, z1: 14 }, seed: 103, color: 0xa89a5a });
+
+  addSigns(world, [
+    { id: 'signGate', title: '장안문', x: -14.5, z: -1.5 },
+    { id: 'signUigwe', title: '화성성역의궤', x: 12.5, z: 9.5 },
+    { id: 'signTangpyeong', title: '탕평비 이야기', x: -11, z: 9.5 },
+  ]);
 
   world.addNpc('official', LOOKS.joseonOfficial, -6, 7, Math.PI);
   world.addNpc('worker', LOOKS.worker, 7, 4.5, -Math.PI / 2);

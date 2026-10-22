@@ -19,7 +19,7 @@ test('ch2: quiz answers match the spec', () => {
 test('ch2: scene builds with 3 npcs and 6 ladder slots', () => {
   const w = testWorld();
   const s = buildCh2Scene(w);
-  eq([...w.npcs.keys()].sort(), ['soldier', 'villager', 'yanggyu']);
+  eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['soldier', 'villager', 'yanggyu']);
   eq(s.ladders.length, 6);
   ok(s.ladders.every(l => !l.group.visible), 'ladders start hidden');
   eq(s.captives.length, 6);

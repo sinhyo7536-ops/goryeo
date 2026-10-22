@@ -70,7 +70,7 @@ test('world: setQuality changes pixel ratio and shadows', () => {
   eq(w.renderer.shadowMap.enabled, false);
   w.setQuality('medium');
   eq(w.renderer.shadowMap.enabled, true);
-  eq(w.quality.particles, 0.6);
+  eq(w.quality.particles, 0.9);
   w.dispose();
 });
 

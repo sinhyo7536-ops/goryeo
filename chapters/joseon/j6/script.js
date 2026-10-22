@@ -46,6 +46,16 @@ export default {
       ],
       later: [{ who: 'jeongyakyong', text: '도르래를 여럿 쓰면 힘이 덜 든단다.' }],
     },
+    signGate: { always: [
+      { who: 'narr', text: '화성의 북문은 장안문, 남문은 팔달문이에요. 서문은 화서문, 동문은 창룡문이에요.', src: ['S48'] },
+      { who: 'narr', text: '문마다 반달 모양의 옹성을 둘러 문을 지켰어요.', src: ['S48'] },
+    ] },
+    signUigwe: { always: [
+      { who: 'narr', text: '『화성성역의궤』는 화성을 쌓은 과정을 자세히 적은 책으로, 1801년에 인쇄했어요.', src: ['S42'] },
+    ] },
+    signTangpyeong: { always: [
+      { who: 'narr', text: '영조는 1742년 성균관에 탕평비를 세워 탕평의 뜻을 새겼어요.', src: ['S41'] },
+    ] },
     jeongjo: {
       tooEarly: [{ who: 'jeongjo', text: '정약용에게 거중기 이야기를 먼저 들어 보아라.' }],
       first: [

@@ -129,3 +129,53 @@ test('faces: 갓 초상화를 그린 뒤 투명도가 되돌아온다', async ()
   drawHatForTest(g, 'gat', 80, 92, 42);
   eq(g.globalAlpha, 1);
 });
+
+test('signs: 안내판은 말 걸 수 있고, 장마다 있으며, 출처가 달린 해설이다', async () => {
+  const { makeSign } = await import('../core/signs.js');
+  const w = testWorld();
+  try {
+    const spot = w.addSpot('signX', makeSign('시험'), 2, 3);
+    ok(spot.mark.visible, 'blue i marker shows');
+    w.player.position.set(2, 0, 4.5);
+    eq(w.nearestNpc(2.8).id, 'signX');
+  } finally { w.dispose(); }
+  const { JOSEON } = await import('../chapters/index.js');
+  for (const c of JOSEON) {
+    const mod = (await c.load()).default;
+    const w2 = testWorld();
+    try {
+      mod.buildScene(w2);
+      const signs = [...w2.npcs.values()].filter(n => n.spot);
+      ok(signs.length >= 2, `${c.id} has ${signs.length} signs`);
+      const people = [...w2.npcs.values()].filter(n => !n.spot);
+      for (const s of signs) {
+        const lines = mod.script.npc[s.id] && mod.script.npc[s.id].always;
+        ok(lines && lines.length && lines.every(l => l.who !== 'narr' || l.src), `${c.id}/${s.id} lines`);
+        for (const p of people) { const d = Math.hypot(s.mesh.position.x - p.mesh.position.x, s.mesh.position.z - p.mesh.position.z); ok(d >= 3.5, `${c.id}/${s.id} too close to ${p.id} (${d.toFixed(1)})`); }
+        const b = w2.bounds;
+        ok(s.mesh.position.x >= b.x0 && s.mesh.position.x <= b.x1 && s.mesh.position.z >= b.z0 && s.mesh.position.z <= b.z1, `${c.id}/${s.id} reachable`);
+      }
+    } finally { w2.dispose(); }
+  }
+});
+
+test('signs: 고려편 1·2장에도 안내판이 있고 다른 물건과 겹치지 않는다', async () => {
+  const { CHAPTERS, JOSEON } = await import('../chapters/index.js');
+  for (const c of [CHAPTERS[0], CHAPTERS[1], ...JOSEON]) {
+    const mod = (await c.load()).default;
+    const w = testWorld();
+    try {
+      mod.buildScene(w);
+      const signs = [...w.npcs.values()].filter(n => n.spot);
+      ok(signs.length >= 2, `${c.id} signs`);
+      for (const s of signs) {
+        ok(mod.script.npc[s.id] && mod.script.npc[s.id].always.length, `${c.id}/${s.id} lines`);
+        for (const col of w.colliders) {
+          if (col === s.collider) continue;
+          const d = Math.hypot(col.x - s.mesh.position.x, col.z - s.mesh.position.z);
+          ok(d >= col.r + 0.5, `${c.id}/${s.id} overlaps something at (${col.x}, ${col.z}) d=${d.toFixed(1)}`);
+        }
+      }
+    } finally { w.dispose(); }
+  }
+});

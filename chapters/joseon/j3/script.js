@@ -38,6 +38,22 @@ export default {
       ],
       later: [{ who: 'jangyeongsil', text: '세자께서 서운관 마당에서 기다리신다.' }],
     },
+    signJongmyo: { always: [
+      { who: 'narr', text: '종묘는 조선의 왕과 왕비의 신주를 모신 곳이에요.', src: ['S45'] },
+      { who: 'narr', text: '정전은 한 칸마다 한 왕을 모셔서 옆으로 아주 길어요. 1995년 유네스코 세계유산이 되었어요.', src: ['S45'] },
+    ] },
+    signDial: { always: [
+      { who: 'narr', text: '앙부일구는 그림자로 시각과 절기를 함께 알 수 있어서 시계이자 달력이었어요.', src: ['S31'] },
+      { who: 'narr', text: '그릇 안쪽의 세로줄은 시각, 가로줄은 절기를 나타내요.', src: ['S30'] },
+    ] },
+    signClock: { always: [
+      { who: 'narr', text: '자격루는 경복궁 보루각에 두고 나라의 표준 시계로 썼어요.', src: ['S32'] },
+      { who: 'narr', text: '종이 울리면 나무 인형이 나타나 사람의 손을 거치지 않고 시간을 알렸어요.', src: ['S31'] },
+    ] },
+    signGauge: { always: [
+      { who: 'narr', text: '측우기는 깊이 약 31cm, 지름 약 15cm인 쇠 원통이에요.', src: ['S33'] },
+      { who: 'narr', text: '돌로 된 측우대 위에 올려 두고 빗물의 깊이를 쟀어요.', src: ['S33'] },
+    ] },
     crownPrince: {
       tooEarly: [{ who: 'crownPrince', text: '해시계와 물시계를 먼저 보고 오너라.' }],
       first: [

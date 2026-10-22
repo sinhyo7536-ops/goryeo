@@ -26,6 +26,8 @@
   - `core/quality.js` 화질 3단계와 자동 하향, `core/save.js` 저장(기기 안 localStorage만)
   - `chapters/chN/` 장별 `script.js`(대사·퀴즈·출처) `scene.js`(장면) `chapter.js`(진행)
   - `chapters/index.js` 편 목록(`COURSES`), 장 목록, 열림·완료 규칙(같은 편 안에서만 센다)
+  - `core/signs.js` 안내판(볼거리) 모양, `world.addSpot`으로 세우면 인물처럼 다가가 읽는다(파란 i 표시). 대사는 `script.npc[id].always`. 읽지 않아도 장이 끝난다(어려워지지 않게).
+  - `chapters/joseon/landmarks.js` 유물·유적 모형(앙부일구, 자격루, 측우기, 종묘 정전, 근정전, 장안문)
   - `chapters/joseon/common.js` 조선편 진행 도구(차례대로 말 걸기 `talkInOrder`, 다시 하기 `tryPart`, 때 맞춰 누르기 `timingPress`)
   - `core/minigame.js` 카드 고르기 `chooseCards`(그림 가능), 카드 나누기 `sortCards`, 자리 놓기 `placeOnBoard`, 순서 맞추기 `orderCards`, 획 따라 그리기 `traceGlyph`
   - `content/sources.js` 출처 S1~S22(고려편)·S23~S42(조선편), `content/glyphs.js` 5장 大藏經 획 자료(`tools/gen-glyphs.ps1`로 생성, 손으로 고치지 않음)
@@ -59,7 +61,7 @@
 - 1·2차시를 합쳐 한 흐름. 결과 카드는 편마다 6장 뒤 한 장(핵심 정리 6줄).
 - 조선편 원칙: 측우기는 장영실 발명이라고 쓰지 않는다(세자가 제안, 세종 때 만듦). 한산도 대첩에서 거북선을 앞세웠다(S43). 척화·주화는 옳고 그름을 매기지 않는다. 훈민정음은 1443 창제·1446 반포를 나눠 쓴다. 전투는 불길 없이 연기·물러남으로.
 - 뺀 것: 교사용 안내 페이지, QR코드 버튼, 대사 읽어 주기(음성). 다시 넣지 않는다.
-- 그래픽은 태블릿 성능 안에서 단계적으로 강화한다. 무거운 효과는 화질 '보통·높음'에서만.
+- 그래픽은 태블릿 성능 안에서 단계적으로 강화한다. 무거운 효과는 화질 '보통·높음'에서만. 2026-10-23: 학생 태블릿에서 충분히 돌아가서 보통(1.25배 선명, 부드러운 그림자, 풀·나무 0.9)과 높음(1.75배, 그림자 4096, 1.3)을 올렸다.
 
 ## 아직 남은 일
 

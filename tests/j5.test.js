@@ -26,7 +26,7 @@ test('j5: scene has the fortress people and six braziers that light up', () => {
   const w = testWorld();
   try {
     const s = buildJ5Scene(w);
-    eq([...w.npcs.keys()].sort(), ['choemyeonggil', 'keeper', 'kimsangheon', 'soldier']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['choemyeonggil', 'keeper', 'kimsangheon', 'soldier']);
     eq(s.fires.length, 6);
     s.resetFires(); ok(s.fires.every(f => !f.lit));
     s.light(s.fires[0]); ok(s.fires[0].lit && s.fires[0].flame.visible);

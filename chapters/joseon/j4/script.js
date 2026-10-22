@@ -37,6 +37,18 @@ export default {
       ],
       later: [{ who: 'commoner', text: '바다만큼은 꼭 지켜 주세요.' }],
     },
+    signPanok: { always: [
+      { who: 'narr', text: '판옥선은 조선 수군의 주력 전투선이에요.', src: ['S50'] },
+      { who: 'narr', text: '갑판이 2층이라 노 젓는 군사는 아래층에서, 싸우는 군사는 위층에서 일을 나누었어요.', src: ['S50'] },
+    ] },
+    signTurtle: { always: [
+      { who: 'narr', text: '거북선은 판옥선 위를 덮개로 덮고 칼과 송곳을 꽂은 배예요.', src: ['S36'] },
+      { who: 'narr', text: '앞의 용머리 입은 총구멍으로 썼어요.', src: ['S36'] },
+    ] },
+    signWar: { always: [
+      { who: 'narr', text: '임진왜란은 1592년부터 1598년까지 7년 동안 이어졌어요.', src: ['S34'] },
+      { who: 'narr', text: '1598년 노량 해전에서 이순신이 전사했어요.', src: ['S34'] },
+    ] },
     yisunsin: {
       tooEarly: [{ who: 'yisunsin', text: '먼저 부두와 포구를 둘러보아라.' }],
       first: [

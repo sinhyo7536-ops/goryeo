@@ -38,6 +38,15 @@ export default {
       ],
       later: [{ who: 'keeper', text: '아껴 먹어야 해.' }],
     },
+    signFortress: { always: [
+      { who: 'narr', text: '남한산성은 2014년 유네스코 세계유산이 되었어요.', src: ['S47'] },
+    ] },
+    signHaenggung: { always: [
+      { who: 'narr', text: '행궁은 전쟁 같은 때에 임금이 머물 수 있게 지은 궁궐이에요. 1625년에 완성했어요.', src: ['S47'] },
+    ] },
+    signWestGate: { always: [
+      { who: 'narr', text: '1637년 1월, 인조는 세자와 함께 이 서문으로 나와 삼전도로 갔어요.', src: ['S38'] },
+    ] },
     kimsangheon: {
       tooEarly: [{ who: 'kimsangheon', text: '성안의 형편부터 살펴보고 오너라.' }],
       first: [

@@ -37,6 +37,13 @@ export default {
       ],
       later: [{ who: 'soldier', text: '지휘 천막은 진영 가운데에 있어.' }],
     },
+    signIsland: { always: [
+      { who: 'narr', text: '위화도는 압록강에 있는 섬이에요. 요동으로 가던 군대가 이곳에 머물렀어요.', src: ['S23'] },
+    ] },
+    signArmy: { always: [
+      { who: 'narr', text: '요동 정벌에는 5만여 명의 군사와 2만여 필의 말이 나섰어요.', src: ['S23'] },
+      { who: 'narr', text: '이성계와 조민수가 군대를 나누어 이끌었어요.', src: ['S23'] },
+    ] },
     yiseonggye: {
       tooEarly: [{ who: 'yiseonggye', text: '먼저 군사들의 이야기를 들어 보아라.' }],
       first: [

@@ -33,7 +33,7 @@ test('j3: scene has the three instruments and people', () => {
   const w = testWorld();
   try {
     const s = buildJ3Scene(w);
-    eq([...w.npcs.keys()].sort(), ['commoner', 'crownPrince', 'jangyeongsil']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['commoner', 'crownPrince', 'jangyeongsil']);
     ok(s.dial && s.gauge && s.clock, 'instruments');
     s.setRain(true); s.setRain(false); s.ringClock();
   } finally { w.dispose(); }

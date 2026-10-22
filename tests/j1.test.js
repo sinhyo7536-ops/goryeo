@@ -32,7 +32,7 @@ test('j1: scene builds the camp with three people and a turning army', () => {
   const w = testWorld();
   try {
     const s = buildJ1Scene(w);
-    eq([...w.npcs.keys()].sort(), ['archer', 'soldier', 'yiseonggye']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['archer', 'soldier', 'yiseonggye']);
     s.setTurn(0); const z0 = s.army.position.z; const r0 = s.army.children[0].rotation.y;
     s.setTurn(1); const z1 = s.army.position.z;
     ok(z1 > z0 + 20, `army crosses south ${z0} → ${z1}`);

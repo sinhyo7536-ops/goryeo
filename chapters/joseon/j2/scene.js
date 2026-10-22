@@ -4,6 +4,8 @@ import { groundMaterial } from '../../../core/textures.js';
 import { mat } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
+import { geunjeongjeon } from '../landmarks.js';
+import { addSigns } from '../common.js';
 
 export function buildJ2Scene(world) {
   const L = world.level;
@@ -39,8 +41,9 @@ export function buildJ2Scene(world) {
     mk(new THREE.BoxGeometry(3, 0.08, 20), 0xb3ab99, 0, 0.05, 4, L, false); // 가운데 어도(높은 길)
   }
   // 북쪽 큰 전각과 동쪽 집현전
-  hall(14, 7, 0, -12, 0, 3.6);
-  for (const dx of [-5, 0, 5]) world.addCollider({ x: dx, z: -12, r: 5 });
+  // 근정전: 난간 두른 두 단 월대 위의 2층 전각
+  const throne = geunjeongjeon(); throne.position.set(0, 0, -15); L.add(throne);
+  for (const dx of [-7, 0, 7]) world.addCollider({ x: dx, z: -14, r: 6.4 });
   hall(8, 5, 14, 1, -Math.PI / 2, 3);
   world.addCollider({ x: 14, z: -1, r: 3.5 }); world.addCollider({ x: 14, z: 3, r: 3.5 });
   // 집현전 앞 책상과 책
@@ -72,6 +75,12 @@ export function buildJ2Scene(world) {
   scatter(world, { kind: 'pine', count: 40, area: { x0: -60, x1: 60, z0: -50, z1: -18 }, seed: 61, scale: [1.1, 1.7] });
   scatter(world, { kind: 'pine', count: 20, area: { x0: -60, x1: 60, z0: 20, z1: 50 }, seed: 62, scale: [1, 1.5] });
   scatter(world, { kind: 'flower', count: 40, area: { x0: -14, x1: 14, z0: 15, z1: 18 }, avoid: [{ x: 0, z: 17, r: 3 }], seed: 63 });
+
+  addSigns(world, [
+    { id: 'signThrone', title: '근정전', x: -5.5, z: -6.2 },
+    { id: 'signJiphyeon', title: '집현전', x: 9.5, z: -5.5, ry: -Math.PI / 2 },
+    { id: 'signHaerye', title: '훈민정음 해례본', x: 9, z: 7.5, ry: -Math.PI / 2 },
+  ]);
 
   world.addNpc('commoner', LOOKS.commoner, -5, 8.5, Math.PI);
   world.addNpc('scholar', LOOKS.scholar, 8.2, 1, -Math.PI / 2);

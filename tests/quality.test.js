@@ -1,9 +1,10 @@
-import { test, eq } from './harness.js';
+import { test, eq, ok } from './harness.js';
 import { QUALITY, createQualityController, guessInitialQuality } from '../core/quality.js';
 
 test('quality: levels match spec', () => {
-  eq(QUALITY.low.pixelRatio, 0.75); eq(QUALITY.medium.pixelRatio, 1); eq(QUALITY.high.pixelRatio, 1.5);
-  eq(QUALITY.low.shadows, 'off'); eq(QUALITY.high.shadows, 'soft');
+  eq(QUALITY.low.pixelRatio, 0.75); eq(QUALITY.medium.pixelRatio, 1.25); eq(QUALITY.high.pixelRatio, 1.75);
+  eq(QUALITY.low.shadows, 'off'); eq(QUALITY.medium.shadows, 'soft'); eq(QUALITY.high.shadows, 'soft');
+  ok(QUALITY.medium.particles >= 0.9 && QUALITY.high.particles > 1, 'denser scenery since tablets run well (2026-10-23)');
 });
 
 test('quality: drops one level after 3s under 40fps', () => {

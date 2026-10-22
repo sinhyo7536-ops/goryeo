@@ -145,10 +145,10 @@ export function animateWalk(person, moving, dt) {
   ease(u.arms[0], -k * 0.7); ease(u.arms[1], k * 0.7);
 }
 
-export function markerSprite(text = '!') {
+export function markerSprite(text = '!', bg = '#d9a441') {
   const cv = document.createElement('canvas'); cv.width = cv.height = 64;
   const x = cv.getContext('2d');
-  x.fillStyle = '#d9a441'; x.beginPath(); x.arc(32, 32, 28, 0, Math.PI * 2); x.fill();
+  x.fillStyle = bg; x.beginPath(); x.arc(32, 32, 28, 0, Math.PI * 2); x.fill();
   x.strokeStyle = '#1b1f1d'; x.lineWidth = 4; x.stroke();
   x.fillStyle = '#1b1f1d'; x.font = 'bold 40px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.fillText(text, 32, 34);

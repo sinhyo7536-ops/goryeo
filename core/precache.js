@@ -1,5 +1,5 @@
 // 서비스 워커가 처음 설치될 때 기기에 저장해 둘 파일 목록. 장을 추가하면 여기에도 넣는다.
-export const CACHE = 'goryeo-v21'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
+export const CACHE = 'goryeo-v23'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
 
 export const PRECACHE = [
   'index.html', 'styles.css', 'vendor/three.module.min.js', 'content/sources.js',
@@ -13,7 +13,7 @@ export const PRECACHE = [
   'chapters/ch4/chapter.js', 'chapters/ch4/scene.js', 'chapters/ch4/script.js',
   'chapters/ch5/chapter.js', 'chapters/ch5/scene.js', 'chapters/ch5/script.js',
   'chapters/ch6/chapter.js', 'chapters/ch6/scene.js', 'chapters/ch6/script.js',
-  'chapters/joseon/common.js',
+  'chapters/joseon/common.js', 'chapters/joseon/landmarks.js', 'core/signs.js',
   'chapters/joseon/j1/chapter.js', 'chapters/joseon/j1/scene.js', 'chapters/joseon/j1/script.js',
   'chapters/joseon/j2/chapter.js', 'chapters/joseon/j2/scene.js', 'chapters/joseon/j2/script.js',
   'chapters/joseon/j3/chapter.js', 'chapters/joseon/j3/scene.js', 'chapters/joseon/j3/script.js',

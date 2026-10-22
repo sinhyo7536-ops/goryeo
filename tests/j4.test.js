@@ -31,7 +31,7 @@ test('j4: scene — harbor people, turtle ship, and the fleets move the right wa
   const w = testWorld();
   try {
     const s = buildJ4Scene(w);
-    eq([...w.npcs.keys()].sort(), ['commoner', 'navy', 'yisunsin']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['commoner', 'navy', 'yisunsin']);
     ok(s.turtle, 'turtle ship at the dock');
     s.setStage('lure'); s.setLure(0); const a = s.lure.position.z; s.setLure(1);
     ok(s.lure.position.z < a && s.lure.position.z < STRAIT_Z, 'lure goes north into the strait');
@@ -72,4 +72,16 @@ test('j4: a turtle ship leads the fleet in the wing formation', async () => {
   const { buildJ4Scene } = await import('../chapters/joseon/j4/scene.js');
   const w = testWorld();
   try { const s = buildJ4Scene(w); s.setStage('harbor'); ok(!s.leadTurtle.visible); ok(s.leadTurtle.parent === w.level, 'in the scene'); s.setStage('wing'); ok(s.leadTurtle.visible); } finally { w.dispose(); }
+});
+
+test('j4: when the lure ships turn, the enemy is still far away (gap ≥ 20)', async () => {
+  const { buildJ4Scene, STRAIT_Z } = await import('../chapters/joseon/j4/scene.js');
+  const w = testWorld();
+  try {
+    const s = buildJ4Scene(w);
+    s.setStage('lure'); s.setLure(0.95);
+    const enemyNearest = Math.max(...s.enemy.children.map(c => s.enemy.position.z + c.position.z));
+    ok(s.lure.position.z - enemyNearest >= 20, `gap ${s.lure.position.z - enemyNearest}`);
+    for (const k of [0, 0.5, 1]) { s.setChase(k); const near = Math.max(...s.enemy.children.map(c => s.enemy.position.z + c.position.z)); ok(s.lure.position.z - near >= 20, `chase gap at ${k}`); }
+  } finally { w.dispose(); }
 });

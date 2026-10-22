@@ -24,7 +24,7 @@ test('j6: scene — three gaps the crane can fill, four people', () => {
   const w = testWorld();
   try {
     const s = buildJ6Scene(w);
-    eq([...w.npcs.keys()].sort(), ['jeongjo', 'jeongyakyong', 'official', 'worker']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['jeongjo', 'jeongyakyong', 'official', 'worker']);
     eq(s.fillers.length, GAPS.length);
     ok(s.fillers.every(f => !f.visible), 'gaps start empty');
     for (const g of GAPS) { const k = s.kOf(g); s.setSlide(k); ok(Math.abs(s.trolley.position.x - g) < 1e-6, `crane reaches ${g}`); }

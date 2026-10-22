@@ -36,6 +36,17 @@ export default {
       ],
       later: [{ who: 'scholar', text: '전각 앞으로 가 보아라.' }],
     },
+    signThrone: { always: [
+      { who: 'narr', text: '근정전은 1395년 경복궁을 지을 때 세운 으뜸 전각이에요.', src: ['S46'] },
+      { who: 'narr', text: '왕의 즉위식 같은 나라의 큰 의식을 이곳에서 치렀어요.', src: ['S46'] },
+    ] },
+    signJiphyeon: { always: [
+      { who: 'narr', text: '집현전은 1420년에 세웠어요. 젊은 학자들이 이곳에서 학문을 연구했어요.', src: ['S29'] },
+    ] },
+    signHaerye: { always: [
+      { who: 'narr', text: '훈민정음 해례본은 글자를 만든 까닭과 원리를 풀어 1446년에 펴낸 책이에요.', src: ['S49'] },
+      { who: 'narr', text: '1940년 안동에서 발견되었고, 1997년 유네스코 세계기록유산이 되었어요.', src: ['S49'] },
+    ] },
     sejong: {
       tooEarly: [{ who: 'sejong', text: '먼저 백성과 학자의 이야기를 들어 보아라.' }],
       first: [

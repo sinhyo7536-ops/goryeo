@@ -153,6 +153,7 @@ function boot() {
       world.setMood(mod.mood); world.setPlayerLook(mod.player || LOOKS.player); const sc = mod.buildScene(world, ctx);
       const [sx, sz] = sc.start || [0, 19];
       world.player.position.set(sx, 0, sz); world.snapCamera(); input.enabled = true; inChapter = true;
+      window.__world = world; // 개발용 장면 보기에서만: 콘솔로 자리를 옮겨 살펴본다
       return;
     }
     const hasProgress = !!(save.data.name || Object.keys(save.data.chapters).length || save.data.current);

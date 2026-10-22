@@ -5,7 +5,7 @@ import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
 test('ch1: scene builds with 4 npcs and hidden pillars', () => {
   const w = testWorld();
   const s = buildCh1Scene(w);
-  eq([...w.npcs.keys()].sort(), ['archer', 'officer', 'seohui', 'soldier']);
+  eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['archer', 'officer', 'seohui', 'soldier']);
   eq(s.gangdongPillars.visible, false);
   eq(s.gangdongPillars.children.filter(c => c.isSprite).length, 6);
   ok(s.khitanGroup.children.length > 0);

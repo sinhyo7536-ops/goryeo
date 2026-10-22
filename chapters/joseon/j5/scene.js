@@ -6,6 +6,7 @@ import { mat, makePerson } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
 import { createWeather } from '../../../core/weather.js';
+import { addSigns } from '../common.js';
 
 const WALL = { rx: 20, rz: 16 };
 
@@ -104,6 +105,12 @@ export function buildJ5Scene(world) {
   }
   scatter(world, { kind: 'pine', count: 60, area: { x0: -80, x1: 80, z0: -80, z1: 80 }, avoid: [{ x: 0, z: 0, r: 26 }, { x: 0, z: 52, r: 30 }], seed: 91, ground: groundH, scale: [1, 1.6], color: 0x41604a });
   createWeather(world, 'snow', { count: 700 });
+
+  addSigns(world, [
+    { id: 'signFortress', title: '남한산성', x: 5, z: 4 },
+    { id: 'signHaenggung', title: '행궁', x: 8, z: -8 },
+    { id: 'signWestGate', title: '서문', x: -14, z: 1, ry: Math.PI / 2 },
+  ]);
 
   world.addNpc('soldier', LOOKS.joseonSoldier, -9, 6, Math.PI * 0.7);
   world.addNpc('keeper', LOOKS.worker, 9, -2, -Math.PI / 2);

@@ -27,7 +27,7 @@ test('j2: scene builds a palace with three people, player is a palace kid', () =
   const w = testWorld();
   try {
     buildJ2Scene(w);
-    eq([...w.npcs.keys()].sort(), ['commoner', 'scholar', 'sejong']);
+    eq([...w.npcs.values()].filter(n => !n.spot).map(n => n.id).sort(), ['commoner', 'scholar', 'sejong']);
     ok(j2.player && j2.player.hat === 'topknot');
   } finally { w.dispose(); }
 });

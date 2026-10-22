@@ -67,7 +67,7 @@ test('props: scattered scenery is batched, scales with quality and keeps clear o
     const hi = scatter(w, { kind: 'pine', count: 40, area: { x0: -30, x1: 30, z0: -30, z1: 30 }, avoid: keep, seed: 3 });
     ok(hi.meshes.every(m => m.isInstancedMesh), 'instanced (few draw calls)');
     ok(hi.meshes.length <= 3, `${hi.meshes.length} draw calls`);
-    eq(hi.count, 40);
+    eq(hi.count, Math.round(40 * w.quality.particles)); // 높음은 더 촘촘하게(2026-10-23)
     ok(hi.positions.every(([x, z]) => Math.hypot(x, z) >= 10), 'nothing on the path');
     const again = scatter(w, { kind: 'pine', count: 40, area: { x0: -30, x1: 30, z0: -30, z1: 30 }, avoid: keep, seed: 3 });
     eq(again.positions, hi.positions, 'same seed, same layout');
