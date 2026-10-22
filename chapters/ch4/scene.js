@@ -78,7 +78,7 @@ export function buildCh4Scene(world) {
     for (let i = 0; i < 8; i++) {
       const a = Math.PI + 0.3 + i * 0.35;
       const who = i % 2 ? LOOKS.monk : LOOKS.villager;
-      const p = makePerson(who); p.position.set(CHEOIN_X + Math.cos(a) * (CHEOIN_R - 1.4), 0, Math.sin(a) * (CHEOIN_R - 1.4));
+      const p = makePerson(who); p.position.set(CHEOIN_X + Math.cos(a) * (CHEOIN_R - 3.4), 0, Math.sin(a) * (CHEOIN_R - 3.4)); // 성벽 가까이는 궁수 자리
       p.rotation.y = Math.atan2(Math.cos(a), Math.sin(a)); cheoin.add(p);
     }
   }
@@ -86,6 +86,7 @@ export function buildCh4Scene(world) {
   const mongols = [];
   for (let i = 0; i < 8; i++) {
     const g = new THREE.Group(); g.visible = false; g.scale.setScalar(1.6); L.add(g); // 멀리서도 보이게 크게
+    g.rotation.order = 'YXZ'; // 화살을 맞으면 rotation.x로 뒤로 쓰러진다
     const p = makePerson(LOOKS.mongol); g.add(p);
     mk(new THREE.CylinderGeometry(0.05, 0.05, 3.4, 4), 0x3a2c20, 0.6, 1.7, 0, g);
     const f = mk(new THREE.PlaneGeometry(0.9, 0.7), 0x2a3550, 1.05, 3.1, 0, g); f.material = new THREE.MeshLambertMaterial({ color: 0x2a3550, side: THREE.DoubleSide });
@@ -93,6 +94,31 @@ export function buildCh4Scene(world) {
     const a = Math.PI + 0.55 + (i / 7) * (Math.PI - 1.1); // 성 앞쪽(북쪽, -z) 부채꼴
     mongols.push({ group: g, top, angle: a });
   }
+  // 고려 궁수 5명: 북쪽 성벽 안쪽 발판 위. 싸움이 시작되면 성벽 위로 올라와 활을 쏜다(처음엔 숨김).
+  const ARCHER_Y = 1.3;
+  const archers = [];
+  for (let i = 0; i < 5; i++) {
+    const a = Math.PI + 0.7 + i * (Math.PI - 1.4) / 4;
+    const x = CHEOIN_X + Math.cos(a) * (CHEOIN_R - 1.1), z = Math.sin(a) * (CHEOIN_R - 1.1);
+    mk(new THREE.BoxGeometry(1.3, ARCHER_Y, 1.3), 0x7a6449, x, ARCHER_Y / 2, z, cheoin); // 발판
+    const g = new THREE.Group(); g.visible = false; g.position.set(x, 0, z); g.scale.setScalar(1.3); L.add(g);
+    const p = makePerson(i % 2 ? LOOKS.monk : LOOKS.villager); g.add(p);
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.05, 4, 14, Math.PI), mat(0x5a3f2a));
+    bow.rotation.set(0, Math.PI / 2, Math.PI / 2); bow.position.set(0.42, 1.35, 0.25); g.add(bow);
+    const out = Math.atan2(Math.cos(a), Math.sin(a)); // 성 밖(북쪽 들판)을 바라본다
+    g.rotation.y = out;
+    archers.push({ group: g, angle: a, baseY: ARCHER_Y, rest: out });
+  }
+  // 날아가는 화살 (돌려 쓴다)
+  const arrows = [];
+  for (let i = 0; i < 6; i++) {
+    const g = new THREE.Group(); g.visible = false; g.scale.setScalar(2.6); L.add(g);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.4, 4).rotateX(Math.PI / 2), mat(0xf0e2bc)); g.add(shaft);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.26, 5).rotateX(Math.PI / 2), mat(0x3a3a3a)); tip.position.z = 0.8; g.add(tip);
+    const fl = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.3), mat(0xb8452f)); fl.position.z = -0.6; g.add(fl);
+    arrows.push(g);
+  }
+
   const cheoinFit = {
     target: [CHEOIN_X, 1, -12], dir: [0, 16, 15],
     points: [[CHEOIN_X - CHEOIN_R, 0, CHEOIN_R], [CHEOIN_X + CHEOIN_R, 0, CHEOIN_R],
@@ -127,7 +153,7 @@ export function buildCh4Scene(world) {
       cheoin: { center: [CHEOIN_X, 0], radius: CHEOIN_R, spawnR: SPAWN_R, fit: cheoinFit },
       chungju: { cam: chungjuCam, kimyunhu: [CHUNGJU_X + 1.8, -2.2, Math.PI * 0.85] },
     },
-    mongols, documents, flames,
+    mongols, archers, arrows, documents, flames,
     start: [PALACE_X, 8],
   };
 }

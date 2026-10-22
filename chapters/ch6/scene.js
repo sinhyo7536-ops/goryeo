@@ -43,10 +43,17 @@ export function buildCh6Scene(world) {
   mk(new THREE.ConeGeometry(9, 7, 10), 0x5a7a4a, JX, 1.5, JZ, jindo).scale.set(1.2, 1, 1);
   for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; const s = mk(new THREE.BoxGeometry(2.2, 1.6, 0.8), 0x8c8577, JX + Math.cos(a) * 4.5, 3.6, JZ + Math.sin(a) * 4.5, jindo); s.rotation.y = -a + Math.PI / 2; }
   world.addCollider({ x: JX, z: JZ, r: 9 });
+  // 진도 나루: 섬에서 도착 지점 쪽으로 뻗은 나무 부두. 김통정이 이 위에 서서 배를 맞는다(바다 위에 떠 있지 않게).
+  const docks = [mk(new THREE.BoxGeometry(12, 0.3, 3.2), 0x8a6a45, JINDO[0] - 4, -0.05, JINDO[1] - 3, jindo)];
+  for (const dx of [-9, -5, -1]) mk(new THREE.CylinderGeometry(0.18, 0.18, 1.4, 6), 0x5a3f2a, JINDO[0] + dx, -0.5, JINDO[1] - 1.4, jindo);
+  world.addCollider({ x: JINDO[0] - 6, z: JINDO[1] - 3, r: 1.6 });
   // 제주: 큰 섬과 항파두리 토성
   const jeju = new THREE.Group(); L.add(jeju);
   mk(new THREE.ConeGeometry(30, 10, 12), 0x587a48, JEJU[0], 1.5, JEJU[1] - 26, jeju).scale.set(1.6, 1, 0.9);
   for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; const s = mk(new THREE.BoxGeometry(2.4, 1.4, 1), 0x8a7356, JEJU[0] + Math.cos(a) * 8, 5.4, JEJU[1] - 24 + Math.sin(a) * 5, jeju); s.rotation.y = -a + Math.PI / 2; }
+  // 제주 섬 해안: 배가 섬 안으로 들어가지 않게 막는다(도착 지점은 해안 바로 앞)
+  world.addCollider({ x: JEJU[0], z: JEJU[1] - 25, r: 23 });
+  for (const dx of [-26, 26]) world.addCollider({ x: JEJU[0] + dx, z: JEJU[1] - 24, r: 18 });
 
   // 바위 (부딪히면 돌아가야 한다) — 출발점과 도착점을 잇는 곧은 길 위에는 두지 않는다
   for (const [x, z, r] of [[12, 44], [-22, 30], [16, 18], [-20, -20], [22, -40], [-14, -52], [24, 6]]) {
@@ -85,7 +92,7 @@ export function buildCh6Scene(world) {
   });
 
   return {
-    boat, pursuers, ring, jindo, jeju,
+    boat, pursuers, ring, jindo, jeju, docks,
     setSailing(b) { sailing = b; boat.visible = b; world.player.visible = !b; },
     portBounds: { x0: -18, x1: 18, z0: 64, z1: 86 },
     seaBounds: { x0: -40, x1: 40, z0: -84, z1: 66 },

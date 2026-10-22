@@ -140,9 +140,11 @@ export function showSessionCard(root, session, save, chapters) {
   });
 }
 
+const openMenus = new WeakMap(); // root → 열려 있는 메뉴의 약속 (Esc를 여러 번 눌러도 메뉴는 하나)
 export function showMenu(root, { muted, quality, storageOk = true }, onChange) {
-  return new Promise(resolve => {
-    const close = v => { el.remove(); resolve(v); };
+  if (openMenus.has(root)) return openMenus.get(root);
+  const p = new Promise(resolve => {
+    const close = v => { el.remove(); openMenus.delete(root); resolve(v); };
     const leave = h('div', { class: 'confirm', hidden: true },
       h('p', {}, '이 기기에서는 저장되지 않아서, 장 선택으로 나가면 지금까지 한 것이 사라져요.'),
       h('div', { class: 'row' },
@@ -161,6 +163,8 @@ export function showMenu(root, { muted, quality, storageOk = true }, onChange) {
           h('button', { class: 'btn primary', type: 'button', onclick: () => close('close') }, '닫기')),
         leave));
   });
+  openMenus.set(root, p);
+  return p;
 }
 
 export function showMessage(root, title, text) {

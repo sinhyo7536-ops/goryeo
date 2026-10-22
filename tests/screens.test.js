@@ -170,3 +170,16 @@ test('result card: only after chapter 6, lists all six chapters', async () => {
   ok(t.includes(SESSIONS[1].points[5]));
   btn(el, '닫기').click(); await p; el.remove();
 });
+
+test('menu: pressing Esc again while the menu is open does not stack a second menu', async () => {
+  const { showMenu } = await import('../core/screens.js');
+  const el = root();
+  try {
+    const p1 = showMenu(el, { muted: false, quality: 'medium' }, () => {});
+    const p2 = showMenu(el, { muted: false, quality: 'medium' }, () => {});
+    eq(el.querySelectorAll('.screen.menu').length, 1, 'one menu');
+    btn(el, '닫기').click();
+    eq(await p1, 'close'); eq(await p2, 'close');
+    eq(el.querySelectorAll('.screen.menu').length, 0);
+  } finally { el.remove(); }
+});

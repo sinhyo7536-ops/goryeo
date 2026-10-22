@@ -1,4 +1,5 @@
 // 4장 「강화도 천도와 처인성·충주성」: 개경 → 도읍 고르기 → 강화도 → 처인성 방어 → 충주성 → 퀴즈.
+import * as THREE from 'three';
 import { buildCh4Scene } from './scene.js';
 import { roam } from '../../core/flow.js';
 import { showHowTo, runWithRetries, createTapTargets, pickOnMap } from '../../core/minigame.js';
@@ -15,39 +16,74 @@ function placePlayer(world, [x, z], ry = Math.PI) {
 }
 
 // 처인성 방어 한 번: 40초 버티면 성공, 몽골군 3명이 성벽에 닿으면 실패.
-function cheoinDefense(ctx, easy) {
+// 성벽 위로 고려 궁수들이 올라오고, 몽골군을 누르면 가장 가까운 궁수가 화살을 쏜다. 맞은 몽골군은 뒤로 쓰러진다.
+const FLY = 0.5, FALL = 0.5, LIE = 1.0, RISE = 0.6; // 화살 나는 시간, 쓰러지는 시간, 누워 있는 시간, 궁수가 올라오는 시간
+export function cheoinDefense(ctx, easy) {
   const { world, hud, audio } = ctx;
   const A = scene.areas.cheoin, [cx] = A.center;
   const spawnEvery = easy ? 2.6 : 1.6, speed = easy ? 1.4 : 2.4, duration = 40;
   const travel = A.spawnR - A.radius - 1;
   const taps = createTapTargets(ctx);
-  for (const m of scene.mongols) m.group.visible = false;
+  const reset = () => {
+    for (const m of scene.mongols) { m.group.visible = false; m.group.rotation.x = 0; }
+    for (const ar of scene.arrows) ar.visible = false;
+    for (const ar of scene.archers) { ar.group.visible = false; ar.group.position.y = 0; ar.group.rotation.y = ar.rest; }
+  };
+  reset();
+  for (const ar of scene.archers) ar.group.visible = true;
   let t = 0, nextSpawn = 0.6, stopped = 0, breaches = 0, seed = 9, done = false;
-  const active = new Map();
+  const active = new Map(), hit = new Map(); // hit: 화살을 맞는 중이거나 쓰러진 몽골군 → { t, arrow, from, to }
+  const v = (x, y, z) => new THREE.Vector3(x, y, z);
+  const shoot = m => {
+    const archer = scene.archers.reduce((b, ar) => (Math.abs(ar.angle - m.angle) < Math.abs(b.angle - m.angle) ? ar : b));
+    const g = archer.group, p = m.group.position;
+    g.rotation.y = Math.atan2(p.x - g.position.x, p.z - g.position.z); // 몽골군 쪽으로 돌아선다
+    const arrow = scene.arrows.find(a => !a.visible) || scene.arrows[0];
+    arrow.visible = true;
+    hit.set(m, { t: 0, arrow, from: v(g.position.x, g.position.y + 2.2, g.position.z), to: v(p.x, 2.2, p.z) });
+    audio.play('whoosh');
+  };
   return new Promise(resolve => {
     const finish = ok => {
       if (done) return; done = true;
-      off(); taps.dispose(); for (const m of scene.mongols) m.group.visible = false;
+      off(); taps.dispose(); reset();
       hud.setTimer(null); hud.setCounter(null); resolve(ok);
     };
+    const pos = new THREE.Vector3(), ahead = new THREE.Vector3();
     const off = world.onUpdate(dt => {
       if (done) return;
       t += dt;
       hud.setTimer(duration - t);
       hud.setCounter(`막은 몽골군 ${stopped} · 성벽에 닿은 적 ${breaches}/3`);
+      const rise = Math.min(1, t / RISE); // 궁수가 발판 위로 올라온다
+      for (const ar of scene.archers) ar.group.position.y = ar.baseY * (1 - (1 - rise) * (1 - rise));
       if (t >= nextSpawn) {
         nextSpawn = t + spawnEvery;
-        const free = scene.mongols.filter(m => !active.has(m));
+        const free = scene.mongols.filter(m => !active.has(m) && !hit.has(m));
         if (free.length) {
           seed = (seed * 16807) % 2147483647;
           const m = free[seed % free.length];
           const a = { d: 0 };
-          m.group.visible = true;
+          m.group.visible = true; m.group.rotation.x = 0;
           a.target = taps.add(m.top, {
             label: '활',
-            onTap() { stopped += 1; audio.play('tap'); active.delete(m); taps.remove(a.target); m.group.visible = false; },
+            onTap() { stopped += 1; audio.play('tap'); active.delete(m); taps.remove(a.target); shoot(m); },
           });
           active.set(m, a);
+        }
+      }
+      // 화살이 날아가 맞고, 맞은 몽골군은 뒤로 쓰러졌다가 치워진다
+      for (const [m, h] of hit) {
+        h.t += dt;
+        if (h.t < FLY) {
+          const k = h.t / FLY, arc = Math.sin(Math.PI * k) * 2.5;
+          pos.lerpVectors(h.from, h.to, k).y += arc;
+          ahead.lerpVectors(h.from, h.to, Math.min(1, k + 0.05)); ahead.y += Math.sin(Math.PI * Math.min(1, k + 0.05)) * 2.5;
+          h.arrow.position.copy(pos); h.arrow.lookAt(ahead);
+        } else {
+          h.arrow.visible = false;
+          m.group.rotation.x = -1.45 * Math.min(1, (h.t - FLY) / FALL);
+          if (h.t >= FLY + FALL + LIE) { m.group.visible = false; m.group.rotation.x = 0; hit.delete(m); }
         }
       }
       for (const [m, a] of active) {

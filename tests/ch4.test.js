@@ -82,3 +82,32 @@ test('ch4: the envoy incident comes before the invasion, with its source and an 
   ok(ch4Script.intro.some(l => l.text.includes('저고여') && l.src.includes('S22')), 'envoy line cites S22');
   ok(ch4Script.npc.minister.first.some(l => l.text.includes('사신') && l.src && l.src.includes('S22')), 'minister mentions it');
 });
+
+test('ch4: Goryeo archers rise on the wall and a tapped Mongol is shot and falls', async () => {
+  const { cheoinDefense } = await import('../chapters/ch4/chapter.js');
+  const s = touchSetup(ch4Script.speakers);
+  try {
+    const sc = ch4.buildScene(s.w, s.ctx);
+    ok(sc.archers.length >= 4, 'archers exist');
+    ok(sc.archers.every(a => !a.group.visible), 'hidden before the battle');
+    const f = sc.areas.cheoin.fit;
+    s.w.fitFixedCamera(f.target, f.dir, f.points);
+    cheoinDefense(s.ctx, false);
+    const step = n => { for (let i = 0; i < n; i++) s.w.step(0.05, { x: 0, z: 0 }); };
+    step(20); // 1초: 궁수가 올라오고 첫 몽골군이 나타난다
+    ok(sc.archers.every(a => a.group.visible), 'archers appear');
+    const top = Math.max(...sc.archers.map(a => a.group.position.y));
+    ok(top > 0.5, `archers stand up on the wall (y ${top.toFixed(2)})`);
+    const btn = [...s.ui.querySelectorAll('.tap-target')].find(b => !b.hidden);
+    ok(btn, 'a Mongol to shoot');
+    const target = sc.mongols.find(m => m.group.visible);
+    btn.click();
+    step(2);
+    ok(sc.arrows.some(a => a.visible), 'an arrow flies');
+    ok(target.group.visible, 'the Mongol does not vanish at once');
+    step(14); // 0.8초 뒤: 화살이 닿아 쓰러지는 중
+    ok(target.group.rotation.x < -0.6, `falls backward (rx ${target.group.rotation.x.toFixed(2)})`);
+    step(40); // 2초 뒤: 쓰러진 몽골군은 치워진다
+    ok(!target.group.visible, 'cleared after falling');
+  } finally { s.done(); }
+});

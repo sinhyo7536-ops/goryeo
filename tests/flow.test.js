@@ -28,6 +28,26 @@ function fakeCtx(log, picks) {
 }
 const meta = { id: 'fake', no: 1, title: '가짜 장' };
 
+test('flow: time spent before closing the game is kept when resuming', async () => {
+  const log = [], save = memSave();
+  save.data.current = { id: 'fake', stage: 'quiz', carry: { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: false }, elapsed: 300 };
+  const r = await runChapter(meta, fakeChapter(log), fakeCtx(log, [0, 1]), save, { resumeStage: 'quiz' });
+  ok(r.seconds >= 300 && r.seconds < 310, `seconds ${r.seconds}`);
+});
+
+test('flow: checkpoints record time spent so far', async () => {
+  const log = [], save = memSave();
+  let seen = null;
+  const ch = fakeChapter(log);
+  ch.minigame = async () => { await new Promise(r => setTimeout(r, 1100)); return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: false }; };
+  const ctx = fakeCtx(log, [0, 1]);
+  const quiz = ctx.dialogue.quiz;
+  ctx.dialogue.quiz = async q => { if (!seen) seen = { ...save.data.current }; return quiz(q); };
+  await runChapter(meta, ch, ctx, save);
+  eq(seen.stage, 'quiz');
+  ok(seen.elapsed >= 1, `elapsed ${seen.elapsed}`);
+});
+
 test('flow: runs stages in order and saves checkpoints', async () => {
   const log = [], save = memSave();
   const seen = [];

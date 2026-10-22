@@ -9,34 +9,43 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
   const result = { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: false, quizCorrect: 0, quizTotal: 0, wrongQuizzes: [] };
   const cur = save.data.current;
   if (from === 3 && cur && cur.id === meta.id && cur.carry) Object.assign(result, cur.carry); // 미니게임 결과를 되살린다
+  // 걸린 시간: 이어하기 전에 쓴 시간(elapsed)에 이어서 센다. 체크포인트와 화면을 떠날 때마다 저장한다.
+  const base = from > 0 && cur && cur.id === meta.id && Number.isFinite(cur.elapsed) ? cur.elapsed : 0;
+  const spent = () => base + (performance.now() - t0) / 1000;
+  const stamp = () => { const c = save.data.current; if (c && c.id === meta.id) { c.elapsed = Math.round(spent()); save.persist(); } };
+  const checkpoint = (stage, carry) => { save.checkpoint(meta.id, stage, carry); stamp(); };
+  const onHide = () => { if (document.visibilityState === 'hidden') stamp(); };
+  const tick = setInterval(stamp, 15000);
+  addEventListener('pagehide', stamp); document.addEventListener('visibilitychange', onHide);
+  try {
+    if (from === 0) {
+      checkpoint('intro');
+      await ctx.screens.showIntroCard(meta, chapter.script.intro);
+    }
+    chapter.buildScene(ctx.world, ctx);
+    if (from > 0) chapter.enterStage?.(ctx, STAGES[from]);
 
-  if (from === 0) {
-    save.checkpoint(meta.id, 'intro');
-    await ctx.screens.showIntroCard(meta, chapter.script.intro);
-  }
-  chapter.buildScene(ctx.world, ctx);
-  if (from > 0) chapter.enterStage?.(ctx, STAGES[from]);
+    if (from <= 1) {
+      checkpoint('explore');
+      await chapter.explore(ctx);
+    }
+    if (from <= 2) {
+      checkpoint('minigame');
+      const mg = await chapter.minigame(ctx);
+      Object.assign(result, { firstTryCorrect: mg.firstTryCorrect, firstTryTotal: mg.firstTryTotal, easyModeUsed: mg.easyModeUsed });
+    }
 
-  if (from <= 1) {
-    save.checkpoint(meta.id, 'explore');
-    await chapter.explore(ctx);
-  }
-  if (from <= 2) {
-    save.checkpoint(meta.id, 'minigame');
-    const mg = await chapter.minigame(ctx);
-    Object.assign(result, { firstTryCorrect: mg.firstTryCorrect, firstTryTotal: mg.firstTryTotal, easyModeUsed: mg.easyModeUsed });
-  }
+    checkpoint('quiz', { firstTryCorrect: result.firstTryCorrect, firstTryTotal: result.firstTryTotal, easyModeUsed: result.easyModeUsed });
+    for (const q of chapter.quizzes) {
+      const { correct } = await ctx.dialogue.quiz(q);
+      result.quizTotal += 1;
+      if (correct) result.quizCorrect += 1;
+      else result.wrongQuizzes.push({ question: q.question, answer: q.options[q.answer], explain: q.explain });
+    }
+    ctx.dialogue.close();
+  } finally { clearInterval(tick); removeEventListener('pagehide', stamp); document.removeEventListener('visibilitychange', onHide); }
 
-  save.checkpoint(meta.id, 'quiz', { firstTryCorrect: result.firstTryCorrect, firstTryTotal: result.firstTryTotal, easyModeUsed: result.easyModeUsed });
-  for (const q of chapter.quizzes) {
-    const { correct } = await ctx.dialogue.quiz(q);
-    result.quizTotal += 1;
-    if (correct) result.quizCorrect += 1;
-    else result.wrongQuizzes.push({ question: q.question, answer: q.options[q.answer], explain: q.explain });
-  }
-  ctx.dialogue.close();
-
-  result.seconds = Math.round((performance.now() - t0) / 1000);
+  result.seconds = Math.round(spent());
   result.stars = computeStars(result);
   save.finishChapter(meta.id, result);
   return result;

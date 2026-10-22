@@ -4,17 +4,34 @@ import { portraitURL } from './faces.js';
 const NARR = { name: '해설', mark: '史', color: '#5a5248' };
 const CLICK_GUARD_MS = 250; // 선택지가 열린 직후의 탭은 앞 대사를 넘기려던 탭이므로 무시
 
-export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = false } = {}) {
+// speech: core/speech.js의 읽어 주기(선택). onSpeechToggle(켜짐 여부): 🔊 버튼을 눌렀을 때 알린다(설정 저장용).
+export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = false, speech = null, onSpeechToggle = null } = {}) {
   const all = { narr: NARR, ...speakers };
   const el = document.createElement('div');
   el.className = 'dlg';
   el.hidden = true;
-  el.innerHTML = '<div class="dlg-portrait"></div><div class="dlg-name"></div><div class="dlg-text"></div><div class="dlg-next">눌러서 계속 ▸</div><div class="dlg-choices" hidden></div>';
+  el.innerHTML = '<div class="dlg-portrait"></div><div class="dlg-name"></div><div class="dlg-text"></div><div class="dlg-next">눌러서 계속 ▸</div><div class="dlg-choices" hidden></div><button class="dlg-voice" type="button" hidden aria-pressed="false" aria-label="대사 읽어 주기"></button>';
   root.appendChild(el);
   const $ = s => el.querySelector(s);
   const textEl = $('.dlg-text'), nextEl = $('.dlg-next'), choicesEl = $('.dlg-choices');
 
   let advanceFn = null, pickFn = null, timer = null, openedAt = 0;
+  let spoken = ''; // 지금 화면에 있는 대사(읽어 주기를 켜면 바로 읽는다)
+  const speak = text => { spoken = text; if (speech) speech.speak(text); };
+  const voiceBtn = $('.dlg-voice');
+  const paintVoice = () => {
+    const on = !!(speech && speech.enabled);
+    voiceBtn.setAttribute('aria-pressed', String(on));
+    voiceBtn.textContent = on ? '🔊 읽어 주기 켬' : '🔈 읽어 주기';
+  };
+  if (speech && speech.available) { voiceBtn.hidden = false; paintVoice(); }
+  voiceBtn.addEventListener('click', e => {
+    e.stopPropagation(); // 대화창을 넘기지 않는다
+    speech.setEnabled(!speech.enabled);
+    paintVoice();
+    if (speech.enabled && spoken) speech.speak(spoken);
+    if (onSpeechToggle) onSpeechToggle(speech.enabled);
+  });
 
   function show(who) {
     const s = all[who] || NARR;
@@ -36,6 +53,7 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
     return new Promise(resolve => {
       show(line.who);
       choicesEl.hidden = true; nextEl.hidden = false;
+      speak(line.text);
       const chars = [...line.text];
       clearInterval(timer); timer = null;
       if (reduceMotion || typeMs <= 0) textEl.textContent = line.text;
@@ -58,6 +76,7 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
       clearInterval(timer); timer = null; advanceFn = null;
       show(prompt.who);
       textEl.textContent = prompt.text;
+      speak(`${prompt.text} ${options.map((t, i) => `${i + 1}번, ${t}.`).join(' ')}`);
       nextEl.hidden = true; choicesEl.hidden = false; choicesEl.innerHTML = '';
       openedAt = performance.now();
       options.forEach((text, i) => {
@@ -118,7 +137,7 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
     pick(i) { if (pickFn) pickFn(i); },
     isOpen() { return !el.hidden; },
     isChoosing() { return !!pickFn; },
-    close() { clearInterval(timer); timer = null; advanceFn = pickFn = null; el.hidden = true; },
+    close() { clearInterval(timer); timer = null; advanceFn = pickFn = null; el.hidden = true; spoken = ''; if (speech) speech.stop(); },
     dispose() { dialogue.close(); window.removeEventListener('keydown', onKey); el.remove(); },
   };
   return dialogue;

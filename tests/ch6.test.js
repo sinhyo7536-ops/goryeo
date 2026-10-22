@@ -8,6 +8,7 @@ import ch6Script from '../chapters/ch6/script.js';
 import ch6 from '../chapters/ch6/chapter.js';
 import { buildCh6Scene } from '../chapters/ch6/scene.js';
 import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
+import * as THREE from 'three';
 
 const answers = new Set(ch6Script.quizzes.map(q => q.options[q.answer]));
 
@@ -66,4 +67,19 @@ test('ch6: pursuers wait a moment before chasing so the student can get going', 
     for (let i = 0; i < 40; i++) s.w.step(0.05, { x: 0, z: 0 });
     ok(sc.pursuers.some((p, i) => p.position.x !== start[i][0]), 'then they chase');
   } finally { s.done(); }
+});
+
+test('ch6: 김통정 stands on a dock at 진도, not in the sea, and 제주 is solid', () => {
+  const w = testWorld();
+  try {
+    const sc = buildCh6Scene(w);
+    const k = w.npcs.get('kimtongjeong').mesh.position;
+    ok(sc.docks.some(d => { const b = new THREE.Box3().setFromObject(d); return k.x > b.min.x && k.x < b.max.x && k.z > b.min.z && k.z < b.max.z && b.max.y >= -0.05; }), `dock under 김통정 at ${k.x},${k.z}`);
+    const leg = sc.legs[1];
+    w.bounds = sc.seaBounds;
+    // 제주 도착점 바로 뒤(섬 안쪽)로는 배가 들어가지 못한다
+    w.player.position.set(leg.to.x, 0, leg.to.z);
+    for (let i = 0; i < 60; i++) w.step(0.05, { x: 0, z: -1 });
+    ok(w.player.position.z > leg.to.z - 4, `stopped at the shore (z ${w.player.position.z.toFixed(1)})`);
+  } finally { w.dispose(); }
 });
