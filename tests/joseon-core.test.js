@@ -90,3 +90,23 @@ test('placeOnBoard: 물건마다 맞는 자리를 누르면 성공, 틀리면 �
 test('music: 조선편 장마다 배경음악이 있다', () => {
   for (const id of ['j1', 'j2', 'j3', 'j4', 'j5', 'j6']) ok(THEMES[id] && THEMES[id].motif.length >= 4, id);
 });
+
+test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 실패', async () => {
+  const { sortCards } = await import('../core/minigame.js');
+  const opts = { title: '나누기', bins: [{ id: 'a', label: '가' }, { id: 'b', label: '나' }], cards: [{ text: '하나', bin: 'a' }, { text: '둘', bin: 'b' }] };
+  let c = ctx(), r = null;
+  sortCards(c, opts).then(v => { r = v; });
+  ok(c.ui.textContent.includes('하나'));
+  c.ui.querySelector('[data-bin="a"]').click(); c.ui.querySelector('[data-bin="b"]').click();
+  await sleep(600);
+  eq(r, true); c.done();
+  c = ctx(); r = null;
+  sortCards(c, opts).then(v => { r = v; });
+  c.ui.querySelector('[data-bin="b"]').click();
+  await sleep(1000);
+  eq(r, false); c.done();
+  c = ctx();
+  sortCards(c, { ...opts, easy: true });
+  ok(c.ui.querySelector('[data-bin="a"]').classList.contains('hint'));
+  c.done();
+});

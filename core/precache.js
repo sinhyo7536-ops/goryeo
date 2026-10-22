@@ -1,5 +1,5 @@
 // 서비스 워커가 처음 설치될 때 기기에 저장해 둘 파일 목록. 장을 추가하면 여기에도 넣는다.
-export const CACHE = 'goryeo-v17'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
+export const CACHE = 'goryeo-v18'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
 
 export const PRECACHE = [
   'index.html', 'styles.css', 'vendor/three.module.min.js', 'content/sources.js',
@@ -18,6 +18,7 @@ export const PRECACHE = [
   'chapters/joseon/j2/chapter.js', 'chapters/joseon/j2/scene.js', 'chapters/joseon/j2/script.js',
   'chapters/joseon/j3/chapter.js', 'chapters/joseon/j3/scene.js', 'chapters/joseon/j3/script.js',
   'chapters/joseon/j4/chapter.js', 'chapters/joseon/j4/scene.js', 'chapters/joseon/j4/script.js',
+  'chapters/joseon/j5/chapter.js', 'chapters/joseon/j5/scene.js', 'chapters/joseon/j5/script.js',
 ];
 
 // 오프라인에서 폴더 주소(…/game/)로 들어오는 화면 요청은 저장해 둔 index.html로 연다.

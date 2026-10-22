@@ -14,7 +14,7 @@ export const JOSEON = [
   { id: 'j2', no: 2, session: 2, title: '세종과 훈민정음', years: '1443~1446', event: '우리 글자', place: '한양 경복궁', mapXY: [35, 51], load: () => import('./joseon/j2/chapter.js') },
   { id: 'j3', no: 3, session: 2, title: '세종 때의 과학 기술', years: '1434~1442', event: '시간과 비를 재다', place: '한양', mapXY: [45, 49], load: () => import('./joseon/j3/chapter.js') },
   { id: 'j4', no: 4, session: 2, title: '임진왜란과 한산도 대첩', years: '1592', event: '일본의 침입', place: '한산도 앞바다', mapXY: [60, 88], load: () => import('./joseon/j4/chapter.js') },
-  { id: 'j5', no: 5, session: 2, title: '병자호란과 남한산성', years: '1636~1637', event: '청의 침입', place: '남한산성', mapXY: [50, 58], load: null },
+  { id: 'j5', no: 5, session: 2, title: '병자호란과 남한산성', years: '1636~1637', event: '청의 침입', place: '남한산성', mapXY: [50, 58], load: () => import('./joseon/j5/chapter.js') },
   { id: 'j6', no: 6, session: 2, title: '영조·정조와 수원 화성', years: '1742~1796', event: '탕평과 화성', place: '수원', mapXY: [39, 62], load: null },
 ];
 

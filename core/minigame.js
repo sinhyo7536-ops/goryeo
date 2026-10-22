@@ -289,6 +289,44 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
   });
 }
 
+// 카드 나누기: 카드가 한 장씩 나오면 알맞은 바구니(bins)를 누른다. 모두 맞게 나누면 true, 틀리면 false.
+// easy이면 맞는 바구니가 빛난다.
+export function sortCards(ctx, { title, bins, cards, easy = false }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order sort');
+    const card = el('div', 'card wide');
+    const now = el('p', 'sort-now');
+    const row = el('div', 'sort-bins');
+    card.append(el('div', 'eyebrow', '카드 나누기'), el('h2', null, title), now, row);
+    screen.append(card); ctx.ui.append(screen);
+    let i = 0, over = false;
+    const counts = bins.map(() => 0);
+    const buttons = bins.map((b, k) => {
+      const btn = el('button', 'sort-bin', ''); btn.type = 'button'; btn.dataset.bin = b.id;
+      const show = () => { btn.textContent = `${b.label} (${counts[k]})`; };
+      show();
+      btn.addEventListener('click', () => {
+        if (over) return;
+        if (cards[i].bin === b.id) {
+          counts[k] += 1; show(); i += 1;
+          if (i === cards.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 400); } else ask();
+        } else {
+          over = true; btn.classList.add('wrong'); now.textContent = `× ${cards[i].text}`;
+          buttons.forEach(x => { x.disabled = true; });
+          setTimeout(() => { screen.remove(); resolve(false); }, 800);
+        }
+      });
+      row.append(btn);
+      return btn;
+    });
+    const ask = () => {
+      now.textContent = `“${cards[i].text}” (${i + 1} / ${cards.length})`;
+      buttons.forEach((x, k) => x.classList.toggle('hint', easy && bins[k].id === cards[i].bin));
+    };
+    ask();
+  });
+}
+
 // 자리 놓기: 판 위의 자리(slots) 중에서 지금 물건(items 차례대로)이 들어갈 자리를 누른다.
 // 모두 맞게 놓으면 true, 틀린 자리를 누르면 false. decor는 판 위의 이름표(산, 강 등). easy이면 맞는 자리가 빛난다.
 // boardClass 'map'이면 판을 지도처럼 그린다(북쪽 산).
