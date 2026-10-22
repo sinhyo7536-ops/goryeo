@@ -148,3 +148,46 @@ test('roam: talking moves the camera close to the speaker and back afterwards', 
     stop();
   } finally { s.done(); }
 });
+
+async function untilRescue(s, sc) {
+  const bot = touchBot(s, { answers });
+  ch2.minigame(s.ctx); // 성벽 방어는 봇이 막고, 들판에 도착하면 멈춘다
+  for (let i = 0; i < 2000 && s.w.bounds !== sc.field.bounds; i++) await sleep(15);
+  bot.stop();
+  for (let i = 0; i < 100 && !s.ui.querySelector('.screen.howto'); i++) await sleep(15);
+  s.ui.querySelector('.screen.howto button.primary')?.click();
+  await sleep(30);
+}
+
+test('ch2 rescue: captives start ahead of the player, inside the camera view', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  try {
+    const sc = ch2.buildScene(s.w, s.ctx);
+    await untilRescue(s, sc);
+    s.w.step(0.016, { x: 0, z: 0 }); s.w.camera.updateMatrixWorld();
+    const pz = s.w.player.position.z, v = new THREE.Vector3();
+    for (const c of sc.captives) {
+      ok(c.group.position.z < pz, `captive z ${c.group.position.z.toFixed(1)} is north of player ${pz.toFixed(1)}`);
+      v.copy(c.group.position).project(s.w.camera);
+      ok(v.z < 1 && Math.abs(v.y) < 1, `captive on screen (${v.x.toFixed(2)}, ${v.y.toFixed(2)})`);
+    }
+    const g = s.w.getGoal(); ok(g && g.z < pz, 'goal arrow points forward (up the screen)');
+  } finally { s.done(); }
+}, { timeout: 120000 });
+
+test('ch2 rescue: arrow up moves the player up the screen', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  try {
+    const sc = ch2.buildScene(s.w, s.ctx);
+    await untilRescue(s, sc);
+    const v = new THREE.Vector3();
+    s.w.camera.updateMatrixWorld();
+    const y0 = v.copy(s.w.player.position).project(s.w.camera).y, z0 = s.w.player.position.z;
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowUp' }));
+    for (let i = 0; i < 10; i++) s.w.step(0.05, s.input.move());
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'ArrowUp' }));
+    ok(s.w.player.position.z < z0, 'moved north');
+    s.w.camera.updateMatrixWorld();
+    ok(v.copy(s.w.player.position).project(s.w.camera).y >= y0 - 0.05, 'not moving down the screen');
+  } finally { s.done(); }
+}, { timeout: 120000 });

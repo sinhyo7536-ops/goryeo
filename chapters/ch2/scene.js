@@ -62,7 +62,7 @@ export function buildCh2Scene(world) {
   // 소나무
   for (let i = 0; i < 40; i++) {
     const a = rand() * Math.PI * 2, d = 30 + rand() * 50, x = Math.cos(a) * d, z = Math.sin(a) * d + 20;
-    if (Math.abs(x) < 26 && z > 26 && z < 76) continue;
+    if (Math.abs(x) < 26 && z > 16 && z < 80) continue;
     if (Math.abs(x) < 32 && z < -14 && z > -60) continue; // 성벽 방어 카메라 앞을 가리지 않게
     mk(new THREE.ConeGeometry(1.4, 3.6, 6), 0x3e5f4a, x, 2.4, z);
     mk(new THREE.ConeGeometry(1.0, 1.2, 6), 0xf2f5f7, x, 3.9, z);
@@ -105,7 +105,7 @@ export function buildCh2Scene(world) {
       v.position.set((k - 1) * 0.9, 0, (k % 2) * 0.6); v.rotation.y = Math.PI; g.add(v);
     }
     const escort = makePerson(LOOKS.khitan); escort.position.set(0, 0, -1.4); escort.rotation.y = Math.PI; g.add(escort);
-    captives.push({ group: g, escort, start: [-18 + i * 7.2 + (rand() - 0.5) * 2, FIELD_Z + 10 + rand() * 6] });
+    captives.push({ group: g, escort, start: [-18 + i * 7.2 + (rand() - 0.5) * 2, FIELD_Z - 6 + rand() * 6] }); // 플레이어보다 앞(북쪽)에서 출발
   }
   createWeather(world, 'snow', { count: 700 });
 
@@ -126,7 +126,7 @@ export function buildCh2Scene(world) {
       points: [[-14.4, 0, -14.5], [14.4, 0, -14.5], [-14.4, WALL_H + 1, -13.6], [14.4, WALL_H + 1, -13.6],
         ...[-10, -6, -2, 2, 6, 10].flatMap(x => [[x, 0, LADDER_Z], [x, WALL_H + 0.8, -HALF - 1.6]])],
     },
-    field: { bounds: { x0: -24, x1: 24, z0: 28, z1: 72 }, start: [0, 34], lostZ: 30 },
+    field: { bounds: { x0: -24, x1: 24, z0: 20, z1: 72 }, start: [0, 68], lostZ: 21 }, // 플레이어는 남쪽에서 북쪽(화면 위)으로 쫓아간다
     start: [0, 6],
   };
 }
