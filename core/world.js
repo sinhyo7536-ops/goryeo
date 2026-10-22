@@ -55,14 +55,34 @@ const PLAYER_R = 0.4;
 const CAM_OFFSET = new THREE.Vector3(0, 8.5, 12);
 const LOOK_AHEAD = -4; // 카메라는 플레이어보다 조금 앞(북쪽)을 본다
 
+// 하늘: 위·지평선·아래 세 색의 그러데이션 + 해 둘레의 빛 + 천천히 흐르는 구름(화질 낮음에서는 구름을 끈다)
 function skyMaterial() {
   return new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { top: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, bottom: { value: new THREE.Color() } },
+    uniforms: {
+      top: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, bottom: { value: new THREE.Color() },
+      sunDir: { value: new THREE.Vector3(0, 1, 0) }, sunColor: { value: new THREE.Color() },
+      cloudAmt: { value: 0.5 }, cloudColor: { value: new THREE.Color(1, 1, 1) }, time: { value: 0 },
+    },
     vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-    fragmentShader: `uniform vec3 top; uniform vec3 horizon; uniform vec3 bottom; varying vec3 vP;
-      void main(){ float h = vP.y; vec3 c = h > 0.0 ? mix(horizon, top, pow(h, 0.55)) : mix(horizon, bottom, pow(-h, 0.4));
-      gl_FragColor = vec4(c, 1.0); }`,
+    fragmentShader: `uniform vec3 top; uniform vec3 horizon; uniform vec3 bottom; uniform vec3 sunDir; uniform vec3 sunColor;
+      uniform float cloudAmt; uniform vec3 cloudColor; uniform float time; varying vec3 vP;
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y); }
+      void main(){
+        vec3 d = normalize(vP); float h = d.y;
+        vec3 c = h > 0.0 ? mix(horizon, top, pow(h, 0.55)) : mix(horizon, bottom, pow(-h, 0.4));
+        float s = max(dot(d, normalize(sunDir)), 0.0);
+        c += sunColor * (pow(s, 12.0) * 0.3 + pow(s, 600.0) * 0.8);
+        if (h > 0.0 && cloudAmt > 0.0) {
+          vec2 uv = d.xz / (h + 0.2) * 1.5 + vec2(time * 0.01, time * 0.003);
+          float n = noise(uv) * 0.55 + noise(uv * 2.3) * 0.3 + noise(uv * 5.1) * 0.15;
+          float cl = smoothstep(0.5, 0.78, n) * cloudAmt * smoothstep(0.0, 0.3, h);
+          c = mix(c, cloudColor * (0.82 + 0.18 * n), cl);
+        }
+        gl_FragColor = vec4(c, 1.0);
+      }`,
   });
 }
 
@@ -71,6 +91,9 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
   try { renderer = injected || new THREE.WebGLRenderer({ antialias: quality !== 'low' }); }
   catch (e) { const err = new Error('WEBGL_UNAVAILABLE'); err.cause = e; throw err; }
   container.appendChild(renderer.domElement);
+  // 영화 같은 색 처리: 밝은 곳이 하얗게 날아가지 않고 부드럽게 눌린다
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 400);
@@ -78,8 +101,10 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
   scene.add(sky);
   const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
   const sun = new THREE.DirectionalLight(0xffffff, 1);
-  sun.shadow.mapSize.set(1024, 1024);
-  Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 160 });
+  // 해와 그림자 범위는 카메라가 보는 곳을 따라다닌다(맵 어디서나 그림자가 생긴다). 범위가 좁을수록 그림자가 또렷하다.
+  Object.assign(sun.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 1, far: 180 });
+  sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
+  const sunDir = new THREE.Vector3(0, 1, 0);
   scene.add(hemi, sun, sun.target);
 
   const level = new THREE.Group();
@@ -112,8 +137,13 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
     fit.aspect = camera.aspect;
   }
 
+  function placeSun() {
+    sun.target.position.copy(camTarget);
+    sun.position.copy(camTarget).addScaledVector(sunDir, 80);
+  }
+
   const world = {
-    scene, camera, renderer, level, player, goalArrow,
+    scene, camera, renderer, level, player, goalArrow, sun,
     colliders: [], npcs: new Map(),
     bounds: { x0: -50, x1: 50, z0: -50, z1: 50 },
     camMode: 'follow',
@@ -128,7 +158,12 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       scene.fog = new THREE.Fog(m.fog[0], m.fog[1], m.fog[2]);
       scene.background = new THREE.Color(m.fog[0]);
       sun.color.set(m.sun.color); sun.intensity = m.sun.intensity;
-      sun.position.set(...m.sun.dir); sun.target.position.set(0, 0, -8);
+      sunDir.set(...m.sun.dir).normalize();
+      sky.material.uniforms.sunDir.value.copy(sunDir);
+      sky.material.uniforms.sunColor.value.set(m.sun.color).multiplyScalar(Math.min(1, m.sun.intensity));
+      sky.material.uniforms.cloudColor.value.set(m.cloud ?? 0xffffff);
+      sky.material.uniforms.cloudAmt.value = world.quality.particles > 0.3 ? (m.clouds ?? 0.5) : 0;
+      placeSun();
       hemi.color.set(m.hemi[0]); hemi.groundColor.set(m.hemi[1]); hemi.intensity = m.hemi[2];
       world.mood = m;
     },
@@ -139,6 +174,9 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       renderer.shadowMap.enabled = q.shadows !== 'off';
       renderer.shadowMap.type = q.shadows === 'soft' ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
       sun.castShadow = q.shadows !== 'off';
+      const ms = q.shadows === 'soft' ? 2048 : 1024;
+      if (sun.shadow.mapSize.x !== ms) { sun.shadow.mapSize.set(ms, ms); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
+      if (world.mood) sky.material.uniforms.cloudAmt.value = q.particles > 0.3 ? (world.mood.clouds ?? 0.5) : 0;
       scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(mm => { mm.needsUpdate = true; }); });
       world.resize();
     },
@@ -243,6 +281,9 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
         camTarget.lerp(tmp.copy(p).setY(1).setZ(p.z + LOOK_AHEAD), a);
         camera.lookAt(camTarget);
       }
+      placeSun();
+      sky.material.uniforms.time.value = elapsed;
+      sky.position.copy(camera.position); // 하늘은 늘 카메라를 둘러싼다
     },
     clearLevel() {
       for (const o of [...level.children]) {

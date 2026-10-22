@@ -1,15 +1,18 @@
 // 코드로 만드는 로우폴리 인물과 걷기 동작, 머리 위 표시.
 import * as THREE from 'three';
 import { faceTexture } from './faces.js';
+import { worldMapped } from './textures.js';
 
+// 색 + 무늬 종류(grain·stone·wood·tile·grass·cloth·earth)로 재질을 만든다. 같은 조합은 같이 쓴다.
 const mats = new Map();
-export function mat(color) {
-  if (!mats.has(color)) mats.set(color, new THREE.MeshLambertMaterial({ color, flatShading: true }));
-  return mats.get(color);
+export function mat(color, kind = 'grain', space = 'world') {
+  const key = `${color}:${kind}:${space}`;
+  if (!mats.has(key)) mats.set(key, worldMapped(new THREE.MeshLambertMaterial({ color, flatShading: true }), kind, space));
+  return mats.get(key);
 }
 
-function part(geo, color, x, y, z, parent) {
-  const m = new THREE.Mesh(geo, mat(color));
+function part(geo, color, x, y, z, parent, kind = 'cloth') {
+  const m = new THREE.Mesh(geo, mat(color, kind, 'object'));
   m.position.set(x, y, z); m.castShadow = true;
   parent.add(m);
   return m;
@@ -26,19 +29,29 @@ function faceMat(face) {
   return faceMats.get(key);
 }
 
-export function makePerson({ robe, hat, trim = 0x2b241c, face = {} }) {
+// gear: 'spear'(창) · 'sword'(허리에 찬 칼) · 'bow'(등에 멘 활) · 없음
+export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null }) {
   const g = new THREE.Group();
   const legs = [], arms = [];
   for (const sx of [-0.16, 0.16]) {
     const piv = new THREE.Group(); piv.position.set(sx, 0.55, 0); g.add(piv);
     part(new THREE.BoxGeometry(0.2, 0.55, 0.22), 0x2b241c, 0, -0.28, 0, piv);
+    part(new THREE.BoxGeometry(0.24, 0.12, 0.34), 0x1e1a16, 0, -0.5, 0.05, piv, 'grain').name = 'shoe'; // 신발
     legs.push(piv);
   }
   part(new THREE.CylinderGeometry(0.38, 0.58, 1.25, 7), robe, 0, 1.12, 0, g);
-  part(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 7), trim, 0, 1.25, 0, g);
+  part(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 7), trim, 0, 1.25, 0, g).name = 'belt'; // 허리띠
+  part(new THREE.CylinderGeometry(0.585, 0.6, 0.08, 7), trim, 0, 0.53, 0, g).name = 'hem'; // 옷자락 끝단
+  // 앞섶(깃): 가슴에서 엇갈리는 흰 깃 두 줄
+  for (const [sx, rz] of [[-0.08, -0.5], [0.08, 0.5]]) {
+    const c = part(new THREE.BoxGeometry(0.07, 0.42, 0.04), 0xece4d2, sx, 1.52, 0.37, g);
+    c.rotation.set(-0.28, 0, rz); c.name = 'collar';
+  }
   for (const sx of [-0.5, 0.5]) {
     const piv = new THREE.Group(); piv.position.set(sx, 1.65, 0); g.add(piv);
     part(new THREE.BoxGeometry(0.18, 0.72, 0.2), robe, 0, -0.34, 0, piv);
+    part(new THREE.BoxGeometry(0.2, 0.08, 0.22), trim, 0, -0.66, 0, piv); // 소맷부리
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), headMat()); hand.position.set(0, -0.78, 0); hand.castShadow = true; hand.name = 'hand'; piv.add(hand);
     arms.push(piv);
   }
   // 머리 묶음: 둥근 머리 + 만화풍 얼굴 무늬 + 모자. 만화처럼 머리를 크게(1.3배) 그린다.
@@ -66,6 +79,21 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {} }) {
   } else if (hat === 'topknot') {   // 맨머리에 상투
     hp(new THREE.SphereGeometry(0.33, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), 0x1e1c1a, 0, 2.04, -0.01);
     hp(new THREE.SphereGeometry(0.1, 8, 6), 0x1e1c1a, 0, 2.4, -0.02);
+  }
+  // 들고 있는 무기
+  if (gear === 'spear') { // 오른손에 세워 든 창
+    const s = new THREE.Group(); s.name = 'spear'; s.position.set(0, -0.78, 0.04); arms[1].add(s);
+    part(new THREE.CylinderGeometry(0.035, 0.035, 2.6, 5), 0x5a3f2a, 0, 0.55, 0, s, 'wood');
+    part(new THREE.ConeGeometry(0.08, 0.32, 4), 0xc9ccd0, 0, 2.0, 0, s, 'grain');
+    part(new THREE.SphereGeometry(0.07, 5, 4), 0xb8452f, 0, 1.78, 0, s, 'grain'); // 창술
+  } else if (gear === 'sword') { // 왼쪽 허리에 찬 칼
+    const s = new THREE.Group(); s.name = 'sword'; s.position.set(-0.42, 1.0, 0.12); s.rotation.set(0.25, 0, 0.35); g.add(s);
+    part(new THREE.BoxGeometry(0.08, 0.95, 0.12), 0x2b2118, 0, -0.2, 0, s, 'wood');
+    part(new THREE.BoxGeometry(0.2, 0.05, 0.16), 0xd9a441, 0, 0.29, 0, s, 'grain');
+    part(new THREE.CylinderGeometry(0.035, 0.035, 0.24, 5), 0x3a2c20, 0, 0.42, 0, s, 'wood');
+  } else if (gear === 'bow') { // 등에 멘 활
+    const b = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.035, 4, 12, Math.PI), mat(0x5a3f2a, 'wood', 'object'));
+    b.name = 'bow'; b.position.set(0, 1.45, -0.42); b.rotation.set(0, 0, Math.PI / 2 + 0.3); b.castShadow = true; g.add(b);
   }
   g.userData = { legs, arms, walk: 0 };
   return g;
