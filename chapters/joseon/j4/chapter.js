@@ -15,9 +15,9 @@ export const WING_BOARD = {
   slots: [
     { id: 'w1', xy: [14, 24], answer: 'ship' }, { id: 'w2', xy: [29, 46], answer: 'ship' }, { id: 'w3', xy: [50, 58], answer: 'ship' },
     { id: 'w4', xy: [71, 46], answer: 'ship' }, { id: 'w5', xy: [86, 24], answer: 'ship' },
-    { id: 'b1', xy: [27, 84], answer: null }, { id: 'b2', xy: [50, 84], answer: null }, { id: 'b3', xy: [73, 84], answer: null },
+    { id: 'b1', xy: [27, 80], answer: null }, { id: 'b2', xy: [50, 80], answer: null }, { id: 'b3', xy: [73, 80], answer: null },
   ],
-  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 8] }, { label: '한산도 ▸', xy: [7, 62] }, { label: '↓ 남쪽(우리 포구)', xy: [50, 96] }],
+  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 8] }, { label: '한산도 ▸', xy: [7, 62] }, { label: '↓ 남쪽', xy: [92, 93] }],
 };
 
 export default {
@@ -47,7 +47,7 @@ export default {
       keyboard: '버튼을 마우스로 누르거나 E·스페이스', touch: '화면 아래 큰 버튼과 자리를 손가락으로 눌러요',
     });
     await ctx.fade(true);
-    world.setFixedCamera(scene.seaCam.pos, scene.seaCam.target);
+    world.fitFixedCamera(scene.seaFit.target, scene.seaFit.dir, scene.seaFit.points, scene.seaFit.margin);
     world.player.visible = false;
     scene.setStage('lure');
     await ctx.fade(false);

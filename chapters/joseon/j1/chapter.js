@@ -23,7 +23,7 @@ function placePlayer(world, [x, z], ry = Math.PI) {
 }
 
 // 한양 판: 북쪽 산 아래 가운데, 동쪽(오른쪽), 서쪽(왼쪽), 그리고 헷갈리게 남쪽 빈자리
-const HANYANG = {
+export const HANYANG = {
   items: [{ id: 'palace', label: '경복궁(궁궐)' }, { id: 'jongmyo', label: '종묘' }, { id: 'sajik', label: '사직단' }],
   slots: [
     { id: 'north', xy: [50, 30], answer: 'palace' },

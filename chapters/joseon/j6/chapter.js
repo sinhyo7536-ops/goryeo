@@ -69,8 +69,10 @@ export default {
     await sayAll(dialogue, script.pulley.done); dialogue.close();
 
     await ctx.fade(true);
-    world.setFixedCamera(scene.wallCam.pos, scene.wallCam.target);
+    world.fitFixedCamera(scene.wallFit.target, scene.wallFit.dir, scene.wallFit.points, scene.wallFit.margin);
     world.player.visible = false;
+    const blockers = ['jeongyakyong', 'worker'].map(id => world.npcs.get(id).mesh); // 성벽 앞을 가리지 않게 잠시 비켜 둔다
+    blockers.forEach(m => { m.visible = false; });
     GAPS.forEach((_, i) => scene.fill(i, false));
     await ctx.fade(false);
     await sayAll(dialogue, script.wall.howto); dialogue.close();
@@ -80,6 +82,7 @@ export default {
       for (let i = 0; i < GAPS.length; i++) if (!await dropStone(ctx, i, easy, fail)) return false;
       return true;
     }, () => (fail.why === 'early' ? script.wall.early : script.wall.late)));
+    blockers.forEach(m => { m.visible = true; });
     await sayAll(dialogue, script.wall.done);
     await sayAll(dialogue, script.result);
     dialogue.close();

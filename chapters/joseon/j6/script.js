@@ -10,7 +10,7 @@ export default {
 
   intro: [
     { who: 'narr', text: '영조와 정조는 여러 당파의 인재를 고르게 쓰려는 탕평책을 펼쳤어요.', src: ['S41'] },
-    { who: 'narr', text: '정조는 아버지 사도세자의 무덤을 수원의 화산으로 옮기고, 그 가까이에 새 성을 쌓게 했어요.', src: ['S39'] },
+    { who: 'narr', text: '정조는 아버지 사도세자의 무덤을 수원의 \'화산\'이라는 산(지금의 화성시 융릉 자리)으로 옮기고, 그 가까이에 새 성을 쌓게 했어요.', src: ['S39'] },
   ],
 
   start: [
@@ -59,7 +59,7 @@ export default {
     jeongjo: {
       tooEarly: [{ who: 'jeongjo', text: '정약용에게 거중기 이야기를 먼저 들어 보아라.' }],
       first: [
-        { who: 'jeongjo', text: '나는 아버지 사도세자의 무덤을 수원의 화산으로 옮겼다.', src: ['S39'] },
+        { who: 'jeongjo', text: '나는 아버지 사도세자의 무덤을 수원의 \'화산\'이라는 산으로 옮겼다.', src: ['S39'] },
         { who: 'jeongjo', text: '이 성 안에 행궁을 지어 아버지 무덤에 갈 때 머물 것이다.', src: ['S39'] },
         { who: 'jeongjo', text: '자, 거중기로 성을 쌓아 보아라.' },
       ],

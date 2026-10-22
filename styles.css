@@ -221,4 +221,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   .screen.trace .card p { font-size: 14px; line-height: 1.4; }
   .order-card { min-height: 44px; padding: 4px 10px; font-size: 15px; }
   .order-slots { font-size: 14px; min-height: 1.2em; gap: 0; }
+  .place-slot { min-width: 64px; min-height: 42px; padding: 2px 6px; font-size: 13px; max-width: 30%; }
+  .place-decor { font-size: 12px; }
+  .place-item { font-size: 1.3em; }
+  .choose-figure svg { max-height: 30vh; }
+  .sort-now { font-size: 16px; min-height: 2.2em; }
+  .sort-bin { min-height: 52px; font-size: 16px; }
 }

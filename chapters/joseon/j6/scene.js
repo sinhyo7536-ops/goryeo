@@ -10,7 +10,7 @@ import { addSigns } from '../common.js';
 
 export const WALL_Z = -10, WALL_H = 3.6;
 export const GAPS = [-6, 0, 6];          // 성벽 빈자리(가운데 x)
-export const TRACK = [-13, 13];          // 거중기 돌이 지나가는 x 범위
+export const TRACK = [-10, 10];          // 거중기 돌이 지나가는 x 범위(화면에 다 들어오게 좁힘)
 
 export function buildJ6Scene(world) {
   const L = world.level;
@@ -104,6 +104,8 @@ export function buildJ6Scene(world) {
     kOf: x => (x - TRACK[0]) / (TRACK[1] - TRACK[0]),
     showGap(i) { gapGlow.visible = i != null; if (i != null) gapGlow.position.set(GAPS[i], WALL_H - 1.15, WALL_Z); },
     fill(i, on = true) { fillers[i].visible = on; },
-    wallCam: { pos: [0, 8, 6], target: [0, 4, WALL_Z] },
+    // 거중기 장면 카메라: 화면 비율이 달라도 돌이 지나는 길 양 끝, 빈자리 셋, 들보가 모두 보이게 맞춘다(아래쪽 큰 버튼을 피해 위쪽에)
+    wallFit: { target: [0, 3.2, WALL_Z], dir: [0, 0.42, 1], margin: 0.72,
+      points: [[TRACK[0], WALL_H + 2.5, WALL_Z], [TRACK[1], WALL_H + 2.5, WALL_Z], ...GAPS.map(g => [g, WALL_H - 1.2, WALL_Z]), [0, 9.4, WALL_Z]] },
   };
 }

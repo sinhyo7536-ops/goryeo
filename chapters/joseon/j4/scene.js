@@ -163,6 +163,8 @@ export function buildJ4Scene(world) {
 
   return {
     start: [0, 6.5], turtle, leadTurtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance,
-    seaCam: { pos: [0, 54, -8], target: [0, 0, -64] },
+    // 바다 장면 카메라: 미끼 배 출발점부터 견내량 안쪽 적까지, 학익진 양 끝이 모두 보이게 맞춘다
+    seaFit: { target: [0, 0, -54], dir: [0, 1, 0.6], margin: 0.78,
+      points: [[0, 0, -30], [0, 0, STRAIT_Z + 2], [-8, 0, ENEMY_WAIT], [8, 0, ENEMY_WAIT + 7], [WING.x - WING.r, 0, WING.z + 6], [WING.x + WING.r, 0, WING.z + 6], [0, 0, -40]] },
   };
 }

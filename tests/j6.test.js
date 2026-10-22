@@ -84,3 +84,8 @@ test('j6: result mentions the 1997 UNESCO listing with a source (S44)', () => {
   const l = j6Script.result.find(x => x.text.includes('1997'));
   ok(l && l.src.includes('S44'), l && l.text);
 });
+
+test('j6: 화산 is clearly a mountain name, not a volcano', () => {
+  const lines = [...j6Script.intro, ...j6Script.npc.jeongjo.first].map(l => l.text).filter(t => t.includes('화산'));
+  ok(lines.length >= 2 && lines.every(t => t.includes('화산\'이라는 산')), lines.join(' / '));
+});
