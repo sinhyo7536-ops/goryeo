@@ -7,14 +7,12 @@ import { createAudio } from './audio.js';
 import { createDialogue } from './dialogue.js';
 import { createQualityController, guessInitialQuality } from './quality.js';
 import { runChapter } from './flow.js';
-import { createSpeech } from './speech.js';
 import { createMusic } from './music.js';
 import { showTitle, askName, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
 import { CHAPTERS, isSessionDone } from '../chapters/index.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
-const PREF_SPEECH = 'goryeo-game:speech';
 const PREF_MUSIC = 'goryeo-game:music';
 
 function boot() {
@@ -27,8 +25,6 @@ function boot() {
   const hud = createHud(ui, { touch });
   const audio = createAudio();
   audio.setMuted(storage.get(PREF_MUTED) === true);
-  const speech = createSpeech(); // 대사 읽어 주기 (대화창의 🔈 버튼으로 켜고 끈다)
-  speech.setEnabled(storage.get(PREF_SPEECH) === true);
   const music = createMusic(); // 장마다 다른 배경음악. 메뉴의 '음악 끄기'나 '소리 끄기'로 끈다
   let musicOn = storage.get(PREF_MUSIC) !== false;
   const applyMusic = () => music.setEnabled(musicOn && !audio.muted);
@@ -103,7 +99,7 @@ function boot() {
     quality.restart();
     world.camMode = 'follow';
     world.setMood(mod.mood);
-    dialogue = createDialogue(ui, mod.script.speakers, { reduceMotion, speech, onSpeechToggle: on => storage.set(PREF_SPEECH, on) });
+    dialogue = createDialogue(ui, mod.script.speakers, { reduceMotion });
     hud.show(meta);
     hud.setTouchVisible(true);
     inChapter = true; input.enabled = true;
