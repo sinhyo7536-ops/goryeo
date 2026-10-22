@@ -135,8 +135,8 @@ export function buildJ4Scene(world) {
   const setLure = k => { lure.position.z = -30 + k * (STRAIT_Z - 6 + 30); lure.rotation.y = 0; };
   // 적이 쫓아 나옴: 0 = 견내량 안, 1 = 넓은 바다(-62)
   const setChase = k => { enemy.position.z = STRAIT_Z - 10 + k * (-62 - STRAIT_Z + 10); enemy.rotation.y = Math.PI; lure.position.z = STRAIT_Z + 4 + k * 40; lure.rotation.y = Math.PI; };
-  // 적이 날개 안으로 들어옴: 0 = -70, 1 = -30(날개를 빠져나감)
-  const setAdvance = k => { enemy.position.z = -70 + k * 40; enemy.rotation.y = Math.PI; };
+  // 적이 날개 안으로 들어옴: 0 = -70, 1 = -36(날개 안쪽 끝, 우리 배와 겹치지 않음)
+  const setAdvance = k => { enemy.position.z = -70 + k * 34; enemy.rotation.y = Math.PI; };
   setStage('harbor');
 
   world.addNpc('navy', LOOKS.navy, 7, 6.5, Math.PI);

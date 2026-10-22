@@ -97,7 +97,7 @@ test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 �
   let c = ctx(), r = null;
   sortCards(c, opts).then(v => { r = v; });
   ok(c.ui.textContent.includes('하나'));
-  c.ui.querySelector('[data-bin="a"]').click(); c.ui.querySelector('[data-bin="b"]').click();
+  c.ui.querySelector('[data-bin="a"]').click(); await sleep(300); c.ui.querySelector('[data-bin="b"]').click();
   await sleep(600);
   eq(r, true); c.done();
   c = ctx(); r = null;
@@ -109,4 +109,23 @@ test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 �
   sortCards(c, { ...opts, easy: true });
   ok(c.ui.querySelector('[data-bin="a"]').classList.contains('hint'));
   c.done();
+});
+
+test('sortCards: 빠른 두 번 누르기는 다음 카드에 들어가지 않는다', async () => {
+  const { sortCards } = await import('../core/minigame.js');
+  const c = ctx(); let r = null;
+  sortCards(c, { title: '나누기', bins: [{ id: 'a', label: '가' }, { id: 'b', label: '나' }], cards: [{ text: '하나', bin: 'a' }, { text: '둘', bin: 'b' }] }).then(v => { r = v; });
+  const a = c.ui.querySelector('[data-bin="a"]');
+  a.click(); a.click(); // 두 번째 누름은 무시되어야 한다(다음 카드 '둘'은 b)
+  await sleep(350);
+  c.ui.querySelector('[data-bin="b"]').click();
+  await sleep(600);
+  eq(r, true); c.done();
+});
+
+test('faces: 갓 초상화를 그린 뒤 투명도가 되돌아온다', async () => {
+  const { drawHatForTest } = await import('../core/faces.js');
+  const cv = document.createElement('canvas'); const g = cv.getContext('2d');
+  drawHatForTest(g, 'gat', 80, 92, 42);
+  eq(g.globalAlpha, 1);
 });

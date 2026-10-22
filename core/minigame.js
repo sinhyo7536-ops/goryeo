@@ -299,16 +299,16 @@ export function sortCards(ctx, { title, bins, cards, easy = false }) {
     const row = el('div', 'sort-bins');
     card.append(el('div', 'eyebrow', '카드 나누기'), el('h2', null, title), now, row);
     screen.append(card); ctx.ui.append(screen);
-    let i = 0, over = false;
+    let i = 0, over = false, lockUntil = 0; // 카드가 바뀐 직후 잠깐(0.25초)은 누름을 받지 않는다(태블릿 두 번 누르기)
     const counts = bins.map(() => 0);
     const buttons = bins.map((b, k) => {
       const btn = el('button', 'sort-bin', ''); btn.type = 'button'; btn.dataset.bin = b.id;
       const show = () => { btn.textContent = `${b.label} (${counts[k]})`; };
       show();
       btn.addEventListener('click', () => {
-        if (over) return;
+        if (over || performance.now() < lockUntil) return;
         if (cards[i].bin === b.id) {
-          counts[k] += 1; show(); i += 1;
+          counts[k] += 1; show(); i += 1; lockUntil = performance.now() + 250;
           if (i === cards.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 400); } else ask();
         } else {
           over = true; btn.classList.add('wrong'); now.textContent = `× ${cards[i].text}`;

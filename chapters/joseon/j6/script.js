@@ -40,7 +40,7 @@ export default {
     jeongyakyong: {
       tooEarly: [{ who: 'jeongyakyong', text: '공사장을 먼저 둘러보고 오너라.' }],
       first: [
-        { who: 'jeongyakyong', text: '서양 기계 책 『기기도설』을 참고해서 무거운 돌을 드는 거중기를 만들었다.', src: ['S40'] },
+        { who: 'jeongyakyong', text: '『기기도설』이라는 책을 참고해서 무거운 돌을 드는 거중기를 고안했다.', src: ['S40'] },
         { who: 'jeongyakyong', text: '거중기는 도르래로 무거운 물건을 들어 올리는 기구란다.', src: ['S40'] },
         { who: 'jeongyakyong', text: '임금께서 차일 아래에서 너를 부르신다.' },
       ],
@@ -49,7 +49,7 @@ export default {
     jeongjo: {
       tooEarly: [{ who: 'jeongjo', text: '정약용에게 거중기 이야기를 먼저 들어 보아라.' }],
       first: [
-        { who: 'jeongjo', text: '나는 아버지 사도세자의 무덤을 이곳 수원 화산으로 옮겼다.', src: ['S39'] },
+        { who: 'jeongjo', text: '나는 아버지 사도세자의 무덤을 수원의 화산으로 옮겼다.', src: ['S39'] },
         { who: 'jeongjo', text: '이 성 안에 행궁을 지어 아버지 무덤에 갈 때 머물 것이다.', src: ['S39'] },
         { who: 'jeongjo', text: '자, 거중기로 성을 쌓아 보아라.' },
       ],

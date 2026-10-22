@@ -25,7 +25,7 @@ export default {
     soldier: {
       first: [
         { who: 'soldier', text: '성안의 군사는 1만 3천 명쯤이야.', src: ['S38'] },
-        { who: 'soldier', text: '성 밖은 청나라 군대가 가득해서 밖과 연락이 끊겼어.', src: ['S38'] },
+        { who: 'soldier', text: '성 밖에는 청나라 군대가 가득해.', src: ['S38'] },
         { who: 'soldier', text: '창고지기에게도 가 봐.' },
       ],
       later: [{ who: 'soldier', text: '손이 꽁꽁 얼었어. 화톳불이 꺼지지 않게 해야 해.' }],
@@ -33,7 +33,7 @@ export default {
     keeper: {
       tooEarly: [{ who: 'keeper', text: '성벽 아래의 병사에게 먼저 가 보거라.' }],
       first: [
-        { who: 'keeper', text: '쌀은 50여 일을 버틸 만큼밖에 없어.', src: ['S38'] },
+        { who: 'keeper', text: '양식은 50여 일을 버틸 만큼밖에 없어.', src: ['S38'] },
         { who: 'keeper', text: '조정의 대신들은 앞으로 어떻게 할지 의견이 나뉘었대. 행궁 앞에 가 봐.' },
       ],
       later: [{ who: 'keeper', text: '아껴 먹어야 해.' }],
@@ -62,8 +62,8 @@ export default {
     bins: [{ id: 'cheok', label: '싸우자 (척화)' }, { id: 'ju', label: '화의하자 (주화)' }],
     cards: [
       { text: '청과 화의하지 말고 싸우자', bin: 'cheok' },
+      { text: '나라의 뜻을 지키려면 끝까지 버텨야 한다', bin: 'cheok' },
       { text: '화의를 해서 전쟁을 끝내자', bin: 'ju' },
-      { text: '성을 지키며 끝까지 버티자', bin: 'cheok' },
       { text: '백성과 나라를 지키려면 화의해야 한다', bin: 'ju' },
       { text: '청의 요구를 받아들일 수 없다', bin: 'cheok' },
       { text: '청과 이야기를 나누어 길을 찾자', bin: 'ju' },

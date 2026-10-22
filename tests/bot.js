@@ -126,7 +126,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       const target = !noTaps() && [...ui.querySelectorAll('.tap-target')].find(b => !b.hidden);
       if (target) target.click();
       const big = ui.querySelector('.big-action');
-      if (big && (ctx.testHooks.ready || !earlyPressed)) { earlyPressed = true; big.click(); }
+      if (big && (ctx.testHooks.ready || (!earlyPressed && ctx.testHooks.armed !== false))) { earlyPressed = true; big.click(); }
       const g = w.getGoal();
       if (g && w.camMode === 'follow' && !holdStill()) {
         const p = w.player.position, dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);

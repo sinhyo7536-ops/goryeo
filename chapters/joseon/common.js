@@ -65,30 +65,35 @@ export function sumParts(parts) {
 
 // 때 맞춰 누르기: seconds 동안 진행도 k가 0→1로 가고(set(k)로 장면을 움직임), k가 window 안일 때 큰 버튼을 누르면 성공.
 // 너무 일찍 누르면 fail.why = 'early', 끝까지 안 누르거나 늦으면 'late'. 테스트 봇은 ctx.testHooks.ready를 보고 누른다.
+const GRACE = 0.4; // 버튼이 나온 뒤 처음 0.4초 동안의 누름은 무시한다
 export function timingPress(ctx, { label, seconds, set, window: [lo, hi], fail }) {
   const { world } = ctx;
   const btn = actionButton(ctx, label);
   let t = 0, done = false;
   set(0);
+  ctx.testHooks.armed = false;
   return new Promise(resolve => {
     const finish = ok => {
       if (done) return; done = true;
-      off(); btn.remove(); ctx.testHooks.ready = false;
+      off(); btn.remove(); ctx.testHooks.ready = false; ctx.testHooks.armed = undefined;
       resolve(ok);
     };
-    btn.wait().then(() => {
+    const press = () => btn.wait().then(() => {
       if (done) return;
+      if (t < GRACE) return press(); // 대화를 넘기다 잘못 누른 것은 세지 않는다
       const k = t / seconds;
       if (k < lo) { fail.why = 'early'; return finish(false); }
       if (k > hi) { fail.why = 'late'; return finish(false); }
       finish(true);
     });
+    press();
     const off = world.onUpdate(dt => {
       if (done) return;
       t += dt;
       const k = Math.min(1, t / seconds);
       set(k);
       ctx.testHooks.ready = k >= lo + 0.02 && k <= hi - 0.02;
+      ctx.testHooks.armed = t >= GRACE; // 테스트 봇: 이른 누름 시험은 이때부터
       if (k >= 1) { fail.why = 'late'; finish(false); }
     });
   });

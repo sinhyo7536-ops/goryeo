@@ -42,7 +42,7 @@ export default {
       tooEarly: [{ who: 'crownPrince', text: '해시계와 물시계를 먼저 보고 오너라.' }],
       first: [
         { who: 'crownPrince', text: '비가 얼마나 왔는지 재면 가뭄과 홍수에 대비할 수 있다.', src: ['S31'] },
-        { who: 'crownPrince', text: '빗물을 받는 쇠 그릇을 받침돌 위에 두고, 비가 그치면 자로 깊이를 잰다.', src: ['S33'] },
+        { who: 'crownPrince', text: '빗물을 받는 쇠 그릇을 두고, 비가 그치면 자로 깊이를 잰다.', src: ['S33'] },
         { who: 'crownPrince', text: '자, 이제 네가 시간과 비를 재 보아라.' },
       ],
     },

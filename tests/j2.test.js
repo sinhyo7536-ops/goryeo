@@ -60,3 +60,8 @@ test('j2: a wrong letter place fails with a hint and retries', async () => {
     eq(r.firstTryCorrect, 4);
   } finally { off(); bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('j2: intro says people found 한자 hard, not that no writing existed', () => {
+  ok(!j2Script.intro[0].text.includes('방법이 없'), j2Script.intro[0].text);
+  ok(j2Script.intro[0].text.includes('한자'));
+});

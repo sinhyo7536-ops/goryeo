@@ -73,12 +73,12 @@ export default {
     scene.setStage('wing');
     await sayAll(dialogue, script.wing.done); dialogue.close();
 
-    // 3) 공격 신호: 적이 날개 안에 들어왔을 때 (진행도 0.62~0.86, 쉬우면 0.55~0.92)
+    // 3) 공격 신호: 적이 날개 안에 들어왔을 때 (진행도 0.72~0.95, 쉬우면 0.64~0.98)
     await sayAll(dialogue, script.attack.howto); dialogue.close();
     const atkFail = {};
     parts.push(await tryPart(ctx, easy => {
-      scene.goalRing.position.set(0, 0.1, -38); scene.goalRing.scale.setScalar(2.2); scene.goalRing.visible = true;
-      return timingPress(ctx, { label: '공격 신호', seconds: easy ? 10 : 8, set: scene.setAdvance, window: easy ? [0.55, 0.92] : [0.62, 0.86], fail: atkFail });
+      scene.goalRing.position.set(0, 0.1, -40); scene.goalRing.scale.setScalar(2.2); scene.goalRing.visible = true;
+      return timingPress(ctx, { label: '공격 신호', seconds: easy ? 10 : 8, set: scene.setAdvance, window: easy ? [0.64, 0.98] : [0.72, 0.95], fail: atkFail });
     }, () => (atkFail.why === 'early' ? script.attack.early : script.attack.late)));
     scene.goalRing.visible = false;
     ctx.audio.play('whoosh');

@@ -44,3 +44,9 @@ test('j5: completes with touch-only actions', async () => {
     eq(r.stars, 3);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('j5: sort cards do not simply alternate, and both sides give a reason', () => {
+  const bins = j5Script.sort.cards.map(c => c.bin);
+  ok(bins.some((b, i) => i > 0 && b === bins[i - 1]), `order ${bins.join(',')}`);
+  ok(j5Script.sort.cards.some(c => c.bin === 'cheok' && c.text.includes('려면')), '척화 has a reason too');
+});

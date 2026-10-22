@@ -97,6 +97,7 @@ export default {
 
     // 2) 회군: 군사들이 돌아서서 남쪽 물길을 건넌다
     await ctx.fade(true);
+    placePlayer(world, [-3, 1.5]); // 군사들이 지나갈 동쪽 길에서 비켜 선다
     world.setFixedCamera(scene.turnCam.pos, scene.turnCam.target);
     scene.setTurn(0.05);
     await ctx.fade(false);
@@ -108,7 +109,6 @@ export default {
         scene.setTurn(t);
         if (t >= 1) { off(); resolve(); }
       });
-      ctx.testHooks.turnback = () => { t = 1; };
     });
     await sayAll(dialogue, script.turnback);
     dialogue.close();

@@ -67,3 +67,15 @@ test('joseon: all six chapters load and the result card opens after chapter 6', 
   eq(isSessionDone(2, save), true);
   eq(SESSIONS[2].points.length, 6);
 });
+
+test('j6: 정약용 designed (고안) the 거중기, and the tomb went to 화산 (not this site)', () => {
+  const lines = j6Script.npc.jeongyakyong.first.map(l => l.text).join(' ');
+  ok(lines.includes('고안') && !lines.includes('거중기를 만들었다'), lines);
+  ok(!j6Script.npc.jeongjo.first[0].text.includes('이곳'), j6Script.npc.jeongjo.first[0].text);
+});
+
+test('j4: attack advance stops before overlapping our fleet', async () => {
+  const { buildJ4Scene } = await import('../chapters/joseon/j4/scene.js');
+  const w = testWorld();
+  try { const s = buildJ4Scene(w); s.setAdvance(1); ok(s.enemy.position.z <= -36, `${s.enemy.position.z}`); } finally { w.dispose(); }
+});

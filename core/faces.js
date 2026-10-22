@@ -105,6 +105,7 @@ function drawHat(g, hat, cx, cy, R) {
     g.globalAlpha = 0.88;
     g.beginPath(); g.ellipse(cx, cy - 0.78 * R, 1.62 * R, 0.16 * R, 0, 0, Math.PI * 2); g.fill();
     g.beginPath(); g.roundRect(cx - 0.42 * R, cy - 1.5 * R, 0.84 * R, 0.76 * R, 0.08 * R); g.fill();
+    g.globalAlpha = 1;
   } else if (hat === 'ikseon') {        // 익선관: 둥근 관과 위로 선 날개
     g.fillStyle = '#1e1c1a';
     g.beginPath(); g.ellipse(cx, cy - 0.5 * R, 1.0 * R, 0.72 * R, 0, Math.PI, 0); g.fill();
@@ -126,6 +127,8 @@ function drawHat(g, hat, cx, cy, R) {
   }
   g.restore();
 }
+
+export const drawHatForTest = drawHat; // 테스트용
 
 // 대화창 초상화: 둥근 배경 위에 어깨, 머리, 모자, 얼굴. 같은 인물은 한 번만 그린다.
 const portraitCache = new Map();

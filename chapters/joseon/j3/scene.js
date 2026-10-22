@@ -90,7 +90,11 @@ export function buildJ3Scene(world) {
   rain.points.visible = false;
   let ring = 0;
   world.onUpdate((dt, t) => {
-    if (ring > 0) { ring -= dt; puppet.position.y = 2.5 + Math.abs(Math.sin(t * 8)) * 0.15; bell.rotation.z = Math.sin(t * 14) * 0.2; }
+    if (ring > 0) {
+      ring -= dt;
+      puppet.position.y = ring > 0 ? 2.5 + Math.abs(Math.sin(t * 8)) * 0.15 : 2.5;
+      bell.rotation.z = ring > 0 ? Math.sin(t * 14) * 0.2 : 0;
+    }
   });
 
   return {
