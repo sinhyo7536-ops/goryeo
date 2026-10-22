@@ -53,7 +53,7 @@ test('save: reset clears name, chapters, current', () => {
   save.setName('a'); save.checkpoint('ch1', 'quiz');
   save.finishChapter('ch1', { stars: 2 });
   save.reset();
-  eq(save.data, { name: '', chapters: {}, current: null });
+  eq(save.data, { name: '', chapters: {}, current: null, course: null });
   const again = createSave(createStorage(backend)); again.load();
   eq(again.data.name, '');
 });
@@ -62,7 +62,7 @@ test('save: corrupt stored data falls back to empty', () => {
   const backend = memoryBackend();
   backend.setItem('goryeo-game:v1', '{not json');
   const save = createSave(createStorage(backend)); save.load();
-  eq(save.data, { name: '', chapters: {}, current: null });
+  eq(save.data, { name: '', chapters: {}, current: null, course: null });
   ok(true);
 });
 
@@ -94,4 +94,17 @@ test('save: default storage works when window.localStorage itself throws', () =>
     if (Object.getOwnPropertyDescriptor(Window.prototype, 'localStorage')) delete window.localStorage;
     else Object.defineProperty(window, 'localStorage', desc);
   }
+});
+
+test('save: 고른 편을 기억하고, 옛 기록은 편이 비어 있다', () => {
+  const backend = memoryBackend();
+  backend.setItem('goryeo-game:v1', JSON.stringify({ name: '옛 학생', chapters: { ch1: { stars: 2 } }, current: { id: 'ch2', stage: 'explore' } }));
+  const a = createSave(createStorage(backend)); a.load();
+  eq(a.data.course, null);
+  eq(a.data.current, { id: 'ch2', stage: 'explore' });
+  a.setCourse('joseon');
+  const b = createSave(createStorage(backend)); b.load();
+  eq(b.data.course, 'joseon');
+  eq(b.data.chapters.ch1.stars, 2);
+  b.reset(); eq(b.data.course, null);
 });

@@ -1,6 +1,6 @@
 // 진행 상황 저장. 기기 안(localStorage)에만 두고 밖으로 보내지 않는다.
 const KEY = 'goryeo-game:v1';
-const empty = () => ({ name: '', chapters: {}, current: null });
+const empty = () => ({ name: '', chapters: {}, current: null, course: null }); // course: 마지막으로 고른 편(goryeo·joseon)
 
 // ★★★ 퀴즈 2개 정답 + 쉬운 모드 안 씀, ★★☆ 퀴즈 1개 이상, ★☆☆ 완료
 export function computeStars({ quizCorrect, easyModeUsed }) {
@@ -15,12 +15,13 @@ export function createSave(storage) {
     load() {
       const d = storage.get(KEY);
       const valid = d && typeof d === 'object' && typeof d.name === 'string' && d.chapters && typeof d.chapters === 'object';
-      save.data = valid ? { name: d.name, chapters: d.chapters, current: d.current || null } : empty();
+      save.data = valid ? { name: d.name, chapters: d.chapters, current: d.current || null, course: typeof d.course === 'string' ? d.course : null } : empty();
       return save.data;
     },
     persist() { return storage.set(KEY, save.data); },
     reset() { save.data = empty(); storage.remove(KEY); },
     setName(name) { save.data.name = name; save.persist(); },
+    setCourse(id) { save.data.course = id; save.persist(); },
     startChapter(id) { save.checkpoint(id, 'intro'); },
     // carry: 다음 단계로 넘겨 줄 점수(예: 미니게임에서 쉬운 모드를 썼는지). 이어하기 때 되살린다.
     checkpoint(id, stage, carry) { save.data.current = carry ? { id, stage, carry } : { id, stage }; save.persist(); },
