@@ -8,11 +8,35 @@ const btn = (el, text) => [...el.querySelectorAll('button')].find(b => b.textCon
 
 test('chapters: six chapters, playable ones load and the rest are 준비 중', () => {
   eq(CHAPTERS.length, 6);
-  eq(CHAPTERS.map(c => c.session), [1, 1, 1, 2, 2, 2]);
   ok(CHAPTERS[0].load, 'ch1 loads');
   ok(CHAPTERS[1].load, 'ch2 loads');
   ok(CHAPTERS.every(c => c.load), 'all six chapters load');
-  eq(SESSIONS[1].points.length, 3);
+});
+
+test('one session: all six chapters are one lesson with one result card', async () => {
+  const { isUnlocked } = await import('../chapters/index.js');
+  eq(CHAPTERS.map(c => c.session), [1, 1, 1, 1, 1, 1]);
+  eq(Object.keys(SESSIONS), ['1']);
+  eq(SESSIONS[1].points.length, 6);
+  ok(!SESSIONS[1].title.includes('차시'), SESSIONS[1].title);
+  const save = { data: { chapters: {} } };
+  save.chapterResult = id => save.data.chapters[id] || null;
+  eq(isUnlocked(CHAPTERS[3], save), false, 'ch4 waits for ch3');
+  save.data.chapters.ch3 = { stars: 1 };
+  eq(isUnlocked(CHAPTERS[3], save), true);
+});
+
+test('one session: title has no 2차시 button and the map has one result button', async () => {
+  const el = root(), el2 = root();
+  try {
+    showTitle(el, { savedName: '김고려', hasProgress: true, storageOk: true });
+    ok(!el.textContent.includes('차시'), 'no 차시 on title');
+    const save = { data: { chapters: { ch1: { stars: 3 }, ch4: { stars: 2 } } } };
+    save.chapterResult = id => save.data.chapters[id] || null;
+    showMap(el2, CHAPTERS, save);
+    const labels = [...el2.querySelectorAll('.row button')].map(b => b.textContent);
+    eq(labels, ['결과 카드']);
+  } finally { el.remove(); el2.remove(); }
 });
 
 test('title: shows saved name and confirms reset', async () => {
@@ -129,35 +153,20 @@ test('menu: leaving to the map without storage asks first', async () => {
   el.remove();
 });
 
-test('session1: card after chapter 3 lists all three chapters', async () => {
+test('result card: only after chapter 6, lists all six chapters', async () => {
   const { isSessionDone } = await import('../chapters/index.js');
   const mk = stars => ({ stars, quizCorrect: 2, quizTotal: 2, seconds: 300, wrongQuizzes: [] });
-  const save = { data: { name: '김고려', chapters: { ch1: mk(3), ch2: mk(2) } } };
+  const save = { data: { name: '김고려', chapters: { ch1: mk(3), ch2: mk(2), ch3: mk(1) } } };
   save.chapterResult = id => save.data.chapters[id] || null;
-  eq(isSessionDone(1, save), false, 'not after two chapters');
-  save.data.chapters.ch3 = mk(1);
+  eq(isSessionDone(1, save), false, 'not after chapter 3');
+  Object.assign(save.data.chapters, { ch4: mk(3), ch5: mk(2), ch6: mk(3) });
   eq(isSessionDone(1, save), true);
-  eq(isSessionDone(2, save), false);
   const el = root();
   const p = showSessionCard(el, 1, save, CHAPTERS);
   const t = el.textContent;
-  for (const title of ['서희의 외교 담판', '양규와 흥화진', '강감찬과 귀주 대첩']) ok(t.includes(title), title);
+  for (const c of CHAPTERS) ok(t.includes(c.title), c.title);
   ok(t.includes('★★★') && t.includes('★★☆') && t.includes('★☆☆'));
-  ok(t.includes('6/6'), 'quiz total over three chapters');
-  btn(el, '닫기').click(); await p; el.remove();
-});
-
-test('session2: card after chapter 6', async () => {
-  const { isSessionDone } = await import('../chapters/index.js');
-  const mk = stars => ({ stars, quizCorrect: 2, quizTotal: 2, seconds: 400, wrongQuizzes: [] });
-  const save = { data: { name: '김고려', chapters: { ch4: mk(3), ch5: mk(2), ch6: mk(3) } } };
-  save.chapterResult = id => save.data.chapters[id] || null;
-  eq(isSessionDone(2, save), true);
-  const el = root();
-  const p = showSessionCard(el, 2, save, CHAPTERS);
-  const t = el.textContent;
-  for (const title of ['강화도 천도와 처인성·충주성', '팔만대장경', '삼별초의 항쟁']) ok(t.includes(title), title);
-  ok(t.includes(SESSIONS[2].points[2]));
-  ok(t.includes('6/6'));
+  ok(t.includes('12/12'), 'quiz total over six chapters');
+  ok(t.includes(SESSIONS[1].points[5]));
   btn(el, '닫기').click(); await p; el.remove();
 });

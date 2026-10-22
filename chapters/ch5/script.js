@@ -1,4 +1,8 @@
 // 5장 대사와 퀴즈. 문장과 출처 번호는 설계 문서 4장 5장 절을 따른다.
+import { GLYPHS } from '../../content/glyphs.js';
+
+const READING = { '大': '대', '藏': '장', '經': '경' };
+
 export default {
   speakers: {
     guide: { name: '안내', mark: '◎', color: '#2f6b5e' },
@@ -39,12 +43,8 @@ export default {
   },
 
   carving: {
-    intro: [{ who: 'guide', text: '이제 경판에 글자를 새겨 보자. 빛나는 점을 1번부터 차례로 지나가도록 끌어 봐.' }],
-    glyphs: [
-      { glyph: '一', strokes: [[[0.2, 0.5], [0.5, 0.5], [0.8, 0.5]]] },
-      { glyph: '十', strokes: [[[0.2, 0.45], [0.5, 0.45], [0.8, 0.45]], [[0.5, 0.15], [0.5, 0.45], [0.5, 0.85]]] },
-      { glyph: '大', strokes: [[[0.2, 0.38], [0.5, 0.38], [0.8, 0.38]], [[0.5, 0.15], [0.48, 0.45], [0.25, 0.85]], [[0.52, 0.45], [0.75, 0.85]]] },
-    ],
+    intro: [{ who: 'guide', text: '이제 경판에 대장경(大藏經) 세 글자를 한자 그대로 새겨 보자. 빛나는 점을 1번부터 차례로 지나가도록 끌어 봐.' }],
+    glyphs: GLYPHS.map(g => ({ ...g, reading: READING[g.glyph] })),
   },
 
   result: [

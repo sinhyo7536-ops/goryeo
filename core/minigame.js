@@ -124,18 +124,35 @@ export function orderCards(ctx, { title, cards, easy = false }) {
 }
 
 // 획 따라 그리기: 획마다 점을 순서대로 지나가면 그 획이 새겨진다. 손을 떼면 그 획만 처음부터.
-export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
+// outlines(획 모양 SVG 경로, 1024 격자·y 위로)가 있으면 글꼴 대신 실제 획 모양을 흐리게 깔고, 새긴 획을 진하게 채운다.
+export function traceGlyph(ctx, { glyph, strokes, outlines = null, reading = '', easy = false }) {
   return new Promise(resolve => {
     const NS = 'http://www.w3.org/2000/svg';
     const screen = el('section', 'screen trace');
     const card = el('div', 'card');
     const board = el('div', 'trace-board');
     const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 100 100');
-    const bg = document.createElementNS(NS, 'text');
-    bg.setAttribute('x', '50'); bg.setAttribute('y', '58'); bg.setAttribute('text-anchor', 'middle'); bg.setAttribute('dominant-baseline', 'middle');
-    bg.setAttribute('class', 'trace-glyph'); bg.textContent = glyph;
-    svg.append(bg); board.append(svg);
-    card.append(el('div', 'eyebrow', '글자 새기기'), el('h2', null, `'${glyph}' 자를 새겨 보아요`), el('p', null, '빛나는 점을 1번부터 차례로 지나가도록 끌어요.'), board);
+    const shapes = [];
+    if (outlines) {
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', `translate(0 ${900 * 100 / 1024}) scale(${100 / 1024} ${-100 / 1024})`);
+      for (const d of outlines) {
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', d); p.setAttribute('class', 'trace-outline');
+        g.append(p); shapes.push(p);
+      }
+      svg.append(g);
+    } else {
+      const bg = document.createElementNS(NS, 'text');
+      bg.setAttribute('x', '50'); bg.setAttribute('y', '58'); bg.setAttribute('text-anchor', 'middle'); bg.setAttribute('dominant-baseline', 'middle');
+      bg.setAttribute('class', 'trace-glyph'); bg.textContent = glyph;
+      svg.append(bg);
+    }
+    board.append(svg);
+    const count = el('p', 'trace-count');
+    const info = el('div', 'trace-info');
+    info.append(el('div', 'eyebrow', '글자 새기기'), el('h2', null, `'${glyph}'${reading ? `(${reading})` : ''} 자를 새겨 보아요`), el('p', null, '빛나는 점을 1번부터 차례로 지나가도록 끌어요.'), count);
+    card.append(info, board);
     screen.append(card); ctx.ui.append(screen);
 
     // 점 판정 반경. 점을 세 번 놓치면(시작점을 못 누르거나 획 도중에 손을 떼면) 쉬운 모드로 넓힌다.
@@ -146,10 +163,12 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
     const dots = [];
     const drawDots = () => {
       dots.forEach(d => d.remove()); dots.length = 0;
+      count.textContent = `${Math.min(s + 1, strokes.length)} / ${strokes.length}획`;
+      shapes.forEach((p, i) => p.classList.toggle('now', i === s));
       if (s >= strokes.length) return;
       strokes[s].forEach(([x, y], i) => {
         const c = document.createElementNS(NS, 'circle');
-        c.setAttribute('cx', x * 100); c.setAttribute('cy', y * 100); c.setAttribute('r', i === 0 ? 5 : 3.5);
+        c.setAttribute('cx', x * 100); c.setAttribute('cy', y * 100); c.setAttribute('r', i === 0 ? 4.5 : 3.2);
         c.setAttribute('class', `trace-dot${i < progress ? ' passed' : ''}${i === 0 ? ' first' : ''}`);
         svg.append(c); dots.push(c);
         if (i < progress) { // 지나간 점에는 색과 함께 ✓ 표시 (색만으로 구분하지 않게)
@@ -160,13 +179,16 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
         }
       });
     };
-    const pos = e => { const r = board.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+    const pos = e => { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
     const near = ([x, y], [px, py]) => Math.hypot(x - px, y - py) < R;
     const finishStroke = () => {
-      const line = document.createElementNS(NS, 'polyline');
-      line.setAttribute('points', strokes[s].map(([x, y]) => `${x * 100},${y * 100}`).join(' '));
-      line.setAttribute('class', 'stroke-done');
-      svg.append(line);
+      if (shapes[s]) shapes[s].classList.add('done');
+      else {
+        const line = document.createElementNS(NS, 'polyline');
+        line.setAttribute('points', strokes[s].map(([x, y]) => `${x * 100},${y * 100}`).join(' '));
+        line.setAttribute('class', 'stroke-done');
+        svg.append(line);
+      }
       s += 1; progress = 0;
       if (s === strokes.length) { drawDots(); setTimeout(() => { screen.remove(); resolve(true); }, 400); }
       else drawDots();

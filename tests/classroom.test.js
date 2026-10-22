@@ -16,17 +16,26 @@ test('teacher: guide page has the student address, a QR code and the lesson plan
     const d = frame.contentDocument, t = d.body.textContent;
     ok(t.includes(GAME_URL), 'student address');
     ok(d.querySelector('#qr canvas, #qr img'), 'QR code drawn');
-    for (const w of ['1차시', '2차시', '결과 카드', '가로', '새로 고침']) ok(t.includes(w), w);
+    for (const w of ['1장', '6장', '결과 카드', '가로', '새로 고침', '이어하기']) ok(t.includes(w), w);
+    ok(!t.includes('차시'), 'one lesson, no 1차시/2차시 split');
   } finally { frame.remove(); }
 });
 
-test('title: 2차시부터 시작 resolves session2 without wiping progress', async () => {
-  const el = document.createElement('div'); document.body.appendChild(el);
-  const p = showTitle(el, { savedName: '김고려', hasProgress: true, storageOk: true });
-  btn(el, '2차시부터 시작').click();
-  eq(await p, 'session2');
-  el.remove();
-});
+// 글자 새기기 판은 화면 높이를 거의 다 쓴다 (갤럭시 탭 S6 Lite 가로 약 1000×530, 크롬북 1366×650, 휴대폰 740×360)
+for (const [w, h, min] of [[1000, 530, 440], [1366, 650, 560], [740, 360, 290]]) {
+  test(`trace board is big and fits on ${w}×${h}`, async () => {
+    const frame = document.createElement('iframe');
+    frame.src = './fit.html?kind=trace'; frame.style.cssText = `width:${w}px;height:${h}px;position:fixed;left:-3000px;top:0;border:0`;
+    document.body.appendChild(frame);
+    try {
+      await new Promise(r => frame.addEventListener('load', r));
+      for (let i = 0; i < 50 && !frame.contentDocument.querySelector('.screen'); i++) await sleep(20);
+      const r = frame.contentDocument.querySelector('.trace-board').getBoundingClientRect();
+      ok(r.width >= min, `board ${Math.round(r.width)}px wide, want ≥ ${min}`);
+      ok(r.top >= 0 && r.bottom <= h + 1 && r.right <= w + 1, `board inside ${Math.round(r.left)},${Math.round(r.top)}..${Math.round(r.right)},${Math.round(r.bottom)}`);
+    } finally { frame.remove(); }
+  }, { timeout: 15000 });
+}
 
 for (const kind of ['trace', 'order']) {
   test(`phone: ${kind} screen fits a 740×360 phone held sideways`, async () => {

@@ -8,6 +8,7 @@ import ch5Script from '../chapters/ch5/script.js';
 import ch5 from '../chapters/ch5/chapter.js';
 import { buildCh5Scene } from '../chapters/ch5/scene.js';
 import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
+import { traceGlyph } from '../core/minigame.js';
 
 const answers = new Set(ch5Script.quizzes.map(q => q.options[q.answer]));
 
@@ -19,7 +20,40 @@ test('ch5: script passes validation', () => {
 test('ch5: card order matches the spec', () => {
   eq(ch5Script.making.cards, ['나무를 바닷물에 담그기', '소금물에 삶기', '그늘에서 말리기', '글자 새기기', '마구리(모서리를 구리판으로 고정)', '옻칠하기']);
   eq(ch5Script.quizzes.map(q => q.options[q.answer]), ['부처의 힘으로 몽골의 침입을 물리치려고', '벌레가 먹지 않도록']);
-  eq(ch5Script.carving.glyphs.map(g => g.glyph), ['一', '十', '大']);
+});
+
+test('ch5: carving uses the real characters 大藏經 with every stroke in order', () => {
+  const gs = ch5Script.carving.glyphs;
+  eq(gs.map(g => g.glyph), ['大', '藏', '經']);
+  eq(gs.map(g => g.strokes.length), [3, 17, 13]);
+  for (const g of gs) {
+    eq(g.outlines.length, g.strokes.length, `${g.glyph} outline per stroke`);
+    ok(g.outlines.every(p => /^M[\d\s.LQCZ-]+$/.test(p)), `${g.glyph} outlines are plain paths`);
+    for (const s of g.strokes) {
+      ok(s.length >= 2 && s.length <= 5, `${g.glyph} stroke has ${s.length} dots`);
+      ok(s.every(([x, y]) => x > 0 && x < 1 && y > 0 && y < 1), `${g.glyph} dots inside the board`);
+    }
+  }
+  // 大의 첫 획은 가로획(왼쪽→오른쪽), 둘째 획은 위에서 왼쪽 아래로 삐침
+  const [h, p] = gs[0].strokes;
+  ok(h[h.length - 1][0] - h[0][0] > 0.4 && Math.abs(h[h.length - 1][1] - h[0][1]) < 0.15, 'horizontal first');
+  ok(p[0][1] < 0.2 && p[p.length - 1][1] > 0.75 && p[p.length - 1][0] < p[0][0], 'then the left-falling stroke');
+});
+
+test('ch5: the board draws the real stroke shapes and fills each stroke when done', () => {
+  const ui = document.createElement('div'); document.body.appendChild(ui);
+  const g = ch5Script.carving.glyphs[0];
+  traceGlyph({ ui }, g);
+  const board = ui.querySelector('.trace-board');
+  eq(board.querySelectorAll('.trace-outline').length, 3, 'faint outline of every stroke');
+  eq(board.querySelectorAll('.trace-glyph').length, 0, 'no font fallback needed');
+  const r = board.getBoundingClientRect();
+  const at = (type, [fx, fy]) => board.dispatchEvent(new PointerEvent(type, { pointerId: 7, bubbles: true, clientX: r.left + fx * r.width, clientY: r.top + fy * r.height }));
+  at('pointerdown', g.strokes[0][0]);
+  for (const pt of g.strokes[0].slice(1)) at('pointermove', pt);
+  eq(board.querySelectorAll('.trace-outline.done').length, 1, 'first stroke carved');
+  ok(ui.querySelector('h2').textContent.includes('大'));
+  ui.remove();
 });
 
 test('ch5: scene builds with four artisans in front of the start', () => {

@@ -14,7 +14,7 @@ export const LOOKS = {
   villager: { robe: 0xd8cfbf, hat: 'topknot', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   khitan: { robe: 0x6e5a44, hat: 'fur', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   khitanBright: { robe: 0xa8834f, hat: 'fur', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  // 2차시(4~6장)
+  // 4~6장
   kimyunhu: { robe: 0x7d7a74, hat: 'bald', trim: 0x9a6b3c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   monk: { robe: 0x8a8780, hat: 'bald', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   minister: { robe: 0x55608a, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },

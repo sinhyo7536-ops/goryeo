@@ -78,7 +78,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       const dots = [...board.querySelectorAll('.trace-dot')];
       if (!dots.length) return;
       tracing = true;
-      const r = board.getBoundingClientRect();
+      const r = board.querySelector('svg').getBoundingClientRect();
       const at = (type, d) => board.dispatchEvent(new PointerEvent(type, { pointerId: 4, bubbles: true, clientX: r.left + d.getAttribute('cx') / 100 * r.width, clientY: r.top + d.getAttribute('cy') / 100 * r.height }));
       const pts = dots.map(d => d);
       at('pointerdown', pts[0]);

@@ -1,4 +1,4 @@
-// 게임 화면들: 첫 화면, 이름, 장 선택 지도, 해설 카드, 장 결과, 차시 결과 카드, 메뉴, HUD.
+// 게임 화면들: 첫 화면, 이름, 장 선택 지도, 해설 카드, 장 결과, 결과 카드, 메뉴, HUD.
 import { SESSIONS, isUnlocked } from '../chapters/index.js';
 
 const h = (tag, attrs = {}, ...kids) => {
@@ -35,8 +35,7 @@ export function showTitle(root, { savedName, hasProgress, storageOk }) {
         h('p', { class: 'lead' }, '거란과 몽골이 쳐들어왔을 때, 고려 사람들은 외교와 전투와 끈질긴 항쟁으로 나라를 지켰어요. 젊은 고려 병사가 되어 그 현장을 걸어 보세요.'),
         h('div', { class: 'row' },
           hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || "저장된 기록"})`),
-          h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터'),
-          h('button', { class: 'btn', type: 'button', onclick: () => done('session2') }, '2차시부터 시작')),
+          h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터')),
         confirm,
         !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
         h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼'),
@@ -78,8 +77,9 @@ export function showMap(root, chapters, save, { onSessionCard } = {}) {
       }, h('b', {}, `${c.no}장`), h('span', { class: 'pick-title' }, c.title),
       h('small', {}, r ? starText(r.stars) : c.load ? `${c.years} · ${c.place}` : '준비 중'))));
     }
-    const sessionButtons = [1, 2].filter(s => chapters.some(c => c.session === s && save.chapterResult(c.id)))
-      .map(s => h('button', { class: 'btn', type: 'button', onclick: () => onSessionCard && onSessionCard(s) }, `${s}차시 결과 카드`));
+    // 한 장이라도 마쳤으면 결과 카드를 다시 볼 수 있다 (1~6장이 한 장의 결과 카드)
+    const sessionButtons = chapters.some(c => save.chapterResult(c.id))
+      ? [h('button', { class: 'btn', type: 'button', onclick: () => onSessionCard && onSessionCard(1) }, '결과 카드')] : [];
     const el = screen(root, 'mapscreen',
       h('div', { class: 'map-wrap' },
         map,
