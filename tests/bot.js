@@ -45,7 +45,8 @@ export function touchSetup(speakers) {
 
 // answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
 // noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
-export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false } = {}) {
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [] } = {}) {
+  const picks = [...mapPicks];
   const { w, hud, dialogue, input, ui, ctx } = s;
   const wrongUsed = new Set(), seenAt = new Map();
   const zone = hud.joyZone;
@@ -56,6 +57,9 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     if (stopped) return;
     const start = [...ui.querySelectorAll('.screen button')].find(b => b.textContent === '시작');
     if (start) { start.click(); return; }
+    // 지도에서 고르기: mapPicks 순서대로 누르고, 마지막 것은 계속 누른다
+    const place = picks.length && ui.querySelector(`.map-place[data-place="${picks[0]}"]`);
+    if (place) { if (picks.length > 1) picks.shift(); place.click(); return; }
     if (dialogue.isOpen()) {
       release();
       if (dialogue.isChoosing()) {

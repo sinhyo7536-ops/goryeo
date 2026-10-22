@@ -162,3 +162,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .trace-dot.first { fill: var(--gold); }
 .trace-dot.passed { fill: var(--dan-red); }
 .stroke-done { fill: none; stroke: #3b2414; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+/* 지도에서 고르기 */
+.map.pick { width: min(300px, 60vh, 100%); justify-self: center; }
+.map-place { position: absolute; transform: translate(-50%, -50%); min-height: 48px; padding: 6px 12px; border-radius: 24px; border: 2px solid var(--gold); background: var(--dan-red); color: var(--hanji); font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,.35); }
+.map-dot { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--gold); border: 2px solid var(--hanji); pointer-events: none; }
+.map-line { position: absolute; height: 2px; background: var(--gold); transform-origin: 0 50%; pointer-events: none; }

@@ -29,9 +29,9 @@ export default {
   capital: {
     title: '도읍을 어디로 옮길까요?',
     places: [
-      { id: 'gaegyeong', label: '개경 (지금 도읍)', xy: [40, 50], hint: '개경은 지금의 도읍이에요. 도읍을 "옮기는" 것이니 다른 곳을 골라 보세요.' },
-      { id: 'ganghwa', label: '강화도', xy: [33, 55], hint: null },
-      { id: 'seogyeong', label: '서경 (평양)', xy: [30, 36], hint: '바다로 둘러싸여 적이 쉽게 건너오지 못하는 곳은 어디일까요? 다시 골라 보세요.' },
+      { id: 'gaegyeong', label: '개경 (지금 도읍)', xy: [40, 50], labelAt: [64, 46], hint: '개경은 지금의 도읍이에요. 도읍을 "옮기는" 것이니 다른 곳을 골라 보세요.' },
+      { id: 'ganghwa', label: '강화도', xy: [33, 55], labelAt: [20, 62], hint: null },
+      { id: 'seogyeong', label: '서경 (평양)', xy: [30, 36], labelAt: [30, 28], hint: '바다로 둘러싸여 적이 쉽게 건너오지 못하는 곳은 어디일까요? 다시 골라 보세요.' },
     ],
     reason: {
       kind: 'choice', who: 'minister', src: ['S10'],

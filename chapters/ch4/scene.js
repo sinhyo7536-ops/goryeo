@@ -85,18 +85,18 @@ export function buildCh4Scene(world) {
   // 다가오는 몽골군 8명 (처음엔 숨김). 들판 북쪽 반원에서 나타나 성으로 걸어온다.
   const mongols = [];
   for (let i = 0; i < 8; i++) {
-    const g = new THREE.Group(); g.visible = false; L.add(g);
+    const g = new THREE.Group(); g.visible = false; g.scale.setScalar(1.6); L.add(g); // 멀리서도 보이게 크게
     const p = makePerson(LOOKS.mongol); g.add(p);
     mk(new THREE.CylinderGeometry(0.05, 0.05, 3.4, 4), 0x3a2c20, 0.6, 1.7, 0, g);
     const f = mk(new THREE.PlaneGeometry(0.9, 0.7), 0x2a3550, 1.05, 3.1, 0, g); f.material = new THREE.MeshLambertMaterial({ color: 0x2a3550, side: THREE.DoubleSide });
     const top = new THREE.Object3D(); top.position.set(0, 3.6, 0); g.add(top);
-    const a = Math.PI + 0.25 + (i / 7) * (Math.PI - 0.5); // 북쪽 반원 (-z 쪽)
+    const a = Math.PI + 0.55 + (i / 7) * (Math.PI - 1.1); // 성 앞쪽(북쪽, -z) 부채꼴
     mongols.push({ group: g, top, angle: a });
   }
   const cheoinFit = {
-    target: [CHEOIN_X, 1, -10], dir: [0, 12, 20],
+    target: [CHEOIN_X, 1, -12], dir: [0, 16, 15],
     points: [[CHEOIN_X - CHEOIN_R, 0, CHEOIN_R], [CHEOIN_X + CHEOIN_R, 0, CHEOIN_R],
-      ...mongols.map(m => [CHEOIN_X + Math.cos(m.angle) * SPAWN_R, 3.6, Math.sin(m.angle) * SPAWN_R])],
+      ...mongols.map(m => [CHEOIN_X + Math.cos(m.angle) * SPAWN_R, 3.6 * 1.6, Math.sin(m.angle) * SPAWN_R])],
   };
 
   // 4) 충주성 마당: 성벽, 관노 문서 더미, 불

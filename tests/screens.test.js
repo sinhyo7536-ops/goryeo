@@ -11,7 +11,7 @@ test('chapters: six chapters, playable ones load and the rest are 준비 중', (
   eq(CHAPTERS.map(c => c.session), [1, 1, 1, 2, 2, 2]);
   ok(CHAPTERS[0].load, 'ch1 loads');
   ok(CHAPTERS[1].load, 'ch2 loads');
-  ok(CHAPTERS.slice(3).every(c => c.load === null));
+  ok(CHAPTERS.slice(4).every(c => c.load === null));
   eq(SESSIONS[1].points.length, 3);
 });
 
@@ -77,7 +77,7 @@ test('map: finished chapter shows stars, unavailable chapters are disabled', asy
   const b1 = el.querySelector('[data-chapter="ch1"]');
   ok(b1.textContent.includes('★★☆'), b1.textContent);
   eq(el.querySelector('[data-chapter="ch2"]').disabled, false, 'ch2 opens after ch1');
-  eq(el.querySelector('[data-chapter="ch4"]').disabled, true, 'ch4 not built yet');
+  eq(el.querySelector('[data-chapter="ch5"]').disabled, true, 'ch5 not built yet');
   b1.click();
   eq(await p, 'ch1');
   el.remove();

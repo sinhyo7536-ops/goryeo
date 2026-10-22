@@ -1,5 +1,6 @@
 // 미니게임 공통 부품: 방법 카드, 다시 하기·쉬운 모드, 화면 위 누르기 목표, 큰 행동 버튼.
 import * as THREE from 'three';
+import { MAP_OUTLINE } from './screens.js';
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
@@ -182,5 +183,36 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
     board.addEventListener('pointerup', lift);
     board.addEventListener('pointercancel', lift);
     drawDots();
+  });
+}
+
+// 지도에서 고르기: 고려 지도 위의 장소 버튼 중 하나를 누르면 그 id를 돌려준다.
+export function pickOnMap(ctx, { title, places }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen pickmap');
+    const card = el('div', 'card');
+    const map = el('div', 'map pick');
+    map.innerHTML = `<svg viewBox="0 0 300 400" aria-hidden="true"><polygon points="${MAP_OUTLINE}" class="land"/><ellipse cx="120" cy="388" rx="16" ry="8" class="land"/></svg>`;
+    for (const p of places) {
+      const b = el('button', 'map-place', p.label); b.type = 'button';
+      b.dataset.place = p.id;
+      // 위치는 작은 점으로, 버튼은 점 옆(labelAt)에 놓아 가까운 장소끼리 겹치지 않게 한다
+      const [lx, ly] = p.labelAt || p.xy;
+      b.style.left = `${lx}%`; b.style.top = `${ly}%`;
+      b.addEventListener('click', () => { screen.remove(); resolve(p.id); });
+      const dot = el('span', 'map-dot'); dot.style.left = `${p.xy[0]}%`; dot.style.top = `${p.xy[1]}%`;
+      if (p.labelAt) {
+        const line = el('span', 'map-line');
+        const dx = (lx - p.xy[0]) * 3, dy = (ly - p.xy[1]) * 4; // 지도 비율 300×400
+        line.style.left = `${p.xy[0]}%`; line.style.top = `${p.xy[1]}%`;
+        line.style.width = `${Math.hypot(dx, dy) / 3}%`;
+        line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+        map.append(line);
+      }
+      map.append(dot, b);
+    }
+    card.append(el('div', 'eyebrow', '지도에서 고르기'), el('h2', null, title), map);
+    screen.append(card);
+    ctx.ui.append(screen);
   });
 }
