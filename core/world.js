@@ -27,6 +27,27 @@ export const MOODS = {
     hemi: [0xb4c0cc, 0x3a4038, 0.75],
     particles: 'rain',
   },
+  overcast: {
+    skyTop: 0x6f7a86, skyHorizon: 0xb9c0c4, skyBottom: 0x7a7f78,
+    fog: [0xaeb5b8, 35, 130],
+    sun: { color: 0xe6e8ea, intensity: 0.9, dir: [15, 30, 20] },
+    hemi: [0xdfe4e8, 0x5a6050, 0.85],
+    particles: null,
+  },
+  morning: {
+    skyTop: 0x7fa8d0, skyHorizon: 0xf4e3c2, skyBottom: 0x8a9a7a,
+    fog: [0xe8e2cf, 40, 140],
+    sun: { color: 0xfff0d0, intensity: 1.5, dir: [30, 25, 10] },
+    hemi: [0xf4f1e8, 0x5d6b48, 0.8],
+    particles: null,
+  },
+  sea: {
+    skyTop: 0x5d8fc4, skyHorizon: 0xd8eef5, skyBottom: 0x2f6f8f,
+    fog: [0xcfe4ec, 60, 220],
+    sun: { color: 0xfff6e0, intensity: 1.6, dir: [25, 35, 15] },
+    hemi: [0xeaf4fa, 0x2f5f75, 0.8],
+    particles: null,
+  },
 };
 
 const SPEED = 6.5;

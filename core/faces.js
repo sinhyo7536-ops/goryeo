@@ -95,6 +95,7 @@ function drawHat(g, hat, cx, cy, R) {
   } else if (hat === 'fur') {           // 털모자
     g.fillStyle = '#5a4130';
     g.beginPath(); g.roundRect(cx - 0.95 * R, cy - 1.18 * R, 1.9 * R, 0.62 * R, 0.25 * R); g.fill();
+  } else if (hat === 'bald') {          // 스님: 깎은 머리
   } else {                              // 맨머리와 상투
     g.fillStyle = '#1e1c1a';
     g.beginPath(); g.ellipse(cx, cy - 0.45 * R, 0.98 * R, 0.62 * R, 0, Math.PI, 0); g.fill();

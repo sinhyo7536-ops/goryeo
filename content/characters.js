@@ -13,6 +13,15 @@ export const LOOKS = {
   villager: { robe: 0xd8cfbf, hat: 'topknot', face: { eyes: 'round', brows: 'worried', mouth: 'open' } },
   khitan: { robe: 0x6e5a44, hat: 'fur', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   khitanBright: { robe: 0xa8834f, hat: 'fur', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'open' } },
+  // 2차시(4~6장)
+  kimyunhu: { robe: 0x7d7a74, hat: 'bald', trim: 0x9a6b3c, face: { eyes: 'kind', brows: 'stern', mouth: 'flat' } },
+  monk: { robe: 0x8a8780, hat: 'bald', face: { eyes: 'round', brows: 'stern', mouth: 'flat' } },
+  minister: { robe: 0x55608a, hat: 'official', face: { eyes: 'round', brows: 'worried', mouth: 'flat', beard: 'goatee' } },
+  artisan: { robe: 0xc8b89a, hat: 'topknot', trim: 0x6b4a32, face: { eyes: 'kind', brows: 'normal', mouth: 'smile', beard: 'mustache' } },
+  baejungson: { robe: 0x2a3a5a, hat: 'general', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
+  kimtongjeong: { robe: 0x4a3a2a, hat: 'general', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'open', beard: 'full' } },
+  sambyeolcho: { robe: 0x3a2f2a, hat: 'helmet', trim: 0xb8452f, face: { eyes: 'round', brows: 'stern', mouth: 'flat' } },
+  mongol: { robe: 0x3e4a5c, hat: 'fur', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
 };
 
 export const look = (id, extra = {}) => ({ ...LOOKS[id], ...extra });

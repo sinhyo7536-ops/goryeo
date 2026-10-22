@@ -87,3 +87,100 @@ export function actionButton(ctx, label) {
     remove() { unbind(); btn.remove(); resolveFn = null; },
   };
 }
+
+// 카드 순서 맞추기: 섞인 카드를 정답 순서대로 누른다. 틀리면 그 시도는 실패(false).
+// easy이면 다음에 눌러야 할 카드가 빛난다.
+export function orderCards(ctx, { title, cards, easy = false }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order');
+    const card = el('div', 'card wide');
+    const slots = el('ol', 'order-slots');
+    const pile = el('div', 'order-pile');
+    card.append(el('div', 'eyebrow', '순서 맞추기'), el('h2', null, title), slots, pile);
+    screen.append(card);
+    ctx.ui.append(screen);
+    // 정답 순서와 다르게 섞는다 (고정된 섞기라 테스트와 화면이 같다)
+    const order = cards.map((c, i) => ({ c, k: (i * 7 + 3) % cards.length }));
+    order.sort((a, b) => a.k - b.k);
+    if (order.every((o, i) => o.c === cards[i])) order.reverse();
+    let next = 0;
+    const buttons = order.map(({ c }) => {
+      const b = el('button', 'order-card', c); b.type = 'button';
+      b.addEventListener('click', () => {
+        if (c === cards[next]) {
+          slots.append(el('li', null, c)); b.remove(); next += 1;
+          if (next === cards.length) { setTimeout(() => { screen.remove(); resolve(true); }, 300); return; }
+          hint();
+        } else {
+          b.classList.add('wrong');
+          setTimeout(() => { screen.remove(); resolve(false); }, 600);
+          buttons.forEach(x => { x.disabled = true; });
+        }
+      });
+      pile.append(b);
+      return b;
+    });
+    const hint = () => { if (easy) buttons.forEach(b => b.classList.toggle('hint', b.textContent === cards[next])); };
+    hint();
+  });
+}
+
+// 획 따라 그리기: 획마다 점을 순서대로 지나가면 그 획이 새겨진다. 손을 떼면 그 획만 처음부터.
+export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
+  return new Promise(resolve => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const screen = el('section', 'screen trace');
+    const card = el('div', 'card');
+    const board = el('div', 'trace-board');
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 100 100');
+    const bg = document.createElementNS(NS, 'text');
+    bg.setAttribute('x', '50'); bg.setAttribute('y', '58'); bg.setAttribute('text-anchor', 'middle'); bg.setAttribute('dominant-baseline', 'middle');
+    bg.setAttribute('class', 'trace-glyph'); bg.textContent = glyph;
+    svg.append(bg); board.append(svg);
+    card.append(el('div', 'eyebrow', '글자 새기기'), el('h2', null, `'${glyph}' 자를 새겨 보아요`), el('p', null, '빛나는 점을 1번부터 차례로 지나가도록 끌어요.'), board);
+    screen.append(card); ctx.ui.append(screen);
+
+    const R = easy ? 0.11 : 0.07;
+    let s = 0, progress = 0, active = null;
+    const dots = [];
+    const drawDots = () => {
+      dots.forEach(d => d.remove()); dots.length = 0;
+      if (s >= strokes.length) return;
+      strokes[s].forEach(([x, y], i) => {
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', x * 100); c.setAttribute('cy', y * 100); c.setAttribute('r', i === 0 ? 5 : 3.5);
+        c.setAttribute('class', `trace-dot${i < progress ? ' passed' : ''}${i === 0 ? ' first' : ''}`);
+        svg.append(c); dots.push(c);
+      });
+    };
+    const pos = e => { const r = board.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+    const near = ([x, y], [px, py]) => Math.hypot(x - px, y - py) < R;
+    const finishStroke = () => {
+      const line = document.createElementNS(NS, 'polyline');
+      line.setAttribute('points', strokes[s].map(([x, y]) => `${x * 100},${y * 100}`).join(' '));
+      line.setAttribute('class', 'stroke-done');
+      svg.append(line);
+      s += 1; progress = 0;
+      if (s === strokes.length) { drawDots(); setTimeout(() => { screen.remove(); resolve(true); }, 400); }
+      else drawDots();
+    };
+    board.addEventListener('pointerdown', e => {
+      if (s >= strokes.length) return;
+      if (!near(strokes[s][0], pos(e))) return;
+      active = e.pointerId; progress = 1;
+      try { board.setPointerCapture(e.pointerId); } catch { /* 합성 이벤트 */ }
+      drawDots();
+    });
+    board.addEventListener('pointermove', e => {
+      if (e.pointerId !== active || s >= strokes.length) return;
+      if (near(strokes[s][progress], pos(e))) {
+        progress += 1;
+        if (progress === strokes[s].length) { active = null; finishStroke(); } else drawDots();
+      }
+    });
+    const lift = e => { if (e.pointerId !== active) return; active = null; progress = 0; drawDots(); };
+    board.addEventListener('pointerup', lift);
+    board.addEventListener('pointercancel', lift);
+    drawDots();
+  });
+}
