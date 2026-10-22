@@ -1,6 +1,6 @@
 // 조선편 장들이 같이 쓰는 진행 도구: 차례대로 말 걸기 탐험, 미니게임 한 부분(다시 하기·첫 시도 기록), 플레이어 놓기.
 import { roam } from '../../core/flow.js';
-import { runWithRetries } from '../../core/minigame.js';
+import { runWithRetries, actionButton } from '../../core/minigame.js';
 
 export async function sayAll(dialogue, lines) { for (const l of lines) await dialogue.say(l); }
 
@@ -61,4 +61,35 @@ export async function tryPart(ctx, attempt, failHint) {
 // 여러 부분의 결과를 장 결과로 모은다
 export function sumParts(parts) {
   return { firstTryCorrect: parts.filter(p => p.first).length, firstTryTotal: parts.length, easyModeUsed: parts.some(p => p.easy) };
+}
+
+// 때 맞춰 누르기: seconds 동안 진행도 k가 0→1로 가고(set(k)로 장면을 움직임), k가 window 안일 때 큰 버튼을 누르면 성공.
+// 너무 일찍 누르면 fail.why = 'early', 끝까지 안 누르거나 늦으면 'late'. 테스트 봇은 ctx.testHooks.ready를 보고 누른다.
+export function timingPress(ctx, { label, seconds, set, window: [lo, hi], fail }) {
+  const { world } = ctx;
+  const btn = actionButton(ctx, label);
+  let t = 0, done = false;
+  set(0);
+  return new Promise(resolve => {
+    const finish = ok => {
+      if (done) return; done = true;
+      off(); btn.remove(); ctx.testHooks.ready = false;
+      resolve(ok);
+    };
+    btn.wait().then(() => {
+      if (done) return;
+      const k = t / seconds;
+      if (k < lo) { fail.why = 'early'; return finish(false); }
+      if (k > hi) { fail.why = 'late'; return finish(false); }
+      finish(true);
+    });
+    const off = world.onUpdate(dt => {
+      if (done) return;
+      t += dt;
+      const k = Math.min(1, t / seconds);
+      set(k);
+      ctx.testHooks.ready = k >= lo + 0.02 && k <= hi - 0.02;
+      if (k >= 1) { fail.why = 'late'; finish(false); }
+    });
+  });
 }

@@ -71,7 +71,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     const now = ui.querySelector('.place-now');
     if (now) {
       const label = Object.keys(places).find(k => now.textContent.includes(k));
-      const slot = label && ui.querySelector(`.place-slot[data-slot="${places[label]}"]:not([disabled])`);
+      const slot = label && [].concat(places[label]).map(id => ui.querySelector(`.place-slot[data-slot="${id}"]:not([disabled])`)).find(Boolean); // 같은 물건이 여럿이면 자리 목록 중 빈 곳
       if (slot) slot.click();
       return;
     }
