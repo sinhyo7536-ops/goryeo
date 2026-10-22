@@ -191,7 +191,7 @@ export function createHud(root, { touch }) {
     setTouchVisible(b) { joyZone.hidden = talkBtn.hidden = !(touch && b); },
     setPrompt(pos) {
       if (!pos || !camera) { prompt.hidden = true; return; }
-      const v = pos.clone().setY(2.9).project(camera);
+      const v = pos.clone().setY(3.3).project(camera);
       prompt.style.left = `${((v.x + 1) / 2) * 100}%`;
       prompt.style.top = `${((1 - v.y) / 2) * 100}%`;
       prompt.hidden = false;

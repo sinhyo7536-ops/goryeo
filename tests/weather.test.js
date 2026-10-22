@@ -33,5 +33,6 @@ test('world: snow and storm moods exist with fog and particles', () => {
 
 test('people: general hat builds', () => {
   const p = makePerson({ robe: 0x7a2a1e, hat: 'general' });
-  ok(p.children.length > 10);
+  let n = 0; p.traverse(o => { if (o.isMesh) n += 1; });
+  ok(n > 12, `meshes ${n}`); // 투구·술·어깨·가슴 갑옷이 붙는다
 });

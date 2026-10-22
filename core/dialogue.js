@@ -1,4 +1,6 @@
 // 화면 아래 한지 대화창: 한 글자씩 나타나는 대사, 선택지, 다시 고르기, 퀴즈.
+import { portraitURL } from './faces.js';
+
 const NARR = { name: '해설', mark: '史', color: '#5a5248' };
 const CLICK_GUARD_MS = 250; // 선택지가 열린 직후의 탭은 앞 대사를 넘기려던 탭이므로 무시
 
@@ -17,8 +19,16 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
   function show(who) {
     const s = all[who] || NARR;
     $('.dlg-name').textContent = s.name;
-    $('.dlg-portrait').textContent = s.mark;
-    $('.dlg-portrait').style.background = s.color;
+    const pic = $('.dlg-portrait');
+    if (s.look) {            // 사람: 만화풍 얼굴 그림
+      pic.textContent = '';
+      pic.style.backgroundColor = '';
+      pic.style.backgroundImage = `url(${portraitURL(s.look)})`;
+    } else {                 // 해설·안내: 글자 표시
+      pic.style.backgroundImage = '';
+      pic.textContent = s.mark;
+      pic.style.backgroundColor = s.color;
+    }
     el.hidden = false;
   }
 

@@ -2,8 +2,8 @@
 export default {
   speakers: {
     guide: { name: '안내', mark: '◎', color: '#2f6b5e' },
-    gangamchan: { name: '강감찬', mark: '姜', color: '#8a2f24' },
-    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e' },
+    gangamchan: { name: '강감찬', mark: '姜', color: '#8a2f24', look: 'gangamchan' },
+    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e', look: 'soldier' },
   },
 
   intro: [

@@ -1,6 +1,7 @@
 // 3장 장면: 비바람 속 삼교천(고려 진영, 둑 자리, 냇물을 건너는 거란군)과 남쪽의 귀주 벌판.
 import * as THREE from 'three';
 import { mat, makePerson } from '../../core/people.js';
+import { LOOKS, look } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
 
 const RIVER_Z = -8, RIVER_W = 6;
@@ -73,7 +74,7 @@ export function buildCh3Scene(world) {
   const zNorth = RIVER_Z - RIVER_W / 2, zSouth = RIVER_Z + RIVER_W / 2;
   const army = new THREE.Group(); L.add(army);
   for (let i = 0; i < 14; i++) {
-    const k = makePerson({ robe: 0x6e5a44, hat: 'fur' });
+    const k = makePerson(LOOKS.khitan);
     k.position.set(-6 + (i % 7) * 2.2, 0, -Math.floor(i / 7) * 2); k.rotation.y = 0; army.add(k);
   }
   const setCross = t => { army.position.set(4, 0, zNorth - 8 + t * (zSouth + 4 - (zNorth - 8))); };
@@ -88,8 +89,8 @@ export function buildCh3Scene(world) {
   const guju = new THREE.Group(); L.add(guju);
   const gujuFlags = [], gujuKhitan = [];
   for (let i = 0; i < 12; i++) {
-    const p = makePerson({ robe: 0x2f6b5e, hat: 'helmet' }); p.position.set(-11 + i * 2, 0, GUJU_Z + 6); p.rotation.y = Math.PI; guju.add(p);
-    const q = makePerson({ robe: 0x6e5a44, hat: 'fur' }); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); guju.add(q); gujuKhitan.push(q);
+    const p = makePerson(LOOKS.player); p.position.set(-11 + i * 2, 0, GUJU_Z + 6); p.rotation.y = Math.PI; guju.add(p);
+    const q = makePerson(LOOKS.khitan); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); guju.add(q); gujuKhitan.push(q);
   }
   for (const [x, c] of [[-8, 0xb8452f], [0, 0xd9a441], [8, 0xb8452f]]) {
     mk(new THREE.CylinderGeometry(0.08, 0.08, 5, 5), 0x5a3f2a, x, 2.5, GUJU_Z + 8, guju);
@@ -98,14 +99,14 @@ export function buildCh3Scene(world) {
   }
   const reinforcements = new THREE.Group(); reinforcements.visible = false; guju.add(reinforcements);
   for (let i = 0; i < 8; i++) {
-    const p = makePerson({ robe: 0x3c5a7a, hat: 'helmet' }); p.position.set((i % 4) * 2, 0, Math.floor(i / 4) * 2); p.rotation.y = -Math.PI / 2; reinforcements.add(p);
+    const p = makePerson(look('soldier', { robe: 0x3c5a7a })); p.position.set((i % 4) * 2, 0, Math.floor(i / 4) * 2); p.rotation.y = -Math.PI / 2; reinforcements.add(p);
   }
   reinforcements.position.set(30, 0, GUJU_Z + 4);
 
   const rain = createWeather(world, 'rain', { count: 900 });
 
-  world.addNpc('gangamchan', { robe: 0x8a2f24, hat: 'general', trim: 0xd9a441 }, -4, 5, 0);
-  world.addNpc('soldier', { robe: 0x7a3b2e, hat: 'helmet' }, 5, 7.5, Math.PI * 0.8);
+  world.addNpc('gangamchan', LOOKS.gangamchan, -4, 5, 0);
+  world.addNpc('soldier', LOOKS.soldier, 5, 7.5, Math.PI * 0.8);
 
   // 깃발 방향: 북쪽(-z)으로 휘날리면 rotation.y = +PI/2, 남쪽이면 -PI/2
   let flagDir = -Math.PI / 2;

@@ -143,3 +143,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .big-action { position: fixed; z-index: 12; left: 50%; transform: translateX(-50%); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); min-height: 68px; min-width: 240px; padding: 0 28px; font-size: 22px; font-weight: 700; border-radius: 6px; border: 3px solid var(--hanji); background: var(--dan-red); color: var(--hanji); box-shadow: 0 6px 16px rgba(0,0,0,.45); touch-action: manipulation; }
 /* 밀기 버튼: 병사가 올라온 만큼(--p) 테두리가 금색으로 차오른다 */
 .tap-target { border: none; background: radial-gradient(circle, rgba(184, 69, 47, .95) 62%, transparent 63%), conic-gradient(var(--gold) calc(var(--p, 0) * 360deg), rgba(242, 234, 217, .45) 0); }
+/* 대화창 얼굴 그림 */
+.dlg-portrait { width: 68px; height: 68px; background-size: cover; background-position: center; }
+@media (max-width: 600px) { .dlg-portrait { width: 52px; height: 52px; } }

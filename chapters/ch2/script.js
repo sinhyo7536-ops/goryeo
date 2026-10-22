@@ -2,9 +2,9 @@
 export default {
   speakers: {
     guide: { name: '안내', mark: '◎', color: '#2f6b5e' },
-    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e' },
-    yanggyu: { name: '양규', mark: '楊', color: '#7a2a1e' },
-    villager: { name: '백성', mark: '民', color: '#7d7466' },
+    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e', look: 'soldier' },
+    yanggyu: { name: '양규', mark: '楊', color: '#7a2a1e', look: 'yanggyu' },
+    villager: { name: '백성', mark: '民', color: '#7d7466', look: 'villager' },
   },
 
   intro: [

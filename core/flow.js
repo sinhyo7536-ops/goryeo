@@ -67,7 +67,9 @@ export function roam(ctx, { onTalk, zones = [] }) {
     busy = true; input.enabled = false;
     const p = npc.mesh.position;
     npc.mesh.rotation.y = Math.atan2(world.player.position.x - p.x, world.player.position.z - p.z);
+    world.setTalkCamera(npc.mesh); // 대화하는 동안 인물 얼굴 가까이
     try { await onTalk(npc.id); } finally {
+      if (world.camMode === 'talk') world.camMode = 'follow';
       dialogue.close();
       busy = false; input.enabled = !stopped;
     }

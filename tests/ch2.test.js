@@ -125,3 +125,26 @@ test('ch2: all six ladders (base and top) are on screen at any screen shape', as
     } finally { s.done(); }
   }
 }, { timeout: 30000 });
+
+test('roam: talking moves the camera close to the speaker and back afterwards', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  try {
+    s.w.addNpc('yanggyu', { robe: 0x7a2a1e, hat: 'general' }, 0, -2, 0);
+    s.w.player.position.set(0, 0, 0);
+    s.w.snapCamera();
+    let during = null, dist = null;
+    let release;
+    const stop = roam(s.ctx, { onTalk: async () => { await new Promise(r => { release = r; }); } });
+    s.w.step(0.016, { x: 0, z: 0 });
+    s.hud.talkBtn.click();
+    await sleep(10);
+    for (let i = 0; i < 60; i++) s.w.step(0.05, { x: 0, z: 0 });
+    during = s.w.camMode;
+    dist = s.w.camera.position.distanceTo(s.w.npcs.get('yanggyu').mesh.position);
+    release(); await sleep(10);
+    eq(during, 'talk');
+    ok(dist < 6, `camera near the speaker (${dist.toFixed(1)})`);
+    eq(s.w.camMode, 'follow');
+    stop();
+  } finally { s.done(); }
+});

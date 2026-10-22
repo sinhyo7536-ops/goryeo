@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { QUALITY } from './quality.js';
 import { makePerson, animateWalk, markerSprite } from './people.js';
+import { LOOKS } from '../content/characters.js';
 
 // 장면 분위기. 2~6장 값은 다음 계획에서 채운다.
 export const MOODS = {
@@ -62,7 +63,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
 
   const level = new THREE.Group();
   scene.add(level);
-  const player = makePerson({ robe: 0x2f6b5e, hat: 'helmet' });
+  const player = makePerson(LOOKS.player);
   scene.add(player);
 
   const goalArrow = new THREE.Mesh(
@@ -76,6 +77,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
   const tmp = new THREE.Vector3();
   const updaters = [];
   let goal = null, elapsed = 0, fit = null;
+  const talkPos = new THREE.Vector3(), talkTarget = new THREE.Vector3();
   const projected = new THREE.Vector3();
   function applyFit() {
     camera.updateProjectionMatrix();
@@ -128,7 +130,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
     addNpc(id, opts, x, z, faceY = 0) {
       const mesh = makePerson(opts);
       mesh.position.set(x, 0, z); mesh.rotation.y = faceY;
-      const mark = markerSprite('!'); mark.position.set(0, 3.1, 0); mark.visible = false; mesh.add(mark);
+      const mark = markerSprite('!'); mark.position.set(0, 3.5, 0); mark.visible = false; mesh.add(mark);
       level.add(mesh);
       const npc = { id, mesh, mark, collider: world.addCollider({ x, z, r: 0.5 }) };
       world.npcs.set(id, npc);
@@ -149,6 +151,16 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
     },
     setGoal(target) { goal = target; },
     getGoal() { return goal; },
+    // 대화 카메라: 플레이어 어깨 너머로 말하는 인물의 얼굴이 보이도록 다가간다. 끝나면 camMode를 'follow'로.
+    setTalkCamera(npcMesh) {
+      const n = npcMesh.position, p = player.position;
+      let dx = p.x - n.x, dz = p.z - n.z;
+      const d = Math.hypot(dx, dz) || 1; dx /= d; dz /= d;
+      talkPos.set(n.x + dx * 3.6 + dz * 1.3, 2.9, n.z + dz * 3.6 - dx * 1.3);
+      talkTarget.set(n.x + dx * 0.5, 2.3, n.z + dz * 0.5);
+      player.rotation.y = Math.atan2(-dx, -dz); // 플레이어도 인물을 바라본다
+      world.camMode = 'talk';
+    },
     setFixedCamera(pos, target) {
       world.camMode = 'fixed'; fit = null;
       camera.position.set(...pos); camTarget.set(...target); camera.lookAt(camTarget);
@@ -188,7 +200,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
         player.rotation.y += diff * Math.min(1, dt * 12);
       }
       animateWalk(player, moving, dt);
-      for (const n of world.npcs.values()) if (n.mark.visible) n.mark.position.y = 3.1 + Math.sin(elapsed * 3) * 0.12;
+      for (const n of world.npcs.values()) if (n.mark.visible) n.mark.position.y = 3.5 + Math.sin(elapsed * 3) * 0.12;
       if (goal) {
         const dx = goal.x - p.x, dz = goal.z - p.z;
         goalArrow.visible = Math.hypot(dx, dz) > 3;
@@ -197,6 +209,12 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       } else goalArrow.visible = false;
       for (const fn of [...updaters]) fn(dt, elapsed); // 도중에 해제해도 안전하도록 복사본을 돈다
       if (world.camMode === 'fixed' && fit && fit.aspect !== camera.aspect) applyFit();
+      if (world.camMode === 'talk') {
+        const a = 1 - Math.exp(-dt * 5);
+        camera.position.lerp(talkPos, a);
+        camTarget.lerp(talkTarget, a);
+        camera.lookAt(camTarget);
+      }
       if (world.camMode === 'follow') {
         const a = 1 - Math.exp(-dt * 4);
         camera.position.lerp(tmp.copy(p).add(world.camOffset()), a);

@@ -1,6 +1,7 @@
 // 1장 장면: 노을 진 고려 진영, 강, 강 건너 거란 진영, 강동 6주 빛기둥.
 import * as THREE from 'three';
 import { mat, makePerson, labelSprite } from '../../core/people.js';
+import { LOOKS, look } from '../../content/characters.js';
 
 const RIVER_Z = -19.5;
 
@@ -167,10 +168,10 @@ export function buildCh1Scene(world) {
   yurt(0, -41, 1.5);
   for (const [x, z] of [[-9, -37], [9, -37], [-16, -44], [16, -44], [-6, -48], [7, -49], [-22, -38], [22, -38], [-13, -52], [14, -53]]) yurt(x, z, 0.9 + rand() * 0.3);
   for (const [x, z] of [[-4, -36.5], [4, -36.5], [-18, -32], [18, -32]]) flag(x, z, 0x2a2a2e, khitanGroup, 4.4);
-  const sonn = makePerson({ robe: 0x5b4a36, hat: 'fur', trim: 0xb8452f });
+  const sonn = makePerson(LOOKS.sonn);
   sonn.position.set(0, 0, -36); khitanGroup.add(sonn);
   for (let i = 0; i < 9; i++) {
-    const k = makePerson({ robe: 0x6e5a44, hat: 'fur' });
+    const k = makePerson(LOOKS.khitan);
     k.position.set(-16 + i * 4, 0, -27 - (i % 2) * 1.5); khitanGroup.add(k);
     mk(new THREE.CylinderGeometry(0.04, 0.04, 3, 4), 0x3a2c20, 0.62, 1.5, 0.1, k);
   }
@@ -186,10 +187,10 @@ export function buildCh1Scene(world) {
   });
 
   // NPC
-  world.addNpc('soldier', { robe: 0x7a3b2e, hat: 'helmet' }, 4, 12.5, Math.PI * 0.85);
-  world.addNpc('seohui', { robe: 0x2b4c7e, hat: 'official', trim: 0xd9a441 }, -11, 1.3, 0.15);
-  world.addNpc('archer', { robe: 0x5d6b3e, hat: 'helmet' }, -7, 20.5, Math.PI);
-  world.addNpc('officer', { robe: 0x6a4c6e, hat: 'official' }, 15.5, 8, -Math.PI * 0.6);
+  world.addNpc('soldier', LOOKS.soldier, 4, 12.5, Math.PI * 0.85);
+  world.addNpc('seohui', LOOKS.seohui, -11, 1.3, 0.15);
+  world.addNpc('archer', LOOKS.archer, -7, 20.5, Math.PI);
+  world.addNpc('officer', LOOKS.officer, 15.5, 8, -Math.PI * 0.6);
 
   const scene = { ring, khitanGroup, gangdongPillars, sonn, emberCount, retreating: false,
     ferry: { x: 8, z: -13.4, r: 1.6 },

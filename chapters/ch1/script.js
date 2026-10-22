@@ -3,11 +3,11 @@
 export default {
   speakers: {
     guide: { name: '안내', mark: '◎', color: '#2f6b5e' },
-    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e' },
-    officer: { name: '나이 든 관리', mark: '官', color: '#6a4c6e' },
-    archer: { name: '궁수', mark: '弓', color: '#5d6b3e' },
-    seohui: { name: '서희', mark: '徐', color: '#2b4c7e' },
-    sonn: { name: '소손녕', mark: '蕭', color: '#5b4a36' },
+    soldier: { name: '고려 병사', mark: '兵', color: '#7a3b2e', look: 'soldier' },
+    officer: { name: '나이 든 관리', mark: '官', color: '#6a4c6e', look: 'officer' },
+    archer: { name: '궁수', mark: '弓', color: '#5d6b3e', look: 'archer' },
+    seohui: { name: '서희', mark: '徐', color: '#2b4c7e', look: 'seohui' },
+    sonn: { name: '소손녕', mark: '蕭', color: '#5b4a36', look: 'sonn' },
   },
 
   intro: [

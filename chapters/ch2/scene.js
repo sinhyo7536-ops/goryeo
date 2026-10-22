@@ -1,6 +1,7 @@
 // 2장 장면: 눈 덮인 흥화진 성, 북쪽의 거란 진영, 성 남쪽의 눈 들판.
 import * as THREE from 'three';
 import { mat, makePerson } from '../../core/people.js';
+import { LOOKS, look } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
 
 const HALF = 12;          // 성 안쪽 반 너비
@@ -74,7 +75,7 @@ export function buildCh2Scene(world) {
   }
   const khitanFront = new THREE.Group(); khitan.add(khitanFront); // 성벽 앞 거란군 줄 (성벽 방어 때는 치운다)
   for (let i = 0; i < 10; i++) {
-    const k = makePerson({ robe: 0x6e5a44, hat: 'fur' });
+    const k = makePerson(LOOKS.khitan);
     k.position.set(-18 + i * 4, 0, -24 - (i % 2) * 2); khitanFront.add(k);
   }
 
@@ -89,9 +90,9 @@ export function buildCh2Scene(world) {
     for (let y = 0.4; y < len; y += 0.5) mk(new THREE.BoxGeometry(0.84, 0.12, 0.12), 0xc48a4c, 0, y, 0, pivot);
     const top = new THREE.Object3D(); top.position.set(0, len - 0.3, 0); pivot.add(top);
     // 사다리를 타는 병사: 밝은 옷에 붉은 띠로 성벽 위에서 눈에 띄게
-    const climber = makePerson({ robe: 0xa8834f, hat: 'fur', trim: 0xb8452f }); climber.visible = false; pivot.add(climber);
+    const climber = makePerson(LOOKS.khitanBright); climber.visible = false; pivot.add(climber);
     // 사다리를 세우는 병사: 사다리 밑동에 서 있다
-    const carrier = makePerson({ robe: 0xa8834f, hat: 'fur', trim: 0xb8452f }); carrier.position.set(0.9, 0, -0.6); carrier.visible = false; group.add(carrier);
+    const carrier = makePerson(LOOKS.khitanBright); carrier.position.set(0.9, 0, -0.6); carrier.visible = false; group.add(carrier);
     return { x, group, pivot, top, climber, carrier, len, tilt };
   });
 
@@ -100,17 +101,17 @@ export function buildCh2Scene(world) {
   for (let i = 0; i < 6; i++) {
     const g = new THREE.Group(); g.visible = false; L.add(g);
     for (let k = 0; k < 3; k++) {
-      const v = makePerson({ robe: [0xe8e2d6, 0xd8cfbf, 0xc9bda8][k] });
+      const v = makePerson(look('villager', { robe: [0xe8e2d6, 0xd8cfbf, 0xc9bda8][k] }));
       v.position.set((k - 1) * 0.9, 0, (k % 2) * 0.6); v.rotation.y = Math.PI; g.add(v);
     }
-    const escort = makePerson({ robe: 0x6e5a44, hat: 'fur' }); escort.position.set(0, 0, -1.4); escort.rotation.y = Math.PI; g.add(escort);
+    const escort = makePerson(LOOKS.khitan); escort.position.set(0, 0, -1.4); escort.rotation.y = Math.PI; g.add(escort);
     captives.push({ group: g, escort, start: [-18 + i * 7.2 + (rand() - 0.5) * 2, FIELD_Z + 10 + rand() * 6] });
   }
   createWeather(world, 'snow', { count: 700 });
 
-  world.addNpc('soldier', { robe: 0x7a3b2e, hat: 'helmet' }, 5, 4.5, Math.PI * 0.8);
-  world.addNpc('yanggyu', { robe: 0x7a2a1e, hat: 'general', trim: 0xd9a441 }, -3, -7, 0);
-  world.addNpc('villager', { robe: 0xd8cfbf }, -8, 5.5, Math.PI * 0.6);
+  world.addNpc('soldier', LOOKS.soldier, 5, 4.5, Math.PI * 0.8);
+  world.addNpc('yanggyu', LOOKS.yanggyu, -3, -7, 0);
+  world.addNpc('villager', LOOKS.villager, -8, 5.5, Math.PI * 0.6);
 
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.25, 28), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
   ring.rotation.x = -Math.PI / 2; ring.position.set(0, 0.08, -6); ring.visible = false; L.add(ring);
