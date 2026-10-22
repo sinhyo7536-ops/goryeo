@@ -45,8 +45,9 @@ export function touchSetup(speakers) {
 
 // answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
 // noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
-export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [] } = {}) {
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [] } = {}) {
   const picks = [...mapPicks];
+  let tracing = false;
   const { w, hud, dialogue, input, ui, ctx } = s;
   const wrongUsed = new Set(), seenAt = new Map();
   const zone = hud.joyZone;
@@ -60,6 +61,32 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     // 지도에서 고르기: mapPicks 순서대로 누르고, 마지막 것은 계속 누른다
     const place = picks.length && ui.querySelector(`.map-place[data-place="${picks[0]}"]`);
     if (place) { if (picks.length > 1) picks.shift(); place.click(); return; }
+    // 카드 순서 맞추기: 이미 놓은 카드 수로 다음 카드를 찾아 누른다
+    const cards = [...ui.querySelectorAll('.order-card:not([disabled])')];
+    if (cards.length) {
+      const placed = ui.querySelectorAll('.order-slots li').length;
+      const texts = cards.map(b => b.textContent);
+      const order = orders.find(o => texts.every(t => o.includes(t)));
+      const next = order && cards.find(b => b.textContent === order[placed]);
+      if (next) next.click();
+      return;
+    }
+    // 획 따라 그리기: 지금 획의 점을 차례로 지나가도록 손가락을 끈다
+    const board = ui.querySelector('.trace-board');
+    if (board) {
+      if (tracing) return;
+      const dots = [...board.querySelectorAll('.trace-dot')];
+      if (!dots.length) return;
+      tracing = true;
+      const r = board.getBoundingClientRect();
+      const at = (type, d) => board.dispatchEvent(new PointerEvent(type, { pointerId: 4, bubbles: true, clientX: r.left + d.getAttribute('cx') / 100 * r.width, clientY: r.top + d.getAttribute('cy') / 100 * r.height }));
+      const pts = dots.map(d => d);
+      at('pointerdown', pts[0]);
+      for (const d of pts.slice(1)) at('pointermove', d);
+      at('pointerup', pts[pts.length - 1]);
+      tracing = false;
+      return;
+    }
     if (dialogue.isOpen()) {
       release();
       if (dialogue.isChoosing()) {

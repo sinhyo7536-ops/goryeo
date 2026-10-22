@@ -46,7 +46,9 @@ test('trace: dots must be passed in order', async () => {
   traceGlyph(c, { glyph: '一', strokes: [[[0.2, 0.5], [0.5, 0.5], [0.8, 0.5]]] }).then(v => { done = v; });
   const board = c.ui.querySelector('.trace-board');
   pointerAt(board, 'pointerdown', 0.2, 0.5);
-  pointerAt(board, 'pointermove', 0.8, 0.5); // 가운데 점을 건너뜀
+  pointerAt(board, 'pointermove', 0.5, 0.2); // 가운데 점을 피해 위로 돌아서
+  pointerAt(board, 'pointermove', 0.8, 0.2);
+  pointerAt(board, 'pointermove', 0.8, 0.5); // 마지막 점에 먼저 닿음
   await sleep(10);
   eq(done, false);
   pointerAt(board, 'pointermove', 0.5, 0.5);
@@ -78,4 +80,17 @@ test('faces: new session-2 looks exist', () => {
 
 test('world: overcast morning sea moods exist', () => {
   for (const m of ['overcast', 'morning', 'sea']) ok(MOODS[m] && MOODS[m].fog.length === 3, m);
+});
+
+test('trace: a fast swipe that crosses the dots between two samples still counts', async () => {
+  const c = ctx();
+  let done = false;
+  traceGlyph(c, { glyph: '一', strokes: [[[0.2, 0.5], [0.5, 0.5], [0.8, 0.5]]] }).then(v => { done = v; });
+  const board = c.ui.querySelector('.trace-board');
+  pointerAt(board, 'pointerdown', 0.2, 0.5);
+  pointerAt(board, 'pointermove', 0.85, 0.5); // 한 번에 휙 지나감
+  pointerAt(board, 'pointerup', 0.85, 0.5);
+  await sleep(500);
+  eq(done, true);
+  c.done();
 });

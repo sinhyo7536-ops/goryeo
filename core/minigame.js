@@ -168,16 +168,24 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
     board.addEventListener('pointerdown', e => {
       if (s >= strokes.length) return;
       if (!near(strokes[s][0], pos(e))) return;
-      active = e.pointerId; progress = 1;
+      active = e.pointerId; progress = 1; last = pos(e);
       try { board.setPointerCapture(e.pointerId); } catch { /* 합성 이벤트 */ }
       drawDots();
     });
+    // 손가락을 빨리 움직이면 두 위치 사이를 건너뛴다. 그 사이 선분 위를 촘촘히 따라가며 점을 지났는지 본다.
+    let last = null;
     board.addEventListener('pointermove', e => {
       if (e.pointerId !== active || s >= strokes.length) return;
-      if (near(strokes[s][progress], pos(e))) {
-        progress += 1;
-        if (progress === strokes[s].length) { active = null; finishStroke(); } else drawDots();
+      const now = pos(e);
+      const steps = Math.max(1, Math.ceil(Math.hypot(now[0] - last[0], now[1] - last[1]) / (R / 2)));
+      for (let k = 1; k <= steps && active !== null; k++) {
+        const p = [last[0] + (now[0] - last[0]) * k / steps, last[1] + (now[1] - last[1]) * k / steps];
+        if (near(strokes[s][progress], p)) {
+          progress += 1;
+          if (progress === strokes[s].length) { active = null; finishStroke(); } else drawDots();
+        }
       }
+      last = now;
     });
     const lift = e => { if (e.pointerId !== active) return; active = null; progress = 0; drawDots(); };
     board.addEventListener('pointerup', lift);

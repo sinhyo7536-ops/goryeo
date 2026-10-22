@@ -11,6 +11,7 @@ export const PRECACHE = [
   'chapters/ch2/chapter.js', 'chapters/ch2/scene.js', 'chapters/ch2/script.js',
   'chapters/ch3/chapter.js', 'chapters/ch3/scene.js', 'chapters/ch3/script.js',
   'chapters/ch4/chapter.js', 'chapters/ch4/scene.js', 'chapters/ch4/script.js',
+  'chapters/ch5/chapter.js', 'chapters/ch5/scene.js', 'chapters/ch5/script.js',
 ];
 
 // 오프라인에서 폴더 주소(…/game/)로 들어오는 화면 요청은 저장해 둔 index.html로 연다.
