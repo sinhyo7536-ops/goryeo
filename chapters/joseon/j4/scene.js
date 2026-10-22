@@ -114,9 +114,11 @@ export function buildJ4Scene(world) {
   for (let i = 0; i < 3; i++) { const s = panokseon(mk); s.position.set((i - 1) * 4.5, -0.2, i % 2 * 3); lure.add(s); }
   const enemy = new THREE.Group(); L.add(enemy);
   for (let i = 0; i < 8; i++) { const s = japaneseShip(mk); s.position.set(((i % 4) - 1.5) * 4.5, -0.2, Math.floor(i / 4) * 7); enemy.add(s); }
-  const fleet = new THREE.Group(); L.add(fleet); // 학익진으로 펼치는 우리 배 7척
-  const wingSpots = [-1.1, -0.75, -0.4, 0, 0.4, 0.75, 1.1].map(a => [WING.x + Math.sin(a) * WING.r, WING.z + Math.cos(a) * WING.r * 0.6 + 6, a]);
-  for (const [x, z, a] of wingSpots) { const s = panokseon(mk); s.position.set(x, -0.2, z); s.rotation.y = Math.PI + a * 0.6; fleet.add(s); }
+  const fleet = new THREE.Group(); L.add(fleet); // 학익진으로 펼치는 우리 배 6척(가운데는 거북선)
+  const wingSpots = [-1.1, -0.75, -0.4, 0.4, 0.75, 1.1].map(a => [WING.x + Math.sin(a) * WING.r, WING.z + Math.cos(a) * WING.r * 0.6 + 6, a]);
+  for (const [x, z, a] of wingSpots) { const s = panokseon(mk); s.position.set(x, -0.2, z); s.rotation.y = a * 0.6; fleet.add(s); } // 뱃머리가 북쪽(적)을 보며 안쪽으로 조금 돈다
+  // 학익진 앞에 선 거북선 (S43): 날개 가운데, 우리 배보다 조금 앞(북쪽)
+  const leadTurtle = geobukseon(mk); leadTurtle.position.set(WING.x, -0.2, WING.z + WING.r * 0.6 + 5); L.add(leadTurtle);
   const goalRing = new THREE.Mesh(new THREE.RingGeometry(4, 5, 32), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
   goalRing.rotation.x = -Math.PI / 2; goalRing.visible = false; L.add(goalRing);
 
@@ -125,6 +127,7 @@ export function buildJ4Scene(world) {
     lure.visible = s === 'lure';
     enemy.visible = s !== 'harbor';
     fleet.visible = s === 'wing' || s === 'won';
+    leadTurtle.visible = fleet.visible;
     goalRing.visible = false;
     enemy.children.forEach(e => { e.userData.smoke.visible = s === 'won'; });
     if (s === 'lure') { lure.position.set(0, 0, -30); enemy.position.set(0, 0, STRAIT_Z - 10); enemy.rotation.y = 0; }
@@ -145,12 +148,12 @@ export function buildJ4Scene(world) {
 
   world.onUpdate((dt, t) => {
     if (goalRing.visible) goalRing.material.opacity = 0.5 + Math.sin(t * 4) * 0.3;
-    for (const g of [lure, enemy, fleet]) g.children.forEach((s, i) => { s.position.y = -0.2 + Math.sin(t * 1.4 + i) * 0.08; });
+    for (const g of [lure, enemy, fleet, { children: [leadTurtle] }]) g.children.forEach((s, i) => { s.position.y = -0.2 + Math.sin(t * 1.4 + i) * 0.08; });
     enemy.children.forEach(e => { if (e.userData.smoke.visible) e.userData.smoke.children.forEach((p, i) => { p.position.y = 2.4 + i * 0.8 + Math.sin(t * 2 + i) * 0.2; }); });
   });
 
   return {
-    start: [0, 6.5], turtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance,
+    start: [0, 6.5], turtle, leadTurtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance,
     seaCam: { pos: [0, 46, -14], target: [0, 0, -56] },
   };
 }

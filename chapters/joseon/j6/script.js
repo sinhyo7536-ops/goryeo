@@ -76,6 +76,7 @@ export default {
   result: [
     { who: 'narr', text: '수원 화성은 공사를 시작한 지 2년 반 만인 1796년에 완성되었어요.', src: ['S39'] },
     { who: 'narr', text: '화성을 쌓은 과정은 『화성성역의궤』라는 책에 자세히 기록했어요.', src: ['S42'] },
+    { who: 'narr', text: '수원 화성은 1997년 유네스코 세계문화유산이 되었어요.', src: ['S44'] },
   ],
 
   quizzes: [

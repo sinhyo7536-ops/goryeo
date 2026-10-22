@@ -79,3 +79,8 @@ test('j4: attack advance stops before overlapping our fleet', async () => {
   const w = testWorld();
   try { const s = buildJ4Scene(w); s.setAdvance(1); ok(s.enemy.position.z <= -36, `${s.enemy.position.z}`); } finally { w.dispose(); }
 });
+
+test('j6: result mentions the 1997 UNESCO listing with a source (S44)', () => {
+  const l = j6Script.result.find(x => x.text.includes('1997'));
+  ok(l && l.src.includes('S44'), l && l.text);
+});

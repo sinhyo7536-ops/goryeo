@@ -13,10 +13,10 @@ const places = { '판옥선': ['w1', 'w2', 'w3', 'w4', 'w5'] };
 
 test('j4: script passes validation', () => eq(validateScript(j4Script, SOURCES), []));
 
-test('j4: quiz answers match the spec and the turtle ship is not placed at 한산도', () => {
+test('j4: quiz answers match the spec and the turtle ship leads the wing (S43)', () => {
   eq(j4Script.quizzes.map(q => q.options[q.answer]), ['학익진', '의병']);
-  const all = JSON.stringify(j4Script);
-  ok(!/거북선[^"]*한산도|한산도[^"]*거북선/.test(all), 'no 거북선 at 한산도 claim');
+  const wing = j4Script.wing.done[0];
+  ok(wing.text.includes('거북선') && wing.src.includes('S43'), wing.text);
   ok(j4Script.result[0].src.includes('S35'));
 });
 
@@ -67,3 +67,9 @@ test('j4: turning the lure ships too early gives the early hint', async () => {
     eq(r.firstTryCorrect, 2);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('j4: a turtle ship leads the fleet in the wing formation', async () => {
+  const { buildJ4Scene } = await import('../chapters/joseon/j4/scene.js');
+  const w = testWorld();
+  try { const s = buildJ4Scene(w); s.setStage('harbor'); ok(!s.leadTurtle.visible); ok(s.leadTurtle.parent === w.level, 'in the scene'); s.setStage('wing'); ok(s.leadTurtle.visible); } finally { w.dispose(); }
+});

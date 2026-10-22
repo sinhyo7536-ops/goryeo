@@ -43,4 +43,7 @@ export const SOURCES = {
   S40: { title: '한국민족문화대백과사전: 기기도설 · 거중기', url: 'https://encykorea.aks.ac.kr/Article/E0008132', note: '정약용이 『기기도설』을 참고해 거중기를 고안하여 수원 성 쌓기를 도움, 거중기는 도르래로 무거운 물체를 드는 기구 (함께 본 자료: https://encykorea.aks.ac.kr/Article/E0001891)' },
   S41: { title: '한국민족문화대백과사전: 탕평책', url: 'https://encykorea.aks.ac.kr/Article/E0058860', note: '영조·정조 때 당파 사이의 균형을 꾀해 인재를 고르게 쓰려 한 정책, 1742년 영조가 탕평비를 성균관에 세움' },
   S42: { title: '한국민족문화대백과사전: 화성성역의궤', url: 'https://encykorea.aks.ac.kr/Article/E0064682', note: '정조가 화성 쌓기의 경위와 제도를 자세히 남기라고 명해, 1796년 9월 편찬을 시작하고 1801년 9월 인쇄한 의궤' },
+  // 여러 자료에서 확인되는 사실 (2026-10-23 사용자 기준: 여러 곳에서 확인되면 쓴다)
+  S43: { title: '우리역사넷 역대 국사 교과서: 초등 사회 6-1(5차) 한산도 대첩', url: 'https://contents.history.go.kr/mobile/ta/view.do?levelId=ta_e52_0020_0020_0030', note: '이순신은 적선을 한산도 앞바다로 유인해 거북선을 앞세우고 학의 날개와 같은 모양으로 배를 띄워 공격 (거북선 참전은 오마이뉴스·SBS 등 여러 보도에서도 확인)' },
+  S44: { title: '프레시안: 수원 화성 세계문화유산', url: 'https://pressian.com/pages/articles/149501', note: '화성은 1997년 12월 6일 유네스코 세계유산위원회 제21차 총회에서 세계문화유산으로 지정 (경기일보 등 여러 보도에서도 확인)' },
 };

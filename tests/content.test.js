@@ -2,8 +2,8 @@ import { test, eq, ok } from './harness.js';
 import { SOURCES } from '../content/sources.js';
 import { validateScript } from '../core/content.js';
 
-test('content: 42 sources with title and url', () => {
-  eq(Object.keys(SOURCES).length, 42);
+test('content: 44 sources with title and url', () => {
+  eq(Object.keys(SOURCES).length, 44);
   for (const [id, s] of Object.entries(SOURCES)) ok(s.title && s.url.startsWith('https://'), id);
 });
 
