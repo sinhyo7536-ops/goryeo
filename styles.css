@@ -91,6 +91,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .warn { color: var(--gold); margin: 0; }
 .controls { font-size: 15px; color: #c9c1b0; margin: 0; line-height: 1.6; }
 
+/* 편 고르기: 편마다 한지 카드, 넓으면 나란히, 좁으면 위아래 */
+.courses-inner { width: min(900px, 100%); display: grid; gap: 16px; }
+.course-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 14px; }
+.course-card { display: grid; gap: 8px; align-content: start; text-align: left; padding: 18px; min-height: 52px; border-radius: 6px; border: 2px solid var(--gold); background: var(--hanji); color: var(--text-ink); font: inherit; cursor: pointer; }
+.course-era { font-size: 14px; letter-spacing: .06em; color: var(--dan-red); }
+.course-title { font-family: var(--font-display); font-size: clamp(24px, 4vw, 32px); }
+.course-lead { font-size: 16px; line-height: 1.6; }
+.course-progress { font-size: 16px; font-weight: 700; }
+.course-note { font-size: 14px; color: #6b6152; }
+
 .map-wrap { width: min(900px, 100%); display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
 .map { position: relative; flex: 0 1 300px; width: min(300px, 70vw); max-height: 75vh; aspect-ratio: 3 / 4; }
 .map-side { flex: 1 1 320px; min-width: 0; display: grid; gap: 12px; }

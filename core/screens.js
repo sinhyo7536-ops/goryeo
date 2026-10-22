@@ -1,4 +1,4 @@
-// 게임 화면들: 첫 화면, 이름, 장 선택 지도, 해설 카드, 장 결과, 결과 카드, 메뉴, HUD.
+// 게임 화면들: 첫 화면, 이름, 편 고르기, 장 선택 지도, 해설 카드, 장 결과, 결과 카드, 메뉴, HUD.
 import { SESSIONS, isUnlocked } from '../chapters/index.js';
 
 const h = (tag, attrs = {}, ...kids) => {
@@ -30,9 +30,9 @@ export function showTitle(root, { savedName, hasProgress, storageOk }) {
         h('button', { class: 'btn', type: 'button', onclick: () => { confirm.hidden = true; } }, '취소')));
     const el = screen(root, 'title',
       h('div', { class: 'title-inner' },
-        h('div', { class: 'eyebrow' }, '초등 5학년 사회 · 외세의 침입과 고려의 노력'),
-        h('h1', {}, '고려를 ', h('span', {}, '지켜라')),
-        h('p', { class: 'lead' }, '거란과 몽골이 쳐들어왔을 때, 고려 사람들은 외교와 전투와 끈질긴 항쟁으로 나라를 지켰어요. 젊은 고려 병사가 되어 그 현장을 걸어 보세요.'),
+        h('div', { class: 'eyebrow' }, '초등 5학년 사회 · 3D 역사 탐험'),
+        h('h1', {}, '역사 속으로 ', h('span', {}, '걸어가기')),
+        h('p', { class: 'lead' }, '시대를 골라 그때 사람이 되어 보세요. 직접 걷고, 이야기를 듣고, 역사의 현장을 겪어 봐요.'),
         h('div', { class: 'row' },
           hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || "저장된 기록"})`),
           h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터')),
@@ -60,7 +60,27 @@ export function askName(root, prev) {
 
 export const MAP_OUTLINE = '40,70 80,40 130,30 180,20 230,10 270,30 250,80 215,120 205,150 215,190 230,230 240,280 235,320 210,340 180,345 150,350 120,345 100,340 95,310 85,280 100,250 90,220 105,200 90,175 80,150 70,120 55,100';
 
-export function showMap(root, chapters, save, { onSessionCard } = {}) {
+// 편 고르기: 편마다 카드 한 장(이름, 시대, 마친 장 수와 별 합계). 누른 편의 id로 끝난다.
+export function showCourses(root, courses, save) {
+  return new Promise(resolve => {
+    const cards = courses.map(c => {
+      const done = c.chapters.map(ch => save.chapterResult(ch.id)).filter(Boolean);
+      const stars = done.reduce((a, r) => a + (r.stars || 0), 0);
+      const ready = c.chapters.filter(ch => ch.load).length;
+      return h('button', { class: 'course-card', type: 'button', 'data-course': c.id, onclick: () => { el.remove(); resolve(c.id); } },
+        h('span', { class: 'course-era' }, `${c.era}편 · ${c.eyebrow}`),
+        h('b', { class: 'course-title' }, c.title),
+        h('span', { class: 'course-lead' }, c.lead),
+        h('span', { class: 'course-progress' }, done.length ? `마친 장 ${done.length}/${c.chapters.length} · ★${stars}` : '아직 시작 전'),
+        ready < c.chapters.length && h('small', { class: 'course-note' }, ready ? `준비된 장 ${ready}/${c.chapters.length}` : '지금 만들고 있어요'));
+    });
+    const el = screen(root, 'courses',
+      h('div', { class: 'courses-inner' }, h('h2', {}, '어느 시대로 갈까요?'), h('div', { class: 'course-row' }, cards)));
+  });
+}
+
+// heading: 지도 위 작은 줄(편 이름). onCourses가 있으면 '다른 시대' 버튼이 생기고 'courses'로 끝난다.
+export function showMap(root, chapters, save, { onSessionCard, onCourses, heading } = {}) {
   return new Promise(resolve => {
     const svg = `<svg viewBox="0 0 300 400" aria-hidden="true"><polygon points="${MAP_OUTLINE}" class="land"/><ellipse cx="120" cy="388" rx="16" ry="8" class="land"/></svg>`;
     const map = h('div', { class: 'map' });
@@ -76,13 +96,14 @@ export function showMap(root, chapters, save, { onSessionCard } = {}) {
       }, h('b', {}, `${c.no}장`), h('span', { class: 'pick-title' }, c.title),
       h('small', {}, r ? starText(r.stars) : c.load ? `${c.years} · ${c.place}` : '준비 중'))));
     }
-    // 한 장이라도 마쳤으면 결과 카드를 다시 볼 수 있다 (1~6장이 한 장의 결과 카드)
+    // 이 편의 장을 하나라도 마쳤으면 결과 카드를 다시 볼 수 있다 (한 편의 1~6장이 한 장의 결과 카드)
     const sessionButtons = chapters.some(c => save.chapterResult(c.id))
-      ? [h('button', { class: 'btn', type: 'button', onclick: () => onSessionCard && onSessionCard(1) }, '결과 카드')] : [];
+      ? [h('button', { class: 'btn', type: 'button', onclick: () => onSessionCard && onSessionCard() }, '결과 카드')] : [];
+    const courseButton = onCourses ? h('button', { class: 'btn', type: 'button', onclick: () => { el.remove(); resolve('courses'); } }, '다른 시대') : null;
     const el = screen(root, 'mapscreen',
       h('div', { class: 'map-wrap' },
         map,
-        h('div', { class: 'map-side' }, h('h2', {}, '어디로 갈까요?'), list, h('div', { class: 'row' }, sessionButtons))));
+        h('div', { class: 'map-side' }, heading && h('div', { class: 'eyebrow' }, heading), h('h2', {}, '어디로 갈까요?'), list, h('div', { class: 'row' }, sessionButtons, courseButton))));
   });
 }
 

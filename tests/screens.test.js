@@ -183,3 +183,41 @@ test('menu: pressing Esc again while the menu is open does not stack a second me
     eq(el.querySelectorAll('.screen.menu').length, 0);
   } finally { el.remove(); }
 });
+
+test('title: 사이트 이름은 역사 속으로 걸어가기', () => {
+  const el = root();
+  try {
+    showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
+    eq(el.querySelector('h1').textContent, '역사 속으로 걸어가기');
+  } finally { el.remove(); }
+});
+
+test('courses screen: 두 편과 진행, 누르면 그 편', async () => {
+  const { showCourses } = await import('../core/screens.js');
+  const { COURSES } = await import('../chapters/index.js');
+  const el = root();
+  const save = { data: { chapters: { ch1: { stars: 3 }, ch2: { stars: 2 } } } };
+  save.chapterResult = id => save.data.chapters[id] || null;
+  const p = showCourses(el, COURSES, save);
+  const g = el.querySelector('[data-course="goryeo"]'), j = el.querySelector('[data-course="joseon"]');
+  ok(g.textContent.includes('고려를 지켜라') && g.textContent.includes('2/6') && g.textContent.includes('★5'), g.textContent);
+  ok(j.textContent.includes('조선을 걷다') && j.textContent.includes('아직 시작 전'), j.textContent);
+  j.click();
+  eq(await p, 'joseon');
+  eq(el.children.length, 0, 'screen removed');
+  el.remove();
+});
+
+test('map: 다른 시대 버튼과 편 이름 줄', async () => {
+  const { JOSEON } = await import('../chapters/index.js');
+  const el = root();
+  const save = { data: { chapters: {} } };
+  save.chapterResult = id => save.data.chapters[id] || null;
+  const p = showMap(el, JOSEON, save, { onCourses: true, heading: '조선을 걷다' });
+  ok(el.textContent.includes('조선을 걷다'));
+  ok([...el.querySelectorAll('[data-chapter]')].every(b => b.disabled), '준비 중은 눌리지 않음');
+  ok(!btn(el, '결과 카드'), '마친 장이 없으면 결과 카드 없음');
+  btn(el, '다른 시대').click();
+  eq(await p, 'courses');
+  el.remove();
+});
