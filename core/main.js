@@ -8,8 +8,8 @@ import { createDialogue } from './dialogue.js';
 import { createQualityController, guessInitialQuality } from './quality.js';
 import { runChapter } from './flow.js';
 import { createMusic } from './music.js';
-import { showTitle, askName, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
-import { CHAPTERS, isSessionDone } from '../chapters/index.js';
+import { showTitle, askName, showCourses, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
+import { ALL_CHAPTERS, COURSES, courseById, courseOfChapter, isSessionDone } from '../chapters/index.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
@@ -111,28 +111,41 @@ function boot() {
     hud.hide();
     dialogue.dispose(); dialogue = null;
     await showChapterResult(ui, meta, result);
-    if (isSessionDone(meta.session, save)) await showSessionCard(ui, meta.session, save, CHAPTERS);
+    if (isSessionDone(meta.session, save)) await showSessionCard(ui, meta.session, save, ALL_CHAPTERS);
   }
+
+  // 편 고르기 → 그 편의 지도 → 장. 고른 편은 저장해 두어 다음에 열면 그 편 지도부터 보인다.
+  const pickCourse = async () => { save.setCourse(await showCourses(ui, COURSES, save)); };
 
   async function mapLoop() {
     for (;;) {
       if (save.data.current) {
         const { id, stage } = save.data.current;
-        const meta = CHAPTERS.find(c => c.id === id);
-        if (meta && meta.load) { await playChapter(meta, stage); continue; }
+        const meta = ALL_CHAPTERS.find(c => c.id === id);
+        if (meta && meta.load) {
+          const cid = courseOfChapter(id).id;
+          if (save.data.course !== cid) save.setCourse(cid); // 이어하기 뒤 '장 선택으로'는 그 편 지도로
+          await playChapter(meta, stage); continue;
+        }
         save.data.current = null;
       }
-      const id = await showMap(ui, CHAPTERS, save, { onSessionCard: s => showSessionCard(ui, s, save, CHAPTERS) });
-      await playChapter(CHAPTERS.find(c => c.id === id), 'intro');
+      if (!save.data.course) await pickCourse();
+      const course = courseById(save.data.course);
+      const id = await showMap(ui, course.chapters, save, {
+        heading: `${course.era}편 · ${course.title}`, onCourses: true,
+        onSessionCard: () => showSessionCard(ui, course.session, save, ALL_CHAPTERS),
+      });
+      if (id === 'courses') { await pickCourse(); continue; }
+      await playChapter(ALL_CHAPTERS.find(c => c.id === id), 'intro');
     }
   }
 
   async function main() {
     const debug = new URLSearchParams(location.search).get('debug');
-    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다.
-    const dm = /^ch(\d)-(scene|minigame)$/.exec(debug || '');
-    if (dm) {
-      const meta = CHAPTERS[Number(dm[1]) - 1];
+    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다. 조선편은 ?debug=j1-scene.
+    const dm = /^(ch\d|j\d)-(scene|minigame)$/.exec(debug || '');
+    const meta = dm && ALL_CHAPTERS.find(c => c.id === dm[1] && c.load);
+    if (meta) {
       if (dm[2] === 'minigame') { await playChapter(meta, 'minigame'); return mapLoop(); }
       const mod = (await meta.load()).default;
       world.setMood(mod.mood); const sc = mod.buildScene(world, ctx);
