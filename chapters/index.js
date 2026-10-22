@@ -5,7 +5,7 @@ export const CHAPTERS = [
   { id: 'ch3', no: 3, session: 1, title: '강감찬과 귀주 대첩', years: '1018~1019', event: '거란 3차 침입', place: '귀주', mapXY: [28, 21], load: () => import('./ch3/chapter.js') },
   { id: 'ch4', no: 4, session: 2, title: '강화도 천도와 처인성·충주성', years: '1231~1253', event: '몽골 침입', place: '강화도', mapXY: [33, 55], load: () => import('./ch4/chapter.js') },
   { id: 'ch5', no: 5, session: 2, title: '팔만대장경', years: '1236~1251', event: '몽골 침입', place: '합천 해인사', mapXY: [62, 78], load: () => import('./ch5/chapter.js') },
-  { id: 'ch6', no: 6, session: 2, title: '삼별초의 항쟁', years: '1270~1273', event: '몽골에 맞선 항쟁', place: '진도·제주', mapXY: [32, 85], load: null },
+  { id: 'ch6', no: 6, session: 2, title: '삼별초의 항쟁', years: '1270~1273', event: '몽골에 맞선 항쟁', place: '진도·제주', mapXY: [32, 85], load: () => import('./ch6/chapter.js') },
 ];
 
 // 차시 결과 카드의 핵심 정리 3줄 (설계 문서 4장)

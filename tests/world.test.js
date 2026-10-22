@@ -139,3 +139,15 @@ test('world: unsubscribing twice or inside the loop does not remove other update
   eq(a, 1); eq(b, 2);
   w.dispose();
 });
+
+test('world: follow camera stays behind the player even far from the origin', () => {
+  const w = makeWorld();
+  w.bounds = { x0: -100, x1: 100, z0: -100, z1: 100 };
+  w.player.position.set(20, 0, 60);
+  w.snapCamera();
+  for (let i = 0; i < 200; i++) w.step(0.05, { x: 0, z: 0 });
+  const c = w.camera.position;
+  ok(Math.abs(c.x - 20) < 0.5, `camera x ${c.x.toFixed(1)}`);
+  ok(c.z > 60 + 5, `camera is south of (behind) the player: z ${c.z.toFixed(1)}`);
+  w.dispose();
+});

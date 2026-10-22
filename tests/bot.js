@@ -45,7 +45,7 @@ export function touchSetup(speakers) {
 
 // answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
 // noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
-export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [] } = {}) {
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [], holdStill = () => false } = {}) {
   const picks = [...mapPicks];
   let tracing = false;
   const { w, hud, dialogue, input, ui, ctx } = s;
@@ -106,7 +106,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       const big = ui.querySelector('.big-action');
       if (big && (ctx.testHooks.ready || !earlyPressed)) { earlyPressed = true; big.click(); }
       const g = w.getGoal();
-      if (g && w.camMode === 'follow') {
+      if (g && w.camMode === 'follow' && !holdStill()) {
         const p = w.player.position, dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);
         if (d > 1.2) {
           if (!dragging) { pe('pointerdown', 100, 100); dragging = true; }

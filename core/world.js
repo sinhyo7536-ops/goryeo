@@ -98,7 +98,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
   const tmp = new THREE.Vector3();
   const updaters = [];
   let goal = null, elapsed = 0, fit = null;
-  const talkPos = new THREE.Vector3(), talkTarget = new THREE.Vector3();
+  const talkPos = new THREE.Vector3(), talkTarget = new THREE.Vector3(), offsetVec = new THREE.Vector3();
   const projected = new THREE.Vector3();
   function applyFit() {
     camera.updateProjectionMatrix();
@@ -197,7 +197,8 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       camera.position.copy(player.position).add(world.camOffset());
       camTarget.copy(player.position).setY(1); camTarget.z += LOOK_AHEAD; camera.lookAt(camTarget);
     },
-    camOffset() { return tmp.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? 1.45 : 1); },
+    // 따로 쓰는 벡터(offsetVec)에 담는다. tmp를 같이 쓰면 'tmp.copy(p).add(camOffset())'가 '오프셋×2'가 되어 카메라가 원점 근처에 머문다.
+    camOffset() { return offsetVec.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? 1.45 : 1); },
     onUpdate(fn) {
       updaters.push(fn);
       return () => { const i = updaters.indexOf(fn); if (i >= 0) updaters.splice(i, 1); };
