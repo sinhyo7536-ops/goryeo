@@ -146,3 +146,18 @@ test('session1: card after chapter 3 lists all three chapters', async () => {
   ok(t.includes('6/6'), 'quiz total over three chapters');
   btn(el, '닫기').click(); await p; el.remove();
 });
+
+test('session2: card after chapter 6', async () => {
+  const { isSessionDone } = await import('../chapters/index.js');
+  const mk = stars => ({ stars, quizCorrect: 2, quizTotal: 2, seconds: 400, wrongQuizzes: [] });
+  const save = { data: { name: '김고려', chapters: { ch4: mk(3), ch5: mk(2), ch6: mk(3) } } };
+  save.chapterResult = id => save.data.chapters[id] || null;
+  eq(isSessionDone(2, save), true);
+  const el = root();
+  const p = showSessionCard(el, 2, save, CHAPTERS);
+  const t = el.textContent;
+  for (const title of ['강화도 천도와 처인성·충주성', '팔만대장경', '삼별초의 항쟁']) ok(t.includes(title), title);
+  ok(t.includes(SESSIONS[2].points[2]));
+  ok(t.includes('6/6'));
+  btn(el, '닫기').click(); await p; el.remove();
+});
