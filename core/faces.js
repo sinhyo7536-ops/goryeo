@@ -9,9 +9,11 @@ export function drawFeatures(g, face = {}, cx, cy, R) {
   const { eyes = 'round', brows = 'normal', mouth = 'smile', beard = null, beardColor = INK } = face;
   g.save();
   g.lineCap = 'round'; g.lineJoin = 'round';
-  // 볼 홍조
-  g.fillStyle = 'rgba(232, 120, 110, 0.35)';
-  for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(cx + sx * 0.52 * R, cy + 0.22 * R, 0.17 * R, 0.1 * R, 0, 0, Math.PI * 2); g.fill(); }
+  // 볼 홍조 (blush: true일 때만. 근엄한 표정에는 그리지 않는다)
+  if (face.blush) {
+    g.fillStyle = 'rgba(232, 120, 110, 0.35)';
+    for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(cx + sx * 0.52 * R, cy + 0.22 * R, 0.17 * R, 0.1 * R, 0, 0, Math.PI * 2); g.fill(); }
+  }
   // 수염 (입 아래)
   g.fillStyle = beardColor;
   if (beard === 'full') {
@@ -50,8 +52,9 @@ export function drawFeatures(g, face = {}, cx, cy, R) {
   for (const sx of [-1, 1]) {
     const bx = cx + sx * 0.33 * R, by = cy - 0.33 * R;
     g.beginPath();
-    if (brows === 'stern') { g.moveTo(bx - sx * 0.17 * R, by - 0.08 * R); g.lineTo(bx + sx * 0.15 * R, by + 0.06 * R); }
-    else if (brows === 'worried') { g.moveTo(bx - sx * 0.17 * R, by + 0.06 * R); g.lineTo(bx + sx * 0.15 * R, by - 0.06 * R); }
+    // 안쪽 끝(코 쪽)이 내려가면 근엄하고, 올라가면 걱정스러워 보인다
+    if (brows === 'stern') { g.moveTo(bx - sx * 0.17 * R, by + 0.08 * R); g.lineTo(bx + sx * 0.15 * R, by - 0.07 * R); }
+    else if (brows === 'worried') { g.moveTo(bx - sx * 0.17 * R, by - 0.08 * R); g.lineTo(bx + sx * 0.15 * R, by + 0.06 * R); }
     else { g.moveTo(bx - 0.16 * R, by); g.quadraticCurveTo(bx, by - 0.1 * R, bx + 0.16 * R, by); }
     g.stroke();
   }

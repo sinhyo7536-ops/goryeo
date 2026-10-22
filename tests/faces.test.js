@@ -58,3 +58,12 @@ test('faces: heads are drawn larger, cartoon style', () => {
   ok(hg && hg.scale.x >= 1.25, 'head group scaled up');
   ok(hg.getObjectByName('face'), 'face inside the head group');
 });
+
+test('faces: every character looks solemn (no smile, no open mouth, no smiling eyes, no blush)', () => {
+  for (const [id, l] of Object.entries(LOOKS)) {
+    eq(l.face.mouth, 'flat', `${id} mouth`);
+    eq(l.face.eyes, 'stern', `${id} eyes`);
+    eq(l.face.brows, 'stern', `${id} brows`);
+    ok(!l.face.blush, `${id} no blush`);
+  }
+});
