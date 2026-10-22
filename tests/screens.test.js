@@ -213,7 +213,7 @@ test('map: 다른 시대 버튼과 편 이름 줄', async () => {
   const el = root();
   const save = { data: { chapters: {} } };
   save.chapterResult = id => save.data.chapters[id] || null;
-  const p = showMap(el, JOSEON, save, { onCourses: true, heading: '조선을 걷다' });
+  const p = showMap(el, JOSEON.map(c => ({ ...c, load: null })), save, { onCourses: true, heading: '조선을 걷다' });
   ok(el.textContent.includes('조선을 걷다'));
   ok([...el.querySelectorAll('[data-chapter]')].every(b => b.disabled), '준비 중은 눌리지 않음');
   ok(!btn(el, '결과 카드'), '마친 장이 없으면 결과 카드 없음');

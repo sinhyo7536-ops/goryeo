@@ -14,8 +14,8 @@ test('courses: 고려편과 조선편, 이름과 장 묶음', () => {
   eq(new Set(ALL_CHAPTERS.map(c => c.id)).size, 12, 'ids are unique');
 });
 
-test('courses: 조선편은 아직 준비 중, 정리는 6줄', () => {
-  ok(JOSEON.every(c => c.load === null && c.session === 2));
+test('courses: 조선편은 session 2, 정리는 6줄', () => {
+  ok(JOSEON.every(c => c.session === 2));
   eq(SESSIONS[2].points.length, 6);
   ok(CHAPTERS.every(c => c.session === 1));
 });
@@ -29,5 +29,5 @@ test('courses: 열림 규칙은 같은 편 안에서만 센다', () => {
   eq(isUnlocked(j2, save), false, '고려편 1장을 마친 것으로 조선편 2장이 열리지 않음');
   save.data.chapters.j1 = { stars: 1 };
   eq(isUnlocked(j2, save), true);
-  eq(isUnlocked(JOSEON[1], save), false, '준비 중인 장은 열리지 않음');
+  eq(isUnlocked({ ...JOSEON[1], load: null }, save), false, '준비 중인 장은 열리지 않음');
 });

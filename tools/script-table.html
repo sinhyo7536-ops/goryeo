@@ -11,7 +11,8 @@
   import ch4 from '../chapters/ch4/script.js';
   import ch5 from '../chapters/ch5/script.js';
   import ch6 from '../chapters/ch6/script.js';
-  const chapters = [['1장 서희의 외교 담판', ch1], ['2장 양규와 흥화진', ch2], ['3장 강감찬과 귀주 대첩', ch3], ['4장 강화도 천도와 처인성·충주성', ch4], ['5장 팔만대장경', ch5], ['6장 삼별초의 항쟁', ch6]];
+  import j1 from '../chapters/joseon/j1/script.js';
+  const chapters = [['1장 서희의 외교 담판', ch1], ['2장 양규와 흥화진', ch2], ['3장 강감찬과 귀주 대첩', ch3], ['4장 강화도 천도와 처인성·충주성', ch4], ['5장 팔만대장경', ch5], ['6장 삼별초의 항쟁', ch6], ['조선편 1장 위화도 회군과 조선 건국', j1]];
   const rows = [];
   const esc = s => String(s).replace(/\|/g, '\\|');
   function visit(node, speakers) {
@@ -28,6 +29,9 @@
         if (o.reply) visit(o.reply, speakers);
       }
       return;
+    }
+    if (Array.isArray(node.cards) && node.src) { // 카드 고르기: 맞는 카드도 출처와 함께 싣는다
+      for (const c of node.cards) if (c.correct) rows.push(['정답 카드', c.text, node.src]);
     }
     if (typeof node.text === 'string' && node.who) {
       if (node.src) rows.push([node.who === 'narr' ? '해설' : (speakers[node.who]?.name || node.who), node.text, node.src]);

@@ -45,7 +45,7 @@ export function touchSetup(speakers) {
 
 // answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
 // noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
-export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [], holdStill = () => false } = {}) {
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [], holdStill = () => false, cardPicks = new Set(), places = {} } = {}) {
   const picks = [...mapPicks];
   let tracing = false;
   const { w, hud, dialogue, input, ui, ctx } = s;
@@ -61,6 +61,20 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     // 지도에서 고르기: mapPicks 순서대로 누르고, 마지막 것은 계속 누른다
     const place = picks.length && ui.querySelector(`.map-place[data-place="${picks[0]}"]`);
     if (place) { if (picks.length > 1) picks.shift(); place.click(); return; }
+    // 카드 고르기: cardPicks에 든 카드만 누른다
+    if (ui.querySelector('.screen.choose')) {
+      const pick = [...ui.querySelectorAll('.screen.choose .order-card:not([disabled])')].find(b => cardPicks.has(b.textContent));
+      if (pick) pick.click();
+      return;
+    }
+    // 자리 놓기: 지금 놓을 물건 이름으로 places에서 자리를 찾아 누른다
+    const now = ui.querySelector('.place-now');
+    if (now) {
+      const label = Object.keys(places).find(k => now.textContent.includes(k));
+      const slot = label && ui.querySelector(`.place-slot[data-slot="${places[label]}"]:not([disabled])`);
+      if (slot) slot.click();
+      return;
+    }
     // 카드 순서 맞추기: 이미 놓은 카드 수로 다음 카드를 찾아 누른다
     const cards = [...ui.querySelectorAll('.order-card:not([disabled])')];
     if (cards.length) {

@@ -41,6 +41,14 @@ export const MOODS = {
     hemi: [0xf4f1e8, 0x5d6b48, 0.8],
     particles: null,
   },
+  // 장맛비: 폭풍보다 밝은 잿빛 초록, 낮게 깔린 구름 (조선편 1장)
+  monsoon: {
+    skyTop: 0x5f6e78, skyHorizon: 0xa9b4b0, skyBottom: 0x5e6a60,
+    fog: [0x8f9b98, 28, 115],
+    sun: { color: 0xd8e0e0, intensity: 0.75, dir: [10, 30, 20] },
+    hemi: [0xcfd8d8, 0x4a5444, 0.9],
+    particles: 'rain', clouds: 0.85, cloud: 0xb0b8b8,
+  },
   sea: {
     skyTop: 0x5d8fc4, skyHorizon: 0xd8eef5, skyBottom: 0x2f6f8f,
     fog: [0xcfe4ec, 60, 220],

@@ -1,0 +1,132 @@
+// 조선편 1장 장면: 장맛비 속 압록강의 섬 위화도. 고려군 진영(천막, 지휘 천막, 깃발)과 북쪽(요동 쪽)을 향해 늘어선 군사들.
+// 회군 때 군사들은 돌아서서 남쪽 물길을 건너 개경 쪽으로 간다.
+import * as THREE from 'three';
+import { groundMaterial } from '../../../core/textures.js';
+import { mat, makePerson } from '../../../core/people.js';
+import { scatter } from '../../../core/props.js';
+import { LOOKS, look } from '../../../content/characters.js';
+import { createWeather } from '../../../core/weather.js';
+
+const ISLAND = { rx: 30, rz: 17 }; // 섬 크기(타원 반지름)
+const SOUTH_Z = 22;                // 남쪽 물길 가운데 (회군 때 건너는 곳)
+
+// 땅 높이: 섬 안은 거의 평평하고, 가장자리에서 물 아래로 내려간다
+export function groundH(x, z) {
+  const e = Math.hypot(x / ISLAND.rx, z / ISLAND.rz);
+  let h = 0.12 * Math.sin(x * 0.35) * Math.cos(z * 0.4);
+  if (e > 0.85) h -= Math.min(2.2, (e - 0.85) * 6);
+  return h;
+}
+
+function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+
+export function buildJ1Scene(world) {
+  const L = world.level, rand = seeded(23);
+  const mk = (geo, color, x, y, z, parent = L, cast = true) => {
+    const m = new THREE.Mesh(geo, mat(color));
+    m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
+  };
+  world.bounds = { x0: -20, x1: 20, z0: -11, z1: 12 };
+
+  // 섬 땅 (젖은 풀밭, 물가는 진흙빛)
+  {
+    const g = new THREE.PlaneGeometry(90, 60, 72, 48); g.rotateX(-Math.PI / 2);
+    const p = g.attributes.position, cols = [], c = new THREE.Color();
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), z = p.getZ(i), h = groundH(x, z);
+      p.setY(i, h);
+      const j = rand() * 0.04;
+      if (h < -0.15) c.setRGB(0.42 + j, 0.4 + j, 0.33 + j); else c.setRGB(0.29 + j, 0.41 + j, 0.26 + j);
+      cols.push(c.r, c.g, c.b);
+    }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    g.computeVertexNormals();
+    const t = new THREE.Mesh(g, groundMaterial('grass'));
+    t.receiveShadow = true; L.add(t);
+  }
+  // 압록강: 섬 둘레의 넓은 흙탕물, 강 건너 먼 산
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(400, 400).rotateX(-Math.PI / 2), new THREE.MeshPhongMaterial({ color: 0x6b7a72, transparent: true, opacity: 0.92, shininess: 40 }));
+  water.position.y = -0.55; L.add(water);
+  for (const [x, z, s] of [[-60, -70, 22], [-15, -80, 28], [40, -75, 24], [80, -60, 18], [-70, 70, 20], [10, 85, 26], [70, 75, 22]]) {
+    const m = mk(new THREE.ConeGeometry(s, s * 0.55, 7), 0x55624e, x, s * 0.27 - 0.6, z, L, false);
+    m.rotation.y = x;
+  }
+
+  // 진영: 천막들과 가운데 지휘 천막
+  // 동쪽 통로(x 2.5~12)는 비워 둔다: 회군 때 군사들이 이 길로 남쪽 물길까지 걸어간다
+  const tents = [[-13, 4], [-9, -4], [-14, -7], [16, 5], [16, -3], [-6, 10], [-13, 10]];
+  for (const [x, z] of tents) {
+    const t = mk(new THREE.ConeGeometry(2.1, 2.5, 4), 0xd8d0bc, x, 1.25, z); t.rotation.y = Math.PI / 4;
+    mk(new THREE.CylinderGeometry(0.06, 0.06, 0.8, 4), 0x5a3f2a, x, 2.8, z);
+    const door = mk(new THREE.PlaneGeometry(0.8, 1.05), 0x3a2c20, 0.82, -0.66, 0.82, t, false);
+    door.rotation.order = 'YXZ'; door.rotation.set(-0.54, Math.PI / 4, 0);
+    world.addCollider({ x, z, r: 1.7 });
+  }
+  const command = new THREE.Group(); command.position.set(0, 0, -6); L.add(command);
+  mk(new THREE.CylinderGeometry(3, 3, 2.2, 8), 0xe6dcc3, 0, 1.1, 0, command);
+  mk(new THREE.ConeGeometry(3.4, 1.8, 8), 0x8a2f24, 0, 3.1, 0, command);
+  mk(new THREE.BoxGeometry(1.4, 1.8, 0.1), 0x3a2c20, 0, 0.9, 2.98, command, false);
+  world.addCollider({ x: 0, z: -6, r: 3.1 });
+  // 깃발: 비바람에 남쪽으로 날린다
+  const flags = [];
+  for (const [x, z, c] of [[-4, -2.6, 0xb8452f], [2.2, -3.2, 0xd9a441], [-16, 1, 0xb8452f], [16.5, 1, 0xb8452f]]) {
+    mk(new THREE.CylinderGeometry(0.07, 0.07, 4.6, 5), 0x5a3f2a, x, 2.3, z);
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.9).translate(0.65, 0, 0), new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }));
+    f.position.set(x, 3.6, z); f.rotation.y = -Math.PI / 2; L.add(f); flags.push(f);
+  }
+  // 젖은 짐: 활과 화살 통, 덮어 둔 짐
+  for (const [x, z] of [[-11, 1.5], [-4, -9.5], [-3, 5.5]]) {
+    mk(new THREE.BoxGeometry(1.2, 0.7, 0.9), 0x7a5a3c, x, 0.35, z).rotation.y = x;
+    mk(new THREE.BoxGeometry(1.3, 0.12, 1.0), 0x5d6b52, x, 0.76, z).rotation.y = x;
+    world.addCollider({ x, z, r: 0.8 });
+  }
+  // 빗물 웅덩이
+  {
+    const puddle = new THREE.MeshPhongMaterial({ color: 0x5a6670, shininess: 90, specular: 0x9aa6b0, transparent: true, opacity: 0.75 });
+    for (const [x, z, s] of [[-7, 2, 1.3], [3, 3, 1], [9, -1, 1.2], [-2, -10, 0.9], [-16, -2, 1.1], [15, 8, 1], [0, 11, 1.2]]) {
+      const p = new THREE.Mesh(new THREE.CircleGeometry(1, 14).rotateX(-Math.PI / 2), puddle);
+      p.position.set(x, groundH(x, z) + 0.03, z); p.scale.set(s * 1.4, 1, s); p.rotation.y = x; p.receiveShadow = true; L.add(p);
+    }
+  }
+
+  // 북쪽 강가에 요동 쪽을 향해 늘어선 군사들 (회군 때 돌아서서 남쪽으로 간다)
+  const army = new THREE.Group(); L.add(army);
+  for (let i = 0; i < 18; i++) {
+    const s = makePerson(i % 3 === 0 ? LOOKS.archer : LOOKS.soldier);
+    s.position.set((i % 6) * 1.6, 0, -Math.floor(i / 6) * 1.5); s.rotation.y = Math.PI; army.add(s);
+  }
+  army.position.set(3, 0, -11.2);
+  const armyStart = army.position.clone();
+  // 회군 장면: 0이면 북쪽 강가(북쪽을 봄), 1이면 남쪽 물길을 건너 섬 밖으로
+  const setTurn = t => {
+    army.children.forEach(s => { s.rotation.y = t > 0 ? 0 : Math.PI; });
+    army.position.set(armyStart.x, 0, armyStart.z + t * (SOUTH_Z + 8 - armyStart.z));
+  };
+
+  // 물가 갈대와 바위, 섬의 젖은 풀, 강 건너 소나무
+  {
+    const keep = [...tents, [0, -6], [-11, 1.5], [-4, -9.5], [-3, 5.5], [-8, 3], [14, -9], [0, -2]].map(([x, z]) => ({ x, z, r: 2.6 }));
+    scatter(world, { kind: 'grass', count: 130, area: { x0: -24, x1: 24, z0: -13, z1: 14 }, avoid: [...keep, { x: 7, z: -12, r: 6 }], seed: 51, ground: groundH, color: 0x6f8f4a });
+    scatter(world, { kind: 'grass', count: 90, area: { x0: -32, x1: 32, z0: 12, z1: 18 }, seed: 52, ground: groundH, scale: [1.4, 2.4], color: 0x8a9a5a });
+    scatter(world, { kind: 'grass', count: 90, area: { x0: -32, x1: 32, z0: -18, z1: -13 }, avoid: [{ x: 0, z: -12, r: 12 }], seed: 53, ground: groundH, scale: [1.4, 2.4], color: 0x8a9a5a });
+    scatter(world, { kind: 'rock', count: 14, area: { x0: -34, x1: 34, z0: -18, z1: 18 }, avoid: keep, seed: 54, ground: groundH, scale: [0.5, 1.2] });
+    scatter(world, { kind: 'pine', count: 30, area: { x0: -90, x1: 90, z0: 34, z1: 70 }, seed: 55, ground: () => -0.4, scale: [1.2, 1.8] });
+  }
+  const rain = createWeather(world, 'rain', { count: 900 });
+  rain.setWind(1.5);
+
+  world.addNpc('archer', LOOKS.archer, -8, 3, Math.PI * 0.25);
+  world.addNpc('soldier', look('soldier', { robe: 0x6b3a2e }), 14, -9, -Math.PI * 0.7);
+  world.addNpc('yiseonggye', LOOKS.yiseonggye, 0, -2.4, 0);
+
+  world.onUpdate((dt, t) => {
+    for (const f of flags) f.rotation.y = -Math.PI / 2 + Math.sin(t * 3 + f.position.x) * 0.3;
+  });
+
+  return {
+    army, setTurn, rain, flags,
+    start: [0, 9],
+    turnCam: { pos: [26, 12, 16], target: [6, 0, 2] },
+    turnTarget: [0, 0, 6],
+  };
+}

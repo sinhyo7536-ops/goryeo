@@ -64,7 +64,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .screen { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; overflow-y: auto; box-sizing: border-box;
   padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   background: rgba(27, 31, 29, .78); }
-.screen h1, .screen h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+.screen h1, .screen h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; word-break: keep-all; }
 .eyebrow { font-size: 14px; letter-spacing: .08em; color: var(--gold); }
 .row { display: flex; flex-wrap: wrap; gap: 10px; }
 .btn { min-height: 52px; padding: 0 22px; font-size: 18px; border-radius: 4px; border: 2px solid rgba(242,234,217,.5); background: var(--ink-2); color: var(--hanji); }
