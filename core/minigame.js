@@ -253,6 +253,80 @@ export function pickOnMap(ctx, { title, places }) {
   });
 }
 
+// 카드 고르기: 맞는 카드(correct)를 모두 누르면 성공(true), 틀린 카드를 누르면 그 시도는 실패(false).
+// easy이면 맞는 카드가 빛난다.
+export function chooseCards(ctx, { title, prompt = '', cards, easy = false }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order choose');
+    const card = el('div', 'card wide');
+    const need = cards.filter(c => c.correct).length;
+    const count = el('p', 'choose-count');
+    const pile = el('div', 'order-pile');
+    card.append(el('div', 'eyebrow', '카드 고르기'), el('h2', null, title));
+    if (prompt) card.append(el('p', null, prompt));
+    card.append(count, pile);
+    screen.append(card); ctx.ui.append(screen);
+    let got = 0, over = false;
+    const show = () => { count.textContent = `고른 카드 ${got} / ${need}`; };
+    const buttons = cards.map(c => {
+      const b = el('button', `order-card${easy && c.correct ? ' hint' : ''}`, c.text); b.type = 'button';
+      b.addEventListener('click', () => {
+        if (over || b.disabled) return;
+        if (c.correct) {
+          got += 1; b.disabled = true; b.classList.remove('hint'); b.classList.add('picked'); b.textContent = `○ ${c.text}`; show();
+          if (got === need) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 400); }
+        } else {
+          over = true; b.classList.add('wrong'); b.textContent = `× ${c.text}`;
+          buttons.forEach(x => { x.disabled = true; });
+          setTimeout(() => { screen.remove(); resolve(false); }, 700);
+        }
+      });
+      pile.append(b);
+      return b;
+    });
+    show();
+  });
+}
+
+// 자리 놓기: 판 위의 자리(slots) 중에서 지금 물건(items 차례대로)이 들어갈 자리를 누른다.
+// 모두 맞게 놓으면 true, 틀린 자리를 누르면 false. decor는 판 위의 이름표(산, 강 등). easy이면 맞는 자리가 빛난다.
+export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = false }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order place');
+    const card = el('div', 'card wide');
+    const now = el('p', 'place-now');
+    const board = el('div', 'place-board');
+    for (const d of decor) { const t = el('span', `place-decor ${d.cls || ''}`, d.label); t.style.left = `${d.xy[0]}%`; t.style.top = `${d.xy[1]}%`; board.append(t); }
+    card.append(el('div', 'eyebrow', '자리 놓기'), el('h2', null, title), now, board);
+    screen.append(card); ctx.ui.append(screen);
+    let i = 0, over = false;
+    const buttons = slots.map(s => {
+      const b = el('button', 'place-slot', s.label || '?'); b.type = 'button'; b.dataset.slot = s.id;
+      b.style.left = `${s.xy[0]}%`; b.style.top = `${s.xy[1]}%`;
+      b.addEventListener('click', () => {
+        if (over || b.disabled) return;
+        const item = items[i];
+        if (s.answer === item.id) {
+          b.disabled = true; b.classList.add('filled'); b.textContent = `○ ${item.label}`;
+          i += 1;
+          if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 500); } else ask();
+        } else {
+          over = true; b.classList.add('wrong'); b.textContent = `× ${item.label}`;
+          buttons.forEach(x => { x.disabled = true; });
+          setTimeout(() => { screen.remove(); resolve(false); }, 800);
+        }
+      });
+      board.append(b);
+      return b;
+    });
+    const ask = () => {
+      now.textContent = `놓을 것: ${items[i].label} (${i + 1} / ${items.length})`;
+      buttons.forEach((b, k) => b.classList.toggle('hint', easy && !b.disabled && slots[k].answer === items[i].id));
+    };
+    ask();
+  });
+}
+
 // 정답 순서도, 그 반대 순서도 아니게 섞는다 (고정된 씨앗이라 화면이 매번 같다).
 export function shuffledOrder(cards) {
   let seed = 11 + cards.length;

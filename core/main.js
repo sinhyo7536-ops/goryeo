@@ -10,6 +10,7 @@ import { runChapter } from './flow.js';
 import { createMusic } from './music.js';
 import { showTitle, askName, showCourses, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
 import { ALL_CHAPTERS, COURSES, courseById, courseOfChapter, isSessionDone } from '../chapters/index.js';
+import { LOOKS } from '../content/characters.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
@@ -99,6 +100,7 @@ function boot() {
     quality.restart();
     world.camMode = 'follow';
     world.setMood(mod.mood);
+    world.setPlayerLook(mod.player || LOOKS.player); // 장마다 학생 역할(고려 병사, 조선 수군 등)
     dialogue = createDialogue(ui, mod.script.speakers, { reduceMotion });
     hud.show(meta);
     hud.setTouchVisible(true);
@@ -148,7 +150,7 @@ function boot() {
     if (meta) {
       if (dm[2] === 'minigame') { await playChapter(meta, 'minigame'); return mapLoop(); }
       const mod = (await meta.load()).default;
-      world.setMood(mod.mood); const sc = mod.buildScene(world, ctx);
+      world.setMood(mod.mood); world.setPlayerLook(mod.player || LOOKS.player); const sc = mod.buildScene(world, ctx);
       const [sx, sz] = sc.start || [0, 19];
       world.player.position.set(sx, 0, sz); world.snapCamera(); input.enabled = true; inChapter = true;
       return;

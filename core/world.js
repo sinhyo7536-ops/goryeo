@@ -185,6 +185,13 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
     },
+    // 장마다 학생 생김새를 바꾼다(조선편 수군·일꾼 등). 플레이어 물체는 그대로 두고 안의 몸만 바꾼다.
+    setPlayerLook(opts) {
+      const fresh = makePerson(opts);
+      for (const c of [...player.children]) { player.remove(c); c.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+      for (const c of [...fresh.children]) player.add(c);
+      player.userData = fresh.userData;
+    },
     addCollider(c) { world.colliders.push(c); return c; },
     addNpc(id, opts, x, z, faceY = 0) {
       const mesh = makePerson(opts);

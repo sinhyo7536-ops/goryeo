@@ -99,6 +99,26 @@ function drawHat(g, hat, cx, cy, R) {
     g.fillStyle = '#5a4130';
     g.beginPath(); g.roundRect(cx - 0.95 * R, cy - 1.18 * R, 1.9 * R, 0.62 * R, 0.25 * R); g.fill();
   } else if (hat === 'bald') {          // 스님: 깎은 머리
+  } else if (hat === 'gat') {           // 갓: 머리카락 위에 넓은 챙과 높은 모자(말총이라 조금 비친다)
+    g.fillStyle = '#1e1c1a';
+    g.beginPath(); g.ellipse(cx, cy - 0.45 * R, 0.98 * R, 0.62 * R, 0, Math.PI, 0); g.fill();
+    g.globalAlpha = 0.88;
+    g.beginPath(); g.ellipse(cx, cy - 0.78 * R, 1.62 * R, 0.16 * R, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.roundRect(cx - 0.42 * R, cy - 1.5 * R, 0.84 * R, 0.76 * R, 0.08 * R); g.fill();
+  } else if (hat === 'ikseon') {        // 익선관: 둥근 관과 위로 선 날개
+    g.fillStyle = '#1e1c1a';
+    g.beginPath(); g.ellipse(cx, cy - 0.5 * R, 1.0 * R, 0.72 * R, 0, Math.PI, 0); g.fill();
+    g.beginPath(); g.roundRect(cx - 0.6 * R, cy - 1.32 * R, 1.2 * R, 0.5 * R, 0.2 * R); g.fill();
+    for (const sx of [-1, 1]) { g.beginPath(); g.ellipse(cx + sx * 0.42 * R, cy - 1.42 * R, 0.18 * R, 0.3 * R, sx * 0.4, 0, Math.PI * 2); g.fill(); }
+  } else if (hat === 'jeollip') {       // 전립: 챙과 둥근 모자, 붉은 술
+    g.fillStyle = '#2a2622';
+    g.beginPath(); g.ellipse(cx, cy - 0.62 * R, 1.4 * R, 0.15 * R, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(cx, cy - 0.66 * R, 0.86 * R, 0.62 * R, 0, Math.PI, 0); g.fill();
+    g.fillStyle = '#b8452f'; g.beginPath(); g.arc(cx, cy - 1.36 * R, 0.17 * R, 0, Math.PI * 2); g.fill();
+  } else if (hat === 'qing') {          // 청나라 모자: 낮은 원뿔과 붉은 술
+    g.fillStyle = '#3a3028';
+    g.beginPath(); g.moveTo(cx - 1.12 * R, cy - 0.55 * R); g.lineTo(cx + 1.12 * R, cy - 0.55 * R); g.lineTo(cx, cy - 1.3 * R); g.closePath(); g.fill();
+    g.fillStyle = '#b8452f'; g.beginPath(); g.arc(cx, cy - 1.32 * R, 0.16 * R, 0, Math.PI * 2); g.fill();
   } else {                              // 맨머리와 상투
     g.fillStyle = '#1e1c1a';
     g.beginPath(); g.ellipse(cx, cy - 0.45 * R, 0.98 * R, 0.62 * R, 0, Math.PI, 0); g.fill();

@@ -20,7 +20,7 @@ function fakeAudioContext() {
 }
 
 test('music: every chapter has its own theme on a five-note scale', () => {
-  eq(Object.keys(THEMES), ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6']);
+  eq(Object.keys(THEMES), ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6']);
   eq(SCALE.length, 5);
   const tempos = new Set(Object.values(THEMES).map(t => t.tempo));
   ok(tempos.size >= 4, 'chapters do not all sound alike');

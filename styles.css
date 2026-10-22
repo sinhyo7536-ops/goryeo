@@ -162,6 +162,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .order-pile { display: flex; flex-wrap: wrap; gap: 8px; }
 .order-card { min-height: 56px; padding: 8px 14px; font-size: 17px; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
 .order-card.hint { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.5); }
+.order-card.picked { border-color: #2f6b5e; background: #dcebdf; opacity: 1; }
+.choose-count, .place-now { font-weight: 700; color: var(--dan-red); }
+.place-board { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 52vh; border-radius: 6px; border: 2px solid #8f8068;
+  background: radial-gradient(ellipse at 50% 12%, #a9b98f 0 18%, transparent 19%), linear-gradient(#e6dcc0, #d9cfae); overflow: hidden; }
+.place-decor { position: absolute; transform: translate(-50%, -50%); font-size: 15px; color: #5d5240; white-space: nowrap; pointer-events: none; }
+.place-decor.water { color: #2f5f75; font-weight: 700; }
+.place-decor.band { width: 100%; text-align: center; background: rgba(79,135,160,.35); padding: 4px 0; }
+.place-slot { position: absolute; transform: translate(-50%, -50%); min-width: 96px; min-height: 52px; padding: 6px 12px; border-radius: 6px;
+  border: 2px dashed #8f8068; background: rgba(255,250,240,.85); color: var(--text-ink); font-size: 16px; font-weight: 700; }
+.place-slot.hint { border: 2px solid var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.5); }
+.place-slot.filled { border: 2px solid #2f6b5e; background: #dcebdf; }
+.place-slot.wrong { border: 2px solid var(--dan-red); background: #f6d6cf; animation: shake .3s; }
 .order-card.wrong { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 /* 획 따라 그리기 */

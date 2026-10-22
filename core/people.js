@@ -39,6 +39,30 @@ function faceMat(face) {
   return faceMats.get(key);
 }
 
+// 조선 모자 부품 [모양, 색, x, y(몸 기준 높이), z]. 머리 반지름 0.32, 머리 중심 높이 2.02.
+const HAIR = () => [new THREE.SphereGeometry(0.33, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), 0x1e1c1a, 0, 2.04, -0.01];
+const JOSEON_HATS = {
+  // 갓: 넓은 챙과 높은 원통 모자 (양반·학자)
+  gat: () => [HAIR(),
+    [new THREE.CylinderGeometry(0.66, 0.66, 0.025, 20), 0x1a1816, 0, 2.3, 0],
+    [new THREE.CylinderGeometry(0.19, 0.23, 0.34, 14), 0x1a1816, 0, 2.48, 0]],
+  // 익선관: 둥근 검은 관, 뒤가 높고 위로 선 두 날개 (임금·세자)
+  ikseon: () => [
+    [new THREE.SphereGeometry(0.35, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x1e1c1a, 0, 2.08, 0],
+    [new THREE.CylinderGeometry(0.25, 0.28, 0.22, 14), 0x1e1c1a, 0, 2.38, -0.1],
+    [new THREE.BoxGeometry(0.06, 0.26, 0.2), 0x1e1c1a, -0.17, 2.56, -0.2],
+    [new THREE.BoxGeometry(0.06, 0.26, 0.2), 0x1e1c1a, 0.17, 2.56, -0.2]],
+  // 전립(벙거지): 챙 달린 둥근 모자와 붉은 술 (조선 군사)
+  jeollip: () => [
+    [new THREE.CylinderGeometry(0.56, 0.56, 0.03, 18), 0x2a2622, 0, 2.27, 0],
+    [new THREE.SphereGeometry(0.3, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x2a2622, 0, 2.28, 0],
+    [new THREE.SphereGeometry(0.08, 8, 6), 0xb8452f, 0, 2.6, 0]],
+  // 청나라 모자: 낮은 원뿔과 붉은 술
+  qing: () => [
+    [new THREE.ConeGeometry(0.44, 0.3, 14), 0x3a3028, 0, 2.4, 0],
+    [new THREE.SphereGeometry(0.08, 8, 6), 0xb8452f, 0, 2.58, 0]],
+};
+
 // gear: 'spear'(창) · 'sword'(허리에 찬 칼) · 'bow'(등에 멘 활) · 없음
 export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null }) {
   const g = new THREE.Group();
@@ -89,6 +113,9 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null 
   } else if (hat === 'topknot') {   // 맨머리에 상투
     hp(new THREE.SphereGeometry(0.33, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), 0x1e1c1a, 0, 2.04, -0.01);
     hp(new THREE.SphereGeometry(0.1, 8, 6), 0x1e1c1a, 0, 2.4, -0.02);
+  } else if (JOSEON_HATS[hat]) {    // 조선 모자: 묶음 하나(hat:이름)로 만든다
+    const hatG = new THREE.Group(); hatG.name = `hat:${hat}`; hg.add(hatG);
+    for (const [geo, color, x, y, z] of JOSEON_HATS[hat]()) part(geo, color, x, y - HEAD_Y, z, hatG, 'grain');
   }
   // 들고 있는 무기
   if (gear === 'spear') { // 오른손에 세워 든 창
