@@ -3,38 +3,15 @@ import { showTitle } from '../core/screens.js';
 import { orderCards, traceGlyph } from '../core/minigame.js';
 import { sleep } from './bot.js';
 
-const GAME_URL = 'https://sinhyo7536-ops.github.io/goryeo/';
 const btn = (el, text) => [...el.querySelectorAll('button')].find(b => b.textContent.includes(text));
 
-test('qr: title button draws a QR code of the address the game is opened from', async () => {
-  const { showQR, gameAddress } = await import('../core/screens.js');
-  eq(gameAddress({ origin: 'https://sinhyo7536-ops.github.io', pathname: '/goryeo/index.html' }), GAME_URL, 'drops index.html');
-  eq(gameAddress({ origin: 'https://new.example.org', pathname: '/game/' }), 'https://new.example.org/game/', 'follows a new address');
-  const el = document.createElement('div'); document.body.appendChild(el);
-  try {
-    const p = showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
-    const qrBtn = btn(el, 'QR코드');
-    ok(qrBtn, 'QR button on the title');
-    qrBtn.click();
-    let img = null;
-    for (let i = 0; i < 100 && !img; i++) { await sleep(30); img = el.querySelector('.qr-box canvas, .qr-box img'); }
-    ok(img, 'QR code drawn');
-    ok(el.textContent.includes(gameAddress(location)), 'shows the current address');
-    btn(el, '닫기').click();
-    eq(el.querySelectorAll('.screen.qr').length, 0, 'closed');
-    ok(el.querySelector('.screen.title'), 'still on the title');
-    const q = showQR(el, 'https://a.example/x/'); // 직접 불러도 되고, 닫기를 누르면 끝난다
-    ok(el.textContent.includes('https://a.example/x/'));
-    btn(el, '닫기').click();
-    await q;
-    void p;
-  } finally { el.remove(); }
-}, { timeout: 15000 });
-
-test('qr: no teacher guide any more', async () => {
+test('title: no QR button and no teacher guide', async () => {
   const el = document.createElement('div'); document.body.appendChild(el);
   showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
+  ok(!el.textContent.includes('QR'), 'no QR button');
   ok(!el.textContent.includes('선생님 안내'), 'no guide link');
+  const lib = await fetch('../vendor/qrcode.min.js', { cache: 'no-store' });
+  eq(lib.status, 404, 'QR tool removed');
   el.remove();
   const r = await fetch('../teacher.html', { cache: 'no-store' });
   eq(r.status, 404, 'guide page removed');
