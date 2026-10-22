@@ -254,8 +254,8 @@ export function pickOnMap(ctx, { title, places }) {
 }
 
 // 카드 고르기: 맞는 카드(correct)를 모두 누르면 성공(true), 틀린 카드를 누르면 그 시도는 실패(false).
-// easy이면 맞는 카드가 빛난다.
-export function chooseCards(ctx, { title, prompt = '', cards, easy = false }) {
+// easy이면 맞는 카드가 빛난다. figure(SVG 글)가 있으면 카드 위에 그림을 보여 준다.
+export function chooseCards(ctx, { title, prompt = '', cards, figure = null, easy = false }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order choose');
     const card = el('div', 'card wide');
@@ -264,6 +264,7 @@ export function chooseCards(ctx, { title, prompt = '', cards, easy = false }) {
     const pile = el('div', 'order-pile');
     card.append(el('div', 'eyebrow', '카드 고르기'), el('h2', null, title));
     if (prompt) card.append(el('p', null, prompt));
+    if (figure) { const f = el('div', 'choose-figure'); f.innerHTML = figure; card.append(f); } // 그림(SVG 글): 해시계, 측우기 등
     card.append(count, pile);
     screen.append(card); ctx.ui.append(screen);
     let got = 0, over = false;

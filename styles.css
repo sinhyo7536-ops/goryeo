@@ -163,6 +163,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .order-card { min-height: 56px; padding: 8px 14px; font-size: 17px; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
 .order-card.hint { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.5); }
 .order-card.picked { border-color: #2f6b5e; background: #dcebdf; opacity: 1; }
+.choose-figure { display: grid; place-items: center; }
+.choose-figure svg { width: min(100%, 560px); max-height: 40vh; }
 .choose-count, .place-now { font-weight: 700; color: var(--dan-red); }
 .place-board { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 52vh; border-radius: 6px; border: 2px solid #8f8068;
   background: linear-gradient(#e6dcc0, #d9cfae); overflow: hidden; }
