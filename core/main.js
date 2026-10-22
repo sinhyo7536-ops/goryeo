@@ -8,12 +8,14 @@ import { createDialogue } from './dialogue.js';
 import { createQualityController, guessInitialQuality } from './quality.js';
 import { runChapter } from './flow.js';
 import { createSpeech } from './speech.js';
+import { createMusic } from './music.js';
 import { showTitle, askName, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
 import { CHAPTERS, isSessionDone } from '../chapters/index.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
 const PREF_SPEECH = 'goryeo-game:speech';
+const PREF_MUSIC = 'goryeo-game:music';
 
 function boot() {
   const ui = document.getElementById('ui');
@@ -27,6 +29,10 @@ function boot() {
   audio.setMuted(storage.get(PREF_MUTED) === true);
   const speech = createSpeech(); // 대사 읽어 주기 (대화창의 🔈 버튼으로 켜고 끈다)
   speech.setEnabled(storage.get(PREF_SPEECH) === true);
+  const music = createMusic(); // 장마다 다른 배경음악. 메뉴의 '음악 끄기'나 '소리 끄기'로 끈다
+  let musicOn = storage.get(PREF_MUSIC) !== false;
+  const applyMusic = () => music.setEnabled(musicOn && !audio.muted);
+  applyMusic();
 
   const savedQuality = storage.get(PREF_QUALITY);
   const initial = savedQuality || guessInitialQuality({ dpr: devicePixelRatio, cores: navigator.hardwareConcurrency, memory: navigator.deviceMemory });
@@ -54,8 +60,10 @@ function boot() {
   const openMenu = async () => {
     if (!inChapter) return;
     world.paused = true; // 메뉴를 보는 동안 미니게임 시간이 흐르지 않게
-    const choice = await showMenu(ui, { muted: audio.muted, quality: quality.level, storageOk: storage.available }, change => {
+    const choice = await showMenu(ui, { muted: audio.muted, music: musicOn, quality: quality.level, storageOk: storage.available }, change => {
       if ('muted' in change) { audio.setMuted(change.muted); storage.set(PREF_MUTED, change.muted); }
+      if ('music' in change) { musicOn = change.music; storage.set(PREF_MUSIC, change.music); }
+      applyMusic();
       if (change.quality) { quality.set(change.quality); storage.set(PREF_QUALITY, change.quality); }
     });
     world.paused = false;
@@ -65,7 +73,7 @@ function boot() {
   hud.menuBtn.addEventListener('click', openMenu);
 
   const ctx = {
-    world, input, audio, hud, ui, testHooks: {},
+    world, input, audio, music, hud, ui, testHooks: {},
     screens: { showIntroCard: (meta, lines) => showIntroCard(ui, meta, lines) },
     get dialogue() { return dialogue; },
     setGoal: text => hud.setGoal(text),
@@ -99,7 +107,9 @@ function boot() {
     hud.show(meta);
     hud.setTouchVisible(true);
     inChapter = true; input.enabled = true;
+    music.play(meta.id);
     const result = await runChapter(meta, mod, ctx, save, { resumeStage: stage });
+    music.stop();
     inChapter = false; input.enabled = false;
     input.releaseJoystick();
     hud.hide();

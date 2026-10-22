@@ -17,6 +17,8 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
   const onHide = () => { if (document.visibilityState === 'hidden') stamp(); };
   const tick = setInterval(stamp, 15000);
   addEventListener('pagehide', stamp); document.addEventListener('visibilitychange', onHide);
+  const level = l => { if (ctx.music) ctx.music.setLevel(l); }; // 배경음악: 탐험은 잔잔하게, 미니게임 전투는 세게
+  level('calm');
   try {
     if (from === 0) {
       checkpoint('intro');
@@ -31,10 +33,12 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
     }
     if (from <= 2) {
       checkpoint('minigame');
+      level('battle');
       const mg = await chapter.minigame(ctx);
       Object.assign(result, { firstTryCorrect: mg.firstTryCorrect, firstTryTotal: mg.firstTryTotal, easyModeUsed: mg.easyModeUsed });
     }
 
+    level('calm');
     checkpoint('quiz', { firstTryCorrect: result.firstTryCorrect, firstTryTotal: result.firstTryTotal, easyModeUsed: result.easyModeUsed });
     for (const q of chapter.quizzes) {
       const { correct } = await ctx.dialogue.quiz(q);

@@ -179,7 +179,7 @@ export function showSessionCard(root, session, save, chapters) {
 }
 
 const openMenus = new WeakMap(); // root → 열려 있는 메뉴의 약속 (Esc를 여러 번 눌러도 메뉴는 하나)
-export function showMenu(root, { muted, quality, storageOk = true }, onChange) {
+export function showMenu(root, { muted, music = null, quality, storageOk = true }, onChange) {
   if (openMenus.has(root)) return openMenus.get(root);
   const p = new Promise(resolve => {
     const close = v => { el.remove(); openMenus.delete(root); resolve(v); };
@@ -193,7 +193,8 @@ export function showMenu(root, { muted, quality, storageOk = true }, onChange) {
       h('div', { class: 'card' },
         h('h2', {}, '메뉴'),
         h('p', {}, '소리'),
-        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { onChange({ muted: !muted }); close('close'); } }, muted ? '소리 켜기' : '소리 끄기')),
+        h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => { onChange({ muted: !muted }); close('close'); } }, muted ? '소리 켜기' : '소리 끄기'),
+          music !== null && h('button', { class: 'btn', type: 'button', onclick: () => { onChange({ music: !music }); close('close'); } }, music ? '음악 끄기' : '음악 켜기')),
         h('p', {}, '화질'),
         h('div', { class: 'row' }, qb('low', '낮음'), qb('medium', '보통'), qb('high', '높음')),
         h('div', { class: 'row' },
