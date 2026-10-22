@@ -96,15 +96,25 @@ test('save: default storage works when window.localStorage itself throws', () =>
   }
 });
 
-test('save: 고른 편을 기억하고, 옛 기록은 편이 비어 있다', () => {
+test('save: 고른 편을 기억하고, 고려편을 하던 옛 기록은 고려편', () => {
   const backend = memoryBackend();
   backend.setItem('goryeo-game:v1', JSON.stringify({ name: '옛 학생', chapters: { ch1: { stars: 2 } }, current: { id: 'ch2', stage: 'explore' } }));
   const a = createSave(createStorage(backend)); a.load();
-  eq(a.data.course, null);
+  eq(a.data.course, 'goryeo', '고려편 장을 한 옛 기록은 고려편으로');
   eq(a.data.current, { id: 'ch2', stage: 'explore' });
   a.setCourse('joseon');
   const b = createSave(createStorage(backend)); b.load();
   eq(b.data.course, 'joseon');
   eq(b.data.chapters.ch1.stars, 2);
   b.reset(); eq(b.data.course, null);
+});
+
+test('save: 옛 기록 — 장 사이에서 멈췄어도 고려편, 이름만 있으면 편 고르기', () => {
+  const backend = memoryBackend();
+  backend.setItem('goryeo-game:v1', JSON.stringify({ name: '지난주 학생', chapters: { ch1: { stars: 3 }, ch2: { stars: 2 }, ch3: { stars: 1 } }, current: null }));
+  const a = createSave(createStorage(backend)); a.load();
+  eq(a.data.course, 'goryeo');
+  backend.setItem('goryeo-game:v1', JSON.stringify({ name: '이름만', chapters: {}, current: null }));
+  const b = createSave(createStorage(backend)); b.load();
+  eq(b.data.course, null, '아무 장도 안 했으면 편을 고른다');
 });
