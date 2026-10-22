@@ -125,3 +125,8 @@ export function worldMapped(material, kind, space = 'world') {
   material.customProgramCacheKey = () => `tri-${space}`;
   return material;
 }
+
+// 땅: 꼭짓점 색(풀밭·모래·바위 높이별 색)에 풀·흙 무늬를 곱한다
+export function groundMaterial(kind = 'grass') {
+  return worldMapped(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), kind);
+}

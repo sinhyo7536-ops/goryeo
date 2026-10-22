@@ -1,6 +1,8 @@
 // 4장 장면: 흐린 하늘 아래 네 구역 — 개경 궁궐 앞, 강화도 해협, 처인성, 충주성. 안개가 서로를 가린다.
 import * as THREE from 'three';
+import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
+import { scatter } from '../../core/props.js';
 import { LOOKS } from '../../content/characters.js';
 
 const PALACE_X = 0, GANGHWA_X = 160, CHEOIN_X = 320, CHUNGJU_X = 480;
@@ -30,6 +32,7 @@ export function buildCh4Scene(world) {
       const far = Math.max(0, Math.abs(z) - 45);
       h += Math.min(far * far * 0.02, 12);
       if (Math.abs(x - GANGHWA_X) < 60 && z < 4) h = -1.2; // 해협
+      if (Math.abs(x - PALACE_X) < 16 && z > -12 && z < 18) h = Math.min(h, -0.05); // 궁궐 마당은 평평하게(박석 아래)
       p.setX(i, x); p.setY(i, h);
       const j = rand() * 0.04;
       c.setRGB(0.36 + j, 0.47 + j, 0.3 + j);
@@ -37,7 +40,7 @@ export function buildCh4Scene(world) {
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const t = new THREE.Mesh(g, groundMaterial('grass'));
     t.receiveShadow = true; L.add(t);
   }
 
@@ -53,6 +56,19 @@ export function buildCh4Scene(world) {
     for (const sx of [-1, 1]) {
       mk(new THREE.BoxGeometry(1.2, 3, 30), 0x8c8577, x0 + sx * 15, 1.5, 2);
     }
+    // 박석을 깐 마당과 석등 두 개
+    mk(new THREE.BoxGeometry(28.6, 0.06, 22), 0xa59c8a, x0, 0.03, 3, L, false);
+    for (const sx of [-1, 1]) {
+      const lx = x0 + sx * 7, lz = -1;
+      mk(new THREE.CylinderGeometry(0.45, 0.55, 0.3, 8), 0xb3ab99, lx, 0.15, lz);
+      mk(new THREE.CylinderGeometry(0.14, 0.14, 1.1, 8), 0xb3ab99, lx, 0.85, lz);
+      mk(new THREE.BoxGeometry(0.7, 0.6, 0.7), 0xb3ab99, lx, 1.7, lz);
+      const glow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.36, 0.72), new THREE.MeshBasicMaterial({ color: 0xffd38a })); glow.position.set(lx, 1.7, lz); L.add(glow);
+      const cap = mk(new THREE.ConeGeometry(0.62, 0.45, 4), 0xb3ab99, lx, 2.25, lz); cap.rotation.y = Math.PI / 4;
+      world.addCollider({ x: lx, z: lz, r: 0.6 });
+    }
+    // 담장 뒤 소나무
+    for (const [a, b, s] of [[-45, -17, 51], [17, 45, 52]]) scatter(world, { kind: 'pine', count: 22, area: { x0: x0 + a, x1: x0 + b, z0: -32, z1: 24 }, seed: s, scale: [1, 1.5] });
   }
 
   // 2) 강화도 해협: 바다와 건너편 섬 (장면 구경용)
@@ -62,6 +78,11 @@ export function buildCh4Scene(world) {
     const island = mk(new THREE.ConeGeometry(26, 9, 9), 0x4f6b4a, GANGHWA_X, 1.5, -40); island.scale.set(1.4, 1, 0.7);
     for (let i = 0; i < 6; i++) mk(new THREE.BoxGeometry(2.4, 1.6, 2), 0xd8d0bc, GANGHWA_X - 10 + i * 4, 4.2, -34 + (i % 2) * 2);
     for (let i = 0; i < 3; i++) mk(new THREE.BoxGeometry(1.6, 0.5, 4), 0x6b4a32, GANGHWA_X - 8 + i * 8, -0.25, -14 - i * 3);
+  }
+  // 강화도 섬의 소나무 (섬 원뿔 높이에 맞춰 심는다)
+  {
+    const islandH = (x, z) => 6 - 9 * Math.hypot((x - GANGHWA_X) / 1.4, (z + 40) / 0.7) / 26;
+    scatter(world, { kind: 'pine', count: 30, area: { x0: GANGHWA_X - 34, x1: GANGHWA_X + 34, z0: -52, z1: -38 }, avoid: [{ x: GANGHWA_X, z: -34, r: 13 }], seed: 53, ground: islandH, scale: [0.9, 1.4] });
   }
   const ganghwaCam = { pos: [GANGHWA_X + 6, 7, 12], target: [GANGHWA_X, 2, -30] };
 
@@ -119,6 +140,11 @@ export function buildCh4Scene(world) {
     arrows.push(g);
   }
 
+  // 처인성 둘레 풀밭(몽골군이 다가오는 들판은 낮은 풀만)과 남쪽 숲
+  scatter(world, { kind: 'grass', count: 150, area: { x0: CHEOIN_X - 40, x1: CHEOIN_X + 40, z0: -40, z1: 30 }, avoid: [{ x: CHEOIN_X, z: 0, r: CHEOIN_R + 1 }], seed: 54, scale: [0.7, 1.2] });
+  scatter(world, { kind: 'flower', count: 50, area: { x0: CHEOIN_X - 30, x1: CHEOIN_X + 30, z0: 14, z1: 32 }, seed: 55 });
+  scatter(world, { kind: 'pine', count: 26, area: { x0: CHEOIN_X - 50, x1: CHEOIN_X + 50, z0: 22, z1: 50 }, seed: 56, scale: [1, 1.5] });
+  scatter(world, { kind: 'rock', count: 12, area: { x0: CHEOIN_X - 40, x1: CHEOIN_X + 40, z0: -40, z1: 30 }, avoid: [{ x: CHEOIN_X, z: 0, r: CHEOIN_R + 2 }], seed: 57, scale: [0.5, 1.2] });
   const cheoinFit = {
     target: [CHEOIN_X, 1, -12], dir: [0, 16, 15],
     points: [[CHEOIN_X - CHEOIN_R, 0, CHEOIN_R], [CHEOIN_X + CHEOIN_R, 0, CHEOIN_R],
@@ -137,6 +163,8 @@ export function buildCh4Scene(world) {
     const f = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.6, 6), new THREE.MeshBasicMaterial({ color: c }));
     f.position.set(CHUNGJU_X, 0.8, -3); f.visible = false; L.add(f); flames.push(f);
   }
+  scatter(world, { kind: 'grass', count: 60, area: { x0: CHUNGJU_X - 14, x1: CHUNGJU_X + 14, z0: -12, z1: 12 }, avoid: [{ x: CHUNGJU_X, z: -3, r: 3 }, { x: CHUNGJU_X + 4, z: 9, r: 3 }], seed: 58, scale: [0.6, 1] });
+  scatter(world, { kind: 'pine', count: 20, area: { x0: CHUNGJU_X - 40, x1: CHUNGJU_X + 40, z0: -50, z1: -18 }, seed: 59, scale: [1, 1.5] });
   const chungjuCam = { pos: [CHUNGJU_X + 4, 4.5, 9], target: [CHUNGJU_X, 1.4, -3] };
 
   world.addNpc('minister', LOOKS.minister, PALACE_X, -3.5, 0);

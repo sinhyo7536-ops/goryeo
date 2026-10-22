@@ -3,9 +3,19 @@ import * as THREE from 'three';
 import { faceTexture } from './faces.js';
 import { worldMapped } from './textures.js';
 
+// 장면에서 쓰는 색 → 어울리는 무늬. 무늬를 따로 말하지 않으면 색으로 고른다(성벽 회색은 돌, 지붕 먹색은 기와, 갈색 목재는 나뭇결).
+const AUTO = new Map([
+  ...[0x5a3f2a, 0x6b4a32, 0x8a6a45, 0x5e432c, 0x7a4e32, 0x3a2c20, 0x7a5a3c, 0x94643f, 0x8a5a3a, 0x5d4330, 0xb07a42, 0xc48a4c, 0x2a1a12].map(c => [c, 'wood']),
+  ...[0x8c8577, 0xa59c8a, 0x7d766a, 0xb3ab99, 0x8c877e, 0x77736a, 0x6b6862, 0xb3ada2, 0xe4ded2].map(c => [c, 'stone']),
+  ...[0x3d4846].map(c => [c, 'tile']),
+  ...[0x8a7356, 0x7a6449, 0x8f7556, 0xc8a476, 0xb59a76].map(c => [c, 'earth']),
+  ...[0xd8d0bc, 0xe6dcc3].map(c => [c, 'cloth']),
+  ...[0x5a7a4a, 0x587a48, 0x4f6b4a, 0x6f8a5a, 0x3e5f4a, 0x3e6b46].map(c => [c, 'grass']),
+]);
 // 색 + 무늬 종류(grain·stone·wood·tile·grass·cloth·earth)로 재질을 만든다. 같은 조합은 같이 쓴다.
 const mats = new Map();
-export function mat(color, kind = 'grain', space = 'world') {
+export function mat(color, kind = null, space = 'world') {
+  kind = kind || AUTO.get(color) || 'grain';
   const key = `${color}:${kind}:${space}`;
   if (!mats.has(key)) mats.set(key, worldMapped(new THREE.MeshLambertMaterial({ color, flatShading: true }), kind, space));
   return mats.get(key);

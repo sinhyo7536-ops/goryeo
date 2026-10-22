@@ -2,6 +2,7 @@
 // 진도를 가운데, 제주를 위(-z)에 둔다. 배는 늘 화면 위쪽으로 나아간다.
 import * as THREE from 'three';
 import { mat, makePerson } from '../../core/people.js';
+import { scatter } from '../../core/props.js';
 import { LOOKS } from '../../content/characters.js';
 
 const PORT_Z = 70, JINDO = [-10, 4], JEJU = [6, -74];
@@ -54,6 +55,25 @@ export function buildCh6Scene(world) {
   // 제주 섬 해안: 배가 섬 안으로 들어가지 않게 막는다(도착 지점은 해안 바로 앞)
   world.addCollider({ x: JEJU[0], z: JEJU[1] - 25, r: 23 });
   for (const dx of [-26, 26]) world.addCollider({ x: JEJU[0] + dx, z: JEJU[1] - 24, r: 18 });
+
+  // 섬의 소나무 (섬 원뿔 높이에 맞춰), 포구의 풀과 매어 둔 배, 부두의 짐
+  {
+    const jindoH = (x, z) => 5 - 7 * Math.hypot((x - JX) / 1.2, z - JZ) / 9;
+    scatter(world, { kind: 'pine', count: 16, area: { x0: JX - 10, x1: JX + 10, z0: JZ - 9, z1: JZ + 9 }, avoid: [{ x: JX, z: JZ, r: 5.5 }], seed: 71, ground: jindoH, scale: [0.6, 1] });
+    const jejuH = (x, z) => 6.5 - 10 * Math.hypot((x - JEJU[0]) / 1.6, (z - JEJU[1] + 26) / 0.9) / 30;
+    scatter(world, { kind: 'pine', count: 40, area: { x0: JEJU[0] - 44, x1: JEJU[0] + 44, z0: JEJU[1] - 50, z1: JEJU[1] - 4 }, avoid: [{ x: JEJU[0], z: JEJU[1] - 24, r: 11 }, { x: JEJU[0], z: JEJU[1], r: 6 }], seed: 72, ground: jejuH, scale: [1, 1.5] });
+    scatter(world, { kind: 'grass', count: 90, area: { x0: -28, x1: 28, z0: 72, z1: 96 }, avoid: [{ x: 0, z: PORT_Z, r: 4 }, { x: 0, z: 80, r: 3 }], seed: 73, color: 0x7f9a52 });
+    scatter(world, { kind: 'rock', count: 14, area: { x0: -30, x1: 30, z0: 66, z1: 70 }, avoid: [{ x: 0, z: 68, r: 5 }], seed: 74, scale: [0.6, 1.4] });
+    for (const [x, z, ry] of [[-8, PORT_Z - 5, 0.3], [9, PORT_Z - 6, -0.2]]) {
+      const b = makeBoat(mk, 0x6b4a32, 0xd8d0bc, L); b.position.set(x, -0.3, z); b.rotation.y = ry;
+      world.addCollider({ x, z, r: 1.8 });
+    }
+    for (const [x, z] of [[-1.6, PORT_Z - 1], [1.7, PORT_Z - 2.5], [-1.5, PORT_Z - 6.5]]) {
+      mk(new THREE.CylinderGeometry(0.34, 0.3, 0.75, 9), 0x7a4e32, x, 0.48, z);
+      mk(new THREE.CylinderGeometry(0.35, 0.35, 0.06, 9), 0x3a2c20, x, 0.66, z);
+    }
+    mk(new THREE.BoxGeometry(0.8, 0.6, 0.8), 0x8a6a45, 1.6, 0.4, PORT_Z - 6);
+  }
 
   // 바위 (부딪히면 돌아가야 한다) — 출발점과 도착점을 잇는 곧은 길 위에는 두지 않는다
   for (const [x, z, r] of [[12, 44], [-22, 30], [16, 18], [-20, -20], [22, -40], [-14, -52], [24, 6]]) {

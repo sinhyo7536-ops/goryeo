@@ -5,6 +5,37 @@ import { mat } from './people.js';
 
 function rng(seed) { let s = seed * 9301 + 49297; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 
+// 여러 도형을 한 덩어리로 합친다(인스턴스 하나로 그리려고)
+function merge(geos) {
+  const pos = [], nor = [], uv = [], idx = [];
+  let base = 0;
+  for (const g0 of geos) {
+    const g = g0;
+    const p = g.attributes.position, n = g.attributes.normal, u = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) { pos.push(p.getX(i), p.getY(i), p.getZ(i)); nor.push(n.getX(i), n.getY(i), n.getZ(i)); uv.push(u ? u.getX(i) : 0, u ? u.getY(i) : 0); }
+    if (g.index) for (let i = 0; i < g.index.count; i++) idx.push(g.index.getX(i) + base);
+    else for (let i = 0; i < p.count; i++) idx.push(i + base);
+    base += p.count;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  out.setIndex(idx);
+  return out;
+}
+// 풀포기: 가는 잎 다섯 장이 사방으로 조금씩 눕는다
+function grassTuft() {
+  const blades = [];
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2, lean = 0.35 + (i % 2) * 0.2, h = 0.55 + (i % 3) * 0.18;
+    const b = new THREE.ConeGeometry(0.06, h, 3).translate(0, h / 2, 0);
+    b.rotateX(lean); b.rotateY(a); b.translate(Math.sin(a) * 0.06, 0, Math.cos(a) * 0.06);
+    blades.push(b);
+  }
+  return merge(blades);
+}
+
 // 층층이 가지가 진 소나무 실루엣(한 덩어리)
 function pineCrown() {
   const pts = [[0, 0], [1.6, 0.2], [0.7, 1.1], [1.25, 1.2], [0.5, 2.1], [0.9, 2.2], [0, 3.3]].map(([x, y]) => new THREE.Vector2(x, y));
@@ -16,10 +47,10 @@ const KINDS = {
     { geo: new THREE.CylinderGeometry(0.16, 0.26, 1.6, 6).translate(0, 0.8, 0), color: 0x6b4a32, kind: 'wood', shadow: true, tint: [0.9, 1.05] },
     { geo: pineCrown(), color: 0x3f6b45, kind: 'grain', shadow: true, tint: [0.8, 1.1] },
   ],
-  grass: () => [{ geo: new THREE.ConeGeometry(0.22, 0.7, 3).translate(0, 0.35, 0), color: 0x6f8f4a, kind: 'grain', shadow: false, tint: [0.75, 1.15] }],
+  grass: () => [{ geo: grassTuft(), color: 0x8bb05a, kind: 'grain', shadow: false, tint: [0.8, 1.15] }],
   rock: () => [{ geo: new THREE.DodecahedronGeometry(0.7, 0).translate(0, 0.25, 0), color: 0x8a857a, kind: 'stone', shadow: true, tint: [0.8, 1.1] }],
   bush: () => [{ geo: new THREE.IcosahedronGeometry(0.75, 0).translate(0, 0.45, 0), color: 0x4f7344, kind: 'grain', shadow: true, tint: [0.8, 1.15] }],
-  flower: () => [{ geo: new THREE.OctahedronGeometry(0.12, 0).translate(0, 0.32, 0), color: 0xffffff, kind: 'grain', shadow: false, palette: [0xe8c547, 0xd9604a, 0xf2efe6, 0xb07cc6] }],
+  flower: () => [{ geo: new THREE.OctahedronGeometry(0.17, 0).translate(0, 0.3, 0), color: 0xffffff, kind: 'grain', shadow: false, palette: [0xe8c547, 0xd9604a, 0xf2efe6, 0xb07cc6] }],
 };
 
 // world: createWorld 결과. area: {x0,x1,z0,z1}. avoid: [{x,z,r}]. scale: [최소, 최대] 크기. ground(x,z): 땅 높이.

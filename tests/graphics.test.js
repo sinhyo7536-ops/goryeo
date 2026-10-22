@@ -17,11 +17,16 @@ test('textures: stone, wood, roof tile, grass and grain are drawn once and reuse
 });
 
 test('materials: every material has a surface texture mapped by world position', () => {
-  const m = mat(0x8c8577), s = mat(0x8c8577, 'stone');
+  const m = mat(0x123456), s = mat(0x123456, 'stone');
   ok(m.map === getTexture('grain'), 'plain colours get a light grain');
-  ok(s.map === getTexture('stone'), 'stone walls get blocks');
+  ok(s.map === getTexture('stone'), 'asked-for kind');
   ok(m !== s, 'separate materials per kind');
-  ok(mat(0x8c8577, 'stone') === s, 'cached');
+  // 장면에서 쓰는 색은 알아서 맞는 무늬를 고른다: 성벽 회색은 돌, 지붕 먹색은 기와, 갈색 목재는 나뭇결
+  ok(mat(0x8c8577).map === getTexture('stone'), '0x8c8577 → stone');
+  ok(mat(0x3d4846).map === getTexture('tile'), '0x3d4846 → tile');
+  ok(mat(0x6b4a32).map === getTexture('wood'), '0x6b4a32 → wood');
+  ok(mat(0x8a7356).map === getTexture('earth'), '0x8a7356 → earth');
+  ok(mat(0x123456, 'stone') === s, 'cached');
   ok(typeof s.onBeforeCompile === 'function' && s.userData.triScale > 0, 'world-position mapping');
 });
 

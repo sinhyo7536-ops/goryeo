@@ -1,6 +1,8 @@
 // 1장 장면: 노을 진 고려 진영, 강, 강 건너 거란 진영, 강동 6주 빛기둥.
 import * as THREE from 'three';
+import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson, labelSprite } from '../../core/people.js';
+import { scatter } from '../../core/props.js';
 import { LOOKS, look } from '../../content/characters.js';
 
 const RIVER_Z = -19.5;
@@ -39,7 +41,7 @@ export function buildCh1Scene(world) {
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const t = new THREE.Mesh(g, groundMaterial('grass'));
     t.receiveShadow = true; L.add(t);
   }
   // 강: 보통 이상 화질에서는 물결이 움직인다
@@ -128,6 +130,11 @@ export function buildCh1Scene(world) {
   for (const [x, z] of [[10, 3], [15, -4], [-3, 8], [-17, 11], [17, 13], [-21, -1], [21, 4]]) {
     const t = mk(new THREE.ConeGeometry(2.4, 2.8, 4), 0xe6dcc3, x, 1.4, z);
     t.rotation.y = Math.PI / 4 + rand() * 0.3;
+    // 천막 꼭대기 장대와 어두운 출입구
+    mk(new THREE.CylinderGeometry(0.06, 0.06, 0.9, 4), 0x5a3f2a, x, 3.1, z);
+    // 네모뿔의 한 면 가운데(45도 방향)에 면 기울기(0.545)만큼 눕혀 붙인다
+    const door = mk(new THREE.PlaneGeometry(0.9, 1.2), 0x3a2c20, 0.94, -0.75, 0.94, t, false);
+    door.rotation.order = 'YXZ'; door.rotation.set(-0.545, Math.PI / 4, 0);
     world.addCollider({ x, z, r: 1.9 });
   }
   for (const [x, z] of [[12.5, 6.5], [13.4, 7.2], [-6, 10], [19, 0]]) {
@@ -185,6 +192,19 @@ export function buildCh1Scene(world) {
     pill.position.set(x, 7, z); gangdongPillars.add(pill);
     const label = labelSprite(name); label.position.set(x, 9, z); gangdongPillars.add(label);
   });
+
+  // 풀포기·들꽃(진영 안), 바위·덤불(목책 밖). 길과 천막 자리는 비운다.
+  {
+    const keep = [[10, 3], [15, -4], [-3, 8], [-17, 11], [17, 13], [-21, -1], [21, 4], [-11, -3], [4, 12.5], [-11, 1.3], [-7, 20.5], [15.5, 8], [8, -13.4], [0, 19]].map(([x, z]) => ({ x, z, r: 3.2 }));
+    const camp = { x0: -30, x1: 30, z0: -13, z1: 30 };
+    scatter(world, { kind: 'grass', count: 160, area: camp, avoid: keep, seed: 11, ground: groundH, scale: [0.7, 1.4] });
+    scatter(world, { kind: 'flower', count: 70, area: camp, avoid: keep, seed: 12, ground: groundH });
+    for (const [x0, x1, s] of [[-95, -36, 21], [36, 95, 22]]) {
+      scatter(world, { kind: 'rock', count: 18, area: { x0, x1, z0: -15, z1: 45 }, seed: s, ground: groundH, scale: [0.8, 2.2] });
+      scatter(world, { kind: 'bush', count: 24, area: { x0, x1, z0: -15, z1: 45 }, seed: s + 5, ground: groundH, scale: [0.8, 1.6] });
+      scatter(world, { kind: 'grass', count: 60, area: { x0, x1, z0: -15, z1: 45 }, seed: s + 9, ground: groundH, scale: [0.8, 1.6] });
+    }
+  }
 
   // NPC
   world.addNpc('soldier', LOOKS.soldier, 4, 12.5, Math.PI * 0.85);

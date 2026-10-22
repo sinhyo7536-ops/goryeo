@@ -1,6 +1,8 @@
 // 2장 장면: 눈 덮인 흥화진 성, 북쪽의 거란 진영, 성 남쪽의 눈 들판.
 import * as THREE from 'three';
+import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
+import { scatter } from '../../core/props.js';
 import { LOOKS, look } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
 
@@ -32,15 +34,18 @@ export function buildCh2Scene(world) {
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const t = new THREE.Mesh(g, groundMaterial('grain'));
     t.receiveShadow = true; L.add(t);
   }
   // 성벽 (남쪽에 성문)
-  const stone = 0xb3ada2; // 밝은 돌색: 사다리와 거란 병사가 잘 보이도록
+  const stone = 0xe4ded2; // 밝은 돌색(돌 무늬가 조금 어둡게 하므로 더 밝게): 사다리와 거란 병사가 잘 보이도록
   mk(new THREE.BoxGeometry(HALF * 2 + 3.2, WALL_H, 1.6), stone, 0, WALL_H / 2, -HALF - 0.8);
   for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(1.6, WALL_H, HALF * 2 + 3.2), stone, sx * (HALF + 0.8), WALL_H / 2, 0);
   for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(HALF - 2.5 + 1.6, WALL_H, 1.6), stone, sx * (2.5 + (HALF - 2.5 + 1.6) / 2), WALL_H / 2, HALF + 0.8);
   mk(new THREE.BoxGeometry(5, WALL_H - 1, 0.4), 0x5d4330, 0, (WALL_H - 1) / 2, HALF + 0.8);
+  // 성벽 위에 쌓인 눈
+  mk(new THREE.BoxGeometry(HALF * 2 + 3.4, 0.14, 1.7), 0xf2f5f7, 0, WALL_H + 0.07, -HALF - 0.8, L, false);
+  for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(1.7, 0.14, HALF * 2 + 3.4), 0xf2f5f7, sx * (HALF + 0.8), WALL_H + 0.07, 0, L, false);
   // 성가퀴 (북쪽 성벽 위)
   for (let x = -HALF; x <= HALF; x += 1.8) mk(new THREE.BoxGeometry(0.9, 0.8, 0.5), 0x8c877e, x, WALL_H + 0.4, -HALF - 1.4);
   // 성벽 계단
@@ -50,6 +55,10 @@ export function buildCh2Scene(world) {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; L.add(g);
     mk(new THREE.BoxGeometry(4, 2.2, 3), 0xb59a76, 0, 1.1, 0, g);
     const roof = mk(new THREE.ConeGeometry(3.2, 1.8, 4), 0xeef2f5, 0, 3.1, 0, g); roof.rotation.y = Math.PI / 4; roof.scale.set(1.3, 1, 1);
+    // 눈 아래로 보이는 초가 처마, 문과 창
+    const eave = mk(new THREE.ConeGeometry(3.25, 0.5, 4), 0x9a8460, 0, 2.3, 0, g); eave.rotation.y = Math.PI / 4; eave.scale.set(1.3, 1, 1);
+    mk(new THREE.BoxGeometry(0.9, 1.6, 0.08), 0x5d4330, 0.6, 0.8, 1.53, g);
+    mk(new THREE.BoxGeometry(0.7, 0.5, 0.06), 0x3a2c20, -1.1, 1.4, 1.53, g);
     world.addCollider({ x, z, r: 2.4 });
   };
   hut(-7, 3, 0.2); hut(7, -2, -0.3); hut(-6, -5, 0); hut(8, 7, 0.4);
@@ -107,6 +116,11 @@ export function buildCh2Scene(world) {
     const escort = makePerson(LOOKS.khitan); escort.position.set(0, 0, -1.4); escort.rotation.y = Math.PI; g.add(escort);
     captives.push({ group: g, escort, start: [-18 + i * 7.2 + (rand() - 0.5) * 2, FIELD_Z - 6 + rand() * 6] }); // 플레이어보다 앞(북쪽)에서 출발
   }
+  // 눈 위로 드러난 바위와 마른 풀 (성 밖 들판)
+  const snowH = (x, z) => { const far = Math.max(0, Math.hypot(x, z - 20) - 60); return Math.min(far * far * 0.01, 16) + Math.sin(x * 0.3) * Math.cos(z * 0.25) * 0.15; };
+  scatter(world, { kind: 'rock', count: 30, area: { x0: -60, x1: 60, z0: 14, z1: 90 }, avoid: [{ x: 0, z: 46, r: 22 }], seed: 31, ground: snowH, scale: [0.6, 1.8], color: 0x9aa0a6 });
+  scatter(world, { kind: 'grass', count: 120, area: { x0: -40, x1: 40, z0: 14, z1: 80 }, seed: 32, ground: snowH, scale: [0.6, 1.1], color: 0xa89470 });
+  scatter(world, { kind: 'bush', count: 30, area: { x0: -70, x1: 70, z0: -70, z1: -16 }, avoid: [{ x: 0, z: -30, r: 26 }], seed: 33, ground: snowH, color: 0xdfe6ea });
   createWeather(world, 'snow', { count: 700 });
 
   world.addNpc('soldier', LOOKS.soldier, 5, 4.5, Math.PI * 0.8);

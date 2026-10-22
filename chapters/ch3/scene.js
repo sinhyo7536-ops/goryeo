@@ -1,12 +1,23 @@
 // 3장 장면: 비바람 속 삼교천(고려 진영, 둑 자리, 냇물을 건너는 거란군)과 남쪽의 귀주 벌판.
 import * as THREE from 'three';
+import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
+import { scatter } from '../../core/props.js';
 import { LOOKS, look } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
 
 const RIVER_Z = -8, RIVER_W = 6;
 const DAM_X = -20;
 const GUJU_Z = 62;
+
+// 땅 높이(지형과 같은 식): 소품을 땅 위에 놓을 때 쓴다
+function groundH(x, z) {
+  let h = 0.1 * Math.sin(x * 0.4) * Math.cos(z * 0.3);
+  const dr = Math.abs(z - RIVER_Z);
+  if (dr < RIVER_W / 2 + 1.5) { const k = 1 - dr / (RIVER_W / 2 + 1.5); h -= k * k * (3 - 2 * k) * 1.4; }
+  const far = Math.max(0, Math.abs(x) - 40, -z - 40, z - 90);
+  return h + Math.min(far * far * 0.03, 14);
+}
 
 function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 
@@ -37,7 +48,7 @@ export function buildCh3Scene(world) {
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
     g.computeVertexNormals();
-    const t = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+    const t = new THREE.Mesh(g, groundMaterial('grass'));
     t.receiveShadow = true; L.add(t);
   }
   const water = new THREE.Mesh(new THREE.PlaneGeometry(200, RIVER_W).rotateX(-Math.PI / 2), new THREE.MeshPhongMaterial({ color: 0x4d6a78, transparent: true, opacity: 0.88, shininess: 30 }));
@@ -46,6 +57,9 @@ export function buildCh3Scene(world) {
   // 고려 진영 (남쪽 강둑)
   for (const [x, z] of [[-14, 9], [-6, 12], [8, 11], [16, 8], [22, 12]]) {
     const t = mk(new THREE.ConeGeometry(2.3, 2.7, 4), 0xd8d0bc, x, 1.35, z); t.rotation.y = Math.PI / 4;
+    mk(new THREE.CylinderGeometry(0.06, 0.06, 0.9, 4), 0x5a3f2a, x, 3.0, z);
+    const door = mk(new THREE.PlaneGeometry(0.85, 1.15), 0x3a2c20, 0.9, -0.72, 0.9, t, false);
+    door.rotation.order = 'YXZ'; door.rotation.set(-0.54, Math.PI / 4, 0);
     world.addCollider({ x, z, r: 1.8 });
   }
   const flagPoles = [];
@@ -103,6 +117,27 @@ export function buildCh3Scene(world) {
   }
   reinforcements.position.set(30, 0, GUJU_Z + 4);
 
+  // 빗물 웅덩이 (진영 바닥)
+  {
+    const puddle = new THREE.MeshPhongMaterial({ color: 0x5a6670, shininess: 90, specular: 0x9aa6b0, transparent: true, opacity: 0.75 });
+    for (const [x, z, s] of [[-18, 4, 1.4], [-8, 6, 1], [2, 4.5, 1.2], [11, 6.5, 0.9], [19, 3, 1.3], [-22, 11, 1], [4, 13, 1.1], [13, 13, 0.8]]) {
+      const p = new THREE.Mesh(new THREE.CircleGeometry(1, 14).rotateX(-Math.PI / 2), puddle);
+      p.position.set(x, groundH(x, z) + 0.03, z); p.scale.set(s * 1.4, 1, s); p.rotation.y = x; p.receiveShadow = true; L.add(p);
+    }
+  }
+  // 냇가 갈대와 바위, 진영의 젖은 풀, 귀주 벌판 둘레
+  {
+    const bank = [{ x: DAM_X, z: RIVER_Z, r: 5 }, { x: 10, z: RIVER_Z, r: 10 }];
+    for (const [z0, z1, s] of [[RIVER_Z - RIVER_W / 2 - 2.6, RIVER_Z - RIVER_W / 2 - 0.4, 41], [RIVER_Z + RIVER_W / 2 + 0.4, RIVER_Z + RIVER_W / 2 + 2.2, 42]]) {
+      scatter(world, { kind: 'grass', count: 110, area: { x0: -60, x1: 60, z0, z1 }, avoid: bank, seed: s, ground: groundH, scale: [1.4, 2.4], color: 0x8a9a5a });
+      scatter(world, { kind: 'rock', count: 16, area: { x0: -60, x1: 60, z0, z1 }, avoid: bank, seed: s + 3, ground: groundH, scale: [0.5, 1.3] });
+    }
+    const keep = [[-14, 9], [-6, 12], [8, 11], [16, 8], [22, 12], [-24, 6], [-12, 3], [-2, 7], [6, 3.5], [14, 4], [24, 5], [-4, 5], [5, 7.5], [0, 10], [DAM_X, -2.5]].map(([x, z]) => ({ x, z, r: 2.6 }));
+    scatter(world, { kind: 'grass', count: 120, area: { x0: -28, x1: 28, z0: -2, z1: 16 }, avoid: keep, seed: 43, ground: groundH, color: 0x6f8f4a });
+    scatter(world, { kind: 'pine', count: 40, area: { x0: -70, x1: 70, z0: 20, z1: 110 }, avoid: [{ x: 0, z: GUJU_Z, r: 30 }, { x: 22, z: GUJU_Z + 18, r: 10 }], seed: 44, ground: groundH, scale: [1, 1.6] });
+    scatter(world, { kind: 'grass', count: 140, area: { x0: -26, x1: 34, z0: GUJU_Z - 14, z1: GUJU_Z + 16 }, seed: 45, ground: groundH, color: 0x7a9450 });
+    scatter(world, { kind: 'rock', count: 20, area: { x0: -60, x1: 60, z0: -60, z1: -16 }, seed: 46, ground: groundH, scale: [0.8, 2.2] });
+  }
   const rain = createWeather(world, 'rain', { count: 900 });
 
   world.addNpc('gangamchan', LOOKS.gangamchan, -4, 5, 0);
