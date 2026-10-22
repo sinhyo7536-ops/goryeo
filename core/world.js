@@ -41,6 +41,14 @@ export const MOODS = {
     hemi: [0xf4f1e8, 0x5d6b48, 0.8],
     particles: null,
   },
+  // 맑은 가을: 높은 하늘과 따뜻한 햇빛 (조선편 6장)
+  autumn: {
+    skyTop: 0x5f93c8, skyHorizon: 0xf0dcb4, skyBottom: 0x9a8a62,
+    fog: [0xead9b4, 45, 150],
+    sun: { color: 0xffe2b0, intensity: 1.55, dir: [-25, 30, 15] },
+    hemi: [0xf6ead2, 0x6a5a38, 0.8],
+    particles: null, clouds: 0.35,
+  },
   // 장맛비: 폭풍보다 밝은 잿빛 초록, 낮게 깔린 구름 (조선편 1장)
   monsoon: {
     skyTop: 0x5f6e78, skyHorizon: 0xa9b4b0, skyBottom: 0x5e6a60,
