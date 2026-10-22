@@ -290,12 +290,13 @@ export function chooseCards(ctx, { title, prompt = '', cards, easy = false }) {
 
 // 자리 놓기: 판 위의 자리(slots) 중에서 지금 물건(items 차례대로)이 들어갈 자리를 누른다.
 // 모두 맞게 놓으면 true, 틀린 자리를 누르면 false. decor는 판 위의 이름표(산, 강 등). easy이면 맞는 자리가 빛난다.
-export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = false }) {
+// boardClass 'map'이면 판을 지도처럼 그린다(북쪽 산).
+export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = false, boardClass = '' }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order place');
     const card = el('div', 'card wide');
     const now = el('p', 'place-now');
-    const board = el('div', 'place-board');
+    const board = el('div', `place-board ${boardClass}`);
     for (const d of decor) { const t = el('span', `place-decor ${d.cls || ''}`, d.label); t.style.left = `${d.xy[0]}%`; t.style.top = `${d.xy[1]}%`; board.append(t); }
     card.append(el('div', 'eyebrow', '자리 놓기'), el('h2', null, title), now, board);
     screen.append(card); ctx.ui.append(screen);
@@ -307,7 +308,7 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
         if (over || b.disabled) return;
         const item = items[i];
         if (s.answer === item.id) {
-          b.disabled = true; b.classList.add('filled'); b.textContent = `○ ${item.label}`;
+          b.disabled = true; b.classList.add("filled"); b.textContent = s.label ? `○ ${item.label} · ${s.label}` : `○ ${item.label}`;
           i += 1;
           if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 500); } else ask();
         } else {
@@ -320,7 +321,7 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
       return b;
     });
     const ask = () => {
-      now.textContent = `놓을 것: ${items[i].label} (${i + 1} / ${items.length})`;
+      now.replaceChildren('놓을 것: ', el('b', 'place-item', items[i].label), ` (${i + 1} / ${items.length})`);
       buttons.forEach((b, k) => b.classList.toggle('hint', easy && !b.disabled && slots[k].answer === items[i].id));
     };
     ask();

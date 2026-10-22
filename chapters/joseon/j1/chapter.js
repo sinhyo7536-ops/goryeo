@@ -121,7 +121,7 @@ export default {
     tries = 0;
     const b = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await placeOnBoard(ctx, { title: script.hanyang.title, ...HANYANG, easy });
+      const ok = await placeOnBoard(ctx, { title: script.hanyang.title, ...HANYANG, boardClass: 'map', easy });
       if (ok && tries === 1) firstTryCorrect += 1;
       return ok;
     }, { failHint: script.hanyang.fail });
