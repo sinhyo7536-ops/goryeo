@@ -73,3 +73,12 @@ test('ch4: map and reason hints make no unsourced claims', () => {
   const hints = [...ch4Script.capital.places.map(p => p.hint), ...ch4Script.capital.reason.options.map(o => o.hint)].filter(Boolean);
   ok(!hints.some(h => h.includes('넓은 땅')), 'no claim about the size of Ganghwa');
 });
+
+test('ch4: the envoy incident comes before the invasion, with its source and an open culprit', () => {
+  const intro = ch4Script.intro.map(l => l.text).join(' ');
+  const iEnvoy = intro.indexOf('저고여'), iInvade = intro.indexOf('1231년 8월');
+  ok(iEnvoy >= 0 && iInvade > iEnvoy, 'envoy story first, then the 1231 invasion');
+  ok(intro.includes('밝혀지지 않았'), 'says the culprit is unknown');
+  ok(ch4Script.intro.some(l => l.text.includes('저고여') && l.src.includes('S22')), 'envoy line cites S22');
+  ok(ch4Script.npc.minister.first.some(l => l.text.includes('사신') && l.src && l.src.includes('S22')), 'minister mentions it');
+});

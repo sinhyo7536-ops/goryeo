@@ -21,4 +21,5 @@ export const SOURCES = {
   S19: { title: '우리역사넷: 초등 사회 6-1(7차) 고려가 북방 민족의 침략을 어떻게 극복하였는지', url: 'https://contents.history.go.kr/front/ta/print.do?levelId=ta_e71_0010_0020_0020_0010&whereStr=', note: '고려가 송과 가까이 지내자 거란 침입, 서희의 담판, 몽골의 강성함, 강화 천도, 처인성에서 몽골 패퇴 (이전 교과서 서술 참고)' },
   S20: { title: '경기일보: 강감찬', url: 'https://kyeonggi.com/article/200502250014599', note: '강감찬의 개경 나성 축조 건의 (천리장성은 강감찬 사후, 연도는 쓰지 않음)' },
   S21: { title: '경기일보: 삼별초 / 한국민족문화대백과사전: 삼별초', url: 'https://kyeonggi.com/article/201708070937417', note: '1270년 개경 환도에 반대해 진도로 이동, 배중손이 군사와 백성을 이끌고 이동 (함께 본 자료: https://encykorea.aks.ac.kr/Article/E0026605)' },
+  S22: { title: '한국민족문화대백과사전: 저고여 피살사건', url: 'https://encykorea.aks.ac.kr/Article/E0049085', note: '1225년 1월 몽골 사신 저고여가 귀국길에 압록강 가에서 살해됨, 범인은 확실하지 않음(고려인·금·동진 등 추정), 몽골은 국교를 끊고 이 사건을 침략의 구실로 삼음, 1231년 전쟁' },
 };
