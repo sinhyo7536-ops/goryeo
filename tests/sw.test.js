@@ -27,3 +27,10 @@ test('sw: opening the folder address offline uses the cached index.html', () => 
   eq(cacheKeyFor('https://example.org/game/?debug=x', 'navigate', 'https://example.org/game/sw.js'), 'index.html');
   eq(cacheKeyFor('https://example.org/game/core/main.js', 'cors', 'https://example.org/game/sw.js'), null);
 });
+
+import { precacheRequests } from '../core/precache.js';
+test('sw: install fetches fresh files, not the browser HTTP cache', () => {
+  const reqs = precacheRequests();
+  eq(reqs.length, PRECACHE.length);
+  ok(reqs.every(r => r.cache === 'reload'), 'cache: reload');
+});

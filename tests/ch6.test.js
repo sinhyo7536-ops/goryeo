@@ -50,3 +50,20 @@ test('ch6: completes with touch-only actions', async () => {
     eq(r.quizCorrect, 2); eq(r.easyModeUsed, false); eq(r.stars, 3);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('ch6: pursuers wait a moment before chasing so the student can get going', async () => {
+  const s = touchSetup(ch6Script.speakers);
+  try {
+    const sc = ch6.buildScene(s.w, s.ctx);
+    ch6.enterStage(s.ctx, 'minigame');
+    ch6.minigame(s.ctx);
+    await new Promise(r => setTimeout(r, 30));
+    s.ui.querySelector('.screen.howto button.primary').click();
+    await new Promise(r => setTimeout(r, 30));
+    const start = sc.pursuers.map(p => [p.position.x, p.position.z]);
+    for (let i = 0; i < 40; i++) s.w.step(0.05, { x: 0, z: 0 }); // 2초
+    eq(sc.pursuers.map(p => [p.position.x, p.position.z]), start, 'not moving yet');
+    for (let i = 0; i < 40; i++) s.w.step(0.05, { x: 0, z: 0 });
+    ok(sc.pursuers.some((p, i) => p.position.x !== start[i][0]), 'then they chase');
+  } finally { s.done(); }
+});

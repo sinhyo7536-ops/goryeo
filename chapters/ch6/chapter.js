@@ -5,6 +5,7 @@ import { showHowTo, runWithRetries, orderCards } from '../../core/minigame.js';
 import script from './script.js';
 
 const CATCH_R = 2.4;
+const CHASE_DELAY = 2.5;
 let scene = null;
 
 async function sayAll(dialogue, lines) { for (const l of lines) await dialogue.say(l); }
@@ -18,6 +19,7 @@ function placePlayer(world, [x, z], ry = Math.PI) {
 function sailLeg(ctx, leg, easy) {
   const { world, hud, audio, input } = ctx;
   const speed = easy ? 2.2 : 3.6;
+  let t = 0; // 출발 뒤 CHASE_DELAY초 동안은 추격선이 기다린다
   world.bounds = scene.seaBounds;
   scene.setSailing(true);
   placePlayer(world, leg.from);
@@ -40,6 +42,8 @@ function sailLeg(ctx, leg, easy) {
       const left = Math.hypot(b.x - leg.to.x, b.z - leg.to.z);
       hud.setCounter(`도착까지 ${Math.ceil(left)}걸음`);
       if (left < leg.to.r) { audio.play('correct'); return finish(true); }
+      t += dt;
+      if (t < CHASE_DELAY) return;
       for (const p of scene.pursuers) {
         const dx = b.x - p.position.x, dz = b.z - p.position.z, d = Math.hypot(dx, dz);
         if (d < CATCH_R) { audio.play('wrong'); return finish(false); }

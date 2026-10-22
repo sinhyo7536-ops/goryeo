@@ -100,10 +100,7 @@ export function orderCards(ctx, { title, cards, easy = false }) {
     card.append(el('div', 'eyebrow', '순서 맞추기'), el('h2', null, title), slots, pile);
     screen.append(card);
     ctx.ui.append(screen);
-    // 정답 순서와 다르게 섞는다 (고정된 섞기라 테스트와 화면이 같다)
-    const order = cards.map((c, i) => ({ c, k: (i * 7 + 3) % cards.length }));
-    order.sort((a, b) => a.k - b.k);
-    if (order.every((o, i) => o.c === cards[i])) order.reverse();
+    const order = shuffledOrder(cards).map(c => ({ c }));
     let next = 0;
     const buttons = order.map(({ c }) => {
       const b = el('button', 'order-card', c); b.type = 'button';
@@ -141,7 +138,10 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
     card.append(el('div', 'eyebrow', '글자 새기기'), el('h2', null, `'${glyph}' 자를 새겨 보아요`), el('p', null, '빛나는 점을 1번부터 차례로 지나가도록 끌어요.'), board);
     screen.append(card); ctx.ui.append(screen);
 
-    const R = easy ? 0.11 : 0.07;
+    // 점 판정 반경. 점을 세 번 놓치면(시작점을 못 누르거나 획 도중에 손을 떼면) 쉬운 모드로 넓힌다.
+    let R = easy ? 0.11 : 0.07, misses = 0;
+    const miss = () => { misses += 1; if (misses >= 3 && R < 0.11) { R = 0.11; board.dataset.easy = '1'; } };
+    if (easy) board.dataset.easy = '1';
     let s = 0, progress = 0, active = null;
     const dots = [];
     const drawDots = () => {
@@ -167,7 +167,7 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
     };
     board.addEventListener('pointerdown', e => {
       if (s >= strokes.length) return;
-      if (!near(strokes[s][0], pos(e))) return;
+      if (!near(strokes[s][0], pos(e))) { miss(); return; }
       active = e.pointerId; progress = 1; last = pos(e);
       try { board.setPointerCapture(e.pointerId); } catch { /* 합성 이벤트 */ }
       drawDots();
@@ -187,7 +187,7 @@ export function traceGlyph(ctx, { glyph, strokes, easy = false }) {
       }
       last = now;
     });
-    const lift = e => { if (e.pointerId !== active) return; active = null; progress = 0; drawDots(); };
+    const lift = e => { if (e.pointerId !== active) return; active = null; progress = 0; miss(); drawDots(); };
     board.addEventListener('pointerup', lift);
     board.addEventListener('pointercancel', lift);
     drawDots();
@@ -223,4 +223,17 @@ export function pickOnMap(ctx, { title, places }) {
     screen.append(card);
     ctx.ui.append(screen);
   });
+}
+
+// 정답 순서도, 그 반대 순서도 아니게 섞는다 (고정된 씨앗이라 화면이 매번 같다).
+export function shuffledOrder(cards) {
+  let seed = 11 + cards.length;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const same = (a, b) => a.every((x, i) => x === b[i]);
+  const rev = [...cards].reverse();
+  for (;;) {
+    const a = [...cards];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    if (!same(a, cards) && !same(a, rev)) return a;
+  }
 }

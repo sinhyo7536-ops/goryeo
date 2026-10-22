@@ -37,7 +37,7 @@ export default {
       kind: 'choice', who: 'minister', src: ['S10'],
       prompt: { who: 'minister', text: '좋소. 그런데 왜 하필 강화도요?' },
       options: [
-        { text: '강화도가 가장 넓었다', correct: false, reply: null, hint: '강화도는 넓은 땅이 아니에요. 섬이라는 점을 떠올려 보세요.' },
+        { text: '강화도가 가장 넓었다', correct: false, reply: null, hint: '강화도가 섬이라는 점을 떠올려 보세요.' },
         { text: '몽골군은 바다와 물에서 싸우는 데 약했다', correct: true, reply: { who: 'minister', text: '그렇소. 섬이면 몽골군이 쉽게 건너오지 못하오.', src: ['S10'] }, hint: null },
         { text: '몽골이 강화도를 허락했다', correct: false, reply: null, hint: '몽골은 고려를 공격하던 나라예요. 허락해 줄 리 없어요.' },
       ],

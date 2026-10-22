@@ -21,3 +21,8 @@ export function cacheKeyFor(url, mode, swUrl) {
   const u = new URL(url), base = new URL('./', swUrl);
   return u.pathname === base.pathname || u.pathname === `${base.pathname}index.html` ? 'index.html' : null;
 }
+
+// 설치할 때는 브라우저 HTTP 캐시를 거치지 않고 서버에서 새로 받는다 (옛 파일이 새 판에 섞이지 않게)
+export function precacheRequests() {
+  return PRECACHE.map(u => new Request(u, { cache: 'reload' }));
+}

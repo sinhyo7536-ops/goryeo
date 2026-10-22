@@ -68,3 +68,8 @@ test('ch4: approaching Mongols are on screen at any screen shape', () => {
     } finally { s.done(); }
   }
 });
+
+test('ch4: map and reason hints make no unsourced claims', () => {
+  const hints = [...ch4Script.capital.places.map(p => p.hint), ...ch4Script.capital.reason.options.map(o => o.hint)].filter(Boolean);
+  ok(!hints.some(h => h.includes('넓은 땅')), 'no claim about the size of Ganghwa');
+});

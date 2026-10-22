@@ -94,3 +94,25 @@ test('trace: a fast swipe that crosses the dots between two samples still counts
   eq(done, true);
   c.done();
 });
+
+import { shuffledOrder } from '../core/minigame.js';
+test('order: shuffled cards are neither in order nor simply reversed', () => {
+  for (let n = 3; n <= 8; n++) {
+    const cards = Array.from({ length: n }, (_, i) => `c${i}`);
+    const s = shuffledOrder(cards);
+    eq([...s].sort(), [...cards].sort(), `same cards for ${n}`);
+    ok(s.join() !== cards.join(), `not in order for ${n}`);
+    ok(s.join() !== [...cards].reverse().join(), `not reversed for ${n}`);
+  }
+});
+
+test('trace: after three misses the dots get easier to hit', async () => {
+  const c = ctx();
+  traceGlyph(c, { glyph: '一', strokes: [[[0.2, 0.5], [0.5, 0.5], [0.8, 0.5]]] });
+  const board = c.ui.querySelector('.trace-board');
+  for (let i = 0; i < 3; i++) { pointerAt(board, 'pointerdown', 0.2, 0.59); pointerAt(board, 'pointerup', 0.2, 0.59); }
+  eq(board.dataset.easy, '1', 'easy after three misses');
+  pointerAt(board, 'pointerdown', 0.2, 0.59); // 예전보다 넓은 판정
+  ok(board.querySelector('.trace-dot.passed'), 'start accepted');
+  c.done();
+});
