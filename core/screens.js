@@ -39,7 +39,45 @@ export function showTitle(root, { savedName, hasProgress, storageOk }) {
         confirm,
         !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
         h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼'),
-        h('p', { class: 'controls' }, h('a', { href: 'teacher.html', target: '_blank', rel: 'noopener', class: 'teacher-link' }, '선생님 안내 (QR코드·수업 흐름)'))));
+        h('p', { class: 'controls' }, h('button', { class: 'btn small', type: 'button', onclick: () => showQR(root, gameAddress(location)) }, 'QR코드 만들기 (학생 접속용)'))));
+  });
+}
+
+// 학생이 들어올 주소: 지금 게임이 열린 주소(뒤의 index.html·?·#은 뺀다). 사이트 주소가 바뀌어도 늘 지금 주소를 쓴다.
+export function gameAddress(loc) {
+  return loc.origin + loc.pathname.replace(/index\.html$/, '');
+}
+
+// QR코드 그리는 도구(vendor/qrcode.min.js)는 처음 누를 때 한 번만 불러온다.
+let qrLib = null;
+function loadQRLib() {
+  if (globalThis.QRCode) return Promise.resolve(globalThis.QRCode);
+  if (!qrLib) {
+    qrLib = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = new URL('../vendor/qrcode.min.js', import.meta.url).href;
+      s.onload = () => resolve(globalThis.QRCode);
+      s.onerror = () => { qrLib = null; reject(new Error('qr')); };
+      document.head.appendChild(s);
+    });
+  }
+  return qrLib;
+}
+
+// 주소 QR코드를 크게 보여 준다. 닫기를 누르면 끝난다.
+export function showQR(root, url) {
+  return new Promise(resolve => {
+    const box = h('div', { class: 'qr-box', 'aria-label': '게임 주소 QR코드' });
+    const el = screen(root, 'qr',
+      h('div', { class: 'card' },
+        h('h2', {}, '학생 접속 QR코드'),
+        h('p', {}, '태블릿 카메라로 찍으면 이 게임이 열려요.'),
+        box,
+        h('p', { class: 'qr-url' }, url),
+        h('button', { class: 'btn primary', type: 'button', onclick: () => { el.remove(); resolve(); } }, '닫기')));
+    loadQRLib()
+      .then(QR => { new QR(box, { text: url, width: 260, height: 260, correctLevel: QR.CorrectLevel.M }); })
+      .catch(() => { box.textContent = 'QR코드를 그리지 못했어요. 아래 주소를 입력해 주세요.'; });
   });
 }
 

@@ -6,19 +6,38 @@ import { sleep } from './bot.js';
 const GAME_URL = 'https://sinhyo7536-ops.github.io/goryeo/';
 const btn = (el, text) => [...el.querySelectorAll('button')].find(b => b.textContent.includes(text));
 
-test('teacher: guide page has the student address, a QR code and the lesson plan', async () => {
-  const frame = document.createElement('iframe');
-  frame.src = '../teacher.html'; frame.style.cssText = 'width:900px;height:700px;position:fixed;left:-2000px';
-  document.body.appendChild(frame);
+test('qr: title button draws a QR code of the address the game is opened from', async () => {
+  const { showQR, gameAddress } = await import('../core/screens.js');
+  eq(gameAddress({ origin: 'https://sinhyo7536-ops.github.io', pathname: '/goryeo/index.html' }), GAME_URL, 'drops index.html');
+  eq(gameAddress({ origin: 'https://new.example.org', pathname: '/game/' }), 'https://new.example.org/game/', 'follows a new address');
+  const el = document.createElement('div'); document.body.appendChild(el);
   try {
-    await new Promise(r => frame.addEventListener('load', r));
-    await sleep(300);
-    const d = frame.contentDocument, t = d.body.textContent;
-    ok(t.includes(GAME_URL), 'student address');
-    ok(d.querySelector('#qr canvas, #qr img'), 'QR code drawn');
-    for (const w of ['1장', '6장', '결과 카드', '가로', '새로 고침', '이어하기']) ok(t.includes(w), w);
-    ok(!t.includes('차시'), 'one lesson, no 1차시/2차시 split');
-  } finally { frame.remove(); }
+    const p = showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
+    const qrBtn = btn(el, 'QR코드');
+    ok(qrBtn, 'QR button on the title');
+    qrBtn.click();
+    let img = null;
+    for (let i = 0; i < 100 && !img; i++) { await sleep(30); img = el.querySelector('.qr-box canvas, .qr-box img'); }
+    ok(img, 'QR code drawn');
+    ok(el.textContent.includes(gameAddress(location)), 'shows the current address');
+    btn(el, '닫기').click();
+    eq(el.querySelectorAll('.screen.qr').length, 0, 'closed');
+    ok(el.querySelector('.screen.title'), 'still on the title');
+    const q = showQR(el, 'https://a.example/x/'); // 직접 불러도 되고, 닫기를 누르면 끝난다
+    ok(el.textContent.includes('https://a.example/x/'));
+    btn(el, '닫기').click();
+    await q;
+    void p;
+  } finally { el.remove(); }
+}, { timeout: 15000 });
+
+test('qr: no teacher guide any more', async () => {
+  const el = document.createElement('div'); document.body.appendChild(el);
+  showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
+  ok(!el.textContent.includes('선생님 안내'), 'no guide link');
+  el.remove();
+  const r = await fetch('../teacher.html', { cache: 'no-store' });
+  eq(r.status, 404, 'guide page removed');
 });
 
 // 글자 새기기 판은 화면 높이를 거의 다 쓴다 (갤럭시 탭 S6 Lite 가로 약 1000×530, 크롬북 1366×650, 휴대폰 740×360)
@@ -74,10 +93,3 @@ test('marks: passed dots show a ✓', () => {
   ui.remove();
 });
 
-test('title: links to the teacher guide', () => {
-  const el = document.createElement('div'); document.body.appendChild(el);
-  showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
-  const a = [...el.querySelectorAll('a')].find(x => x.textContent.includes('선생님 안내'));
-  ok(a && a.getAttribute('href') === 'teacher.html', 'link to teacher.html');
-  el.remove();
-});
