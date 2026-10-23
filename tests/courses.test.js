@@ -3,15 +3,18 @@ import { COURSES, CHAPTERS, JOSEON, ALL_CHAPTERS, SESSIONS, courseById, courseOf
 
 const mkSave = chapters => { const s = { data: { chapters } }; s.chapterResult = id => s.data.chapters[id] || null; return s; };
 
-test('courses: 고려편과 조선편, 이름과 장 묶음', () => {
-  eq(COURSES.map(c => c.id), ['goryeo', 'joseon']);
-  eq(COURSES.map(c => c.title), ['고려를 지켜라', '조선을 걷다']);
+test('courses: 다섯 편, 이름과 장 묶음', () => {
+  eq(COURSES.map(c => c.id), ['goryeo', 'joseon', 'modern', 'colonial', 'present']);
+  eq(COURSES.map(c => c.title), ['고려를 지켜라', '조선을 걷다', '새 나라를 꿈꾸다', '빼앗긴 나라를 되찾아라', '대한민국을 세우다']);
+  eq(COURSES.map(c => c.session), [1, 2, 3, 4, 5]);
+  ok(COURSES.every(c => c.chapters.length === 6), '편마다 6장');
+  eq(courseOfChapter('h6').id, 'present');
   eq(courseById('joseon').chapters.map(c => c.id), ['j1', 'j2', 'j3', 'j4', 'j5', 'j6']);
   eq(courseById('nope').id, 'goryeo');
   eq(courseOfChapter('ch4').id, 'goryeo');
   eq(courseOfChapter('j2').id, 'joseon');
-  eq(ALL_CHAPTERS.length, 12);
-  eq(new Set(ALL_CHAPTERS.map(c => c.id)).size, 12, 'ids are unique');
+  eq(ALL_CHAPTERS.length, 30);
+  eq(new Set(ALL_CHAPTERS.map(c => c.id)).size, 30, 'ids are unique');
 });
 
 test('courses: 조선편은 session 2, 정리는 6줄', () => {

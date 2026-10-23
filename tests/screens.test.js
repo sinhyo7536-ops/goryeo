@@ -16,7 +16,7 @@ test('chapters: six chapters, playable ones load and the rest are 준비 중', (
 test('one session: all six chapters are one lesson with one result card', async () => {
   const { isUnlocked } = await import('../chapters/index.js');
   eq(CHAPTERS.map(c => c.session), [1, 1, 1, 1, 1, 1]);
-  eq(Object.keys(SESSIONS), ['1', '2']);
+  eq(Object.keys(SESSIONS), ['1', '2', '3', '4', '5']);
   eq(SESSIONS[1].points.length, 6);
   ok(!SESSIONS[1].title.includes('차시'), SESSIONS[1].title);
   const save = { data: { chapters: {} } };

@@ -144,8 +144,8 @@ function boot() {
 
   async function main() {
     const debug = new URLSearchParams(location.search).get('debug');
-    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다. 조선편은 ?debug=j1-scene.
-    const dm = /^(ch\d|j\d)-(scene|minigame)$/.exec(debug || '');
+    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다. 조선편은 ?debug=j1-scene, 근대·일제 강점기·현대편은 k1·i1·h1.
+    const dm = /^(ch\d|[jkih]\d)-(scene|minigame)$/.exec(debug || '');
     const meta = dm && ALL_CHAPTERS.find(c => c.id === dm[1] && c.load);
     if (meta) {
       if (dm[2] === 'minigame') { await playChapter(meta, 'minigame'); return mapLoop(); }

@@ -4,7 +4,8 @@
 
 - 고려편 「고려를 지켜라」(외세의 침입과 고려의 노력): 장 id `ch1`~`ch6`, 폴더 `chapters/ch1`~`ch6`, 결과 카드 `SESSIONS[1]`.
 - 조선편 「조선을 걷다」(조선의 건국과 발전): 장 id `j1`~`j6`, 폴더 `chapters/joseon/j1`~`j6`, 결과 카드 `SESSIONS[2]`. 설계는 `docs/superpowers/specs/2026-10-22-joseon-course-design.md`.
-- 앞으로 근대편·현대편도 같은 방식(`chapters/index.js`의 `COURSES`에 편 추가, 새 session 번호)으로 더한다.
+- 근대편 「새 나라를 꿈꾸다」(session 3, `k1`~`k6`, `chapters/modern/`), 일제 강점기편 「빼앗긴 나라를 되찾아라」(session 4, `i1`~`i6`, `chapters/colonial/`), 현대편 「대한민국을 세우다」(session 5, `h1`~`h6`, `chapters/present/`). 사실은 교사의 비상 5-2 교과서 98~145쪽(S51)을 따르고, 현대편 6장(4·19~서울 올림픽)은 교과서 밖이라 S58~S61을 따른다. 설계는 `docs/superpowers/specs/2026-10-23-modern-courses-design.md`.
+- 이 세 편은 장 부품 상자 `chapters/kit/`로 만든다: `town.js`의 `buildTown(world, layout)`(배치표로 건물·사람·안내판), `chapter.js`의 `makeKitChapter({ id, mood, player, script, layout, order, parts, spot })`. 장마다 `script.js`(대사·미니게임·퀴즈)와 `chapter.js`(배치표)만 쓴다. 미니게임 종류: choose, sort, place, order, gauge, collect.
 
 - 저장소: https://github.com/ssamgame/goryeo (조직 `ssamgame`, 브랜치 `main`)
 - 학생 주소: https://ssamgame.github.io/goryeo/ (GitHub Pages, main에서 바로 배포)
@@ -30,11 +31,11 @@
   - `chapters/joseon/landmarks.js` 유물·유적 모형(앙부일구, 자격루, 측우기, 종묘 정전, 근정전, 장안문)
   - `chapters/joseon/common.js` 조선편 진행 도구(차례대로 말 걸기 `talkInOrder`, 다시 하기 `tryPart`, 때 맞춰 누르기 `timingPress`)
   - `core/minigame.js` 카드 고르기 `chooseCards`(그림 가능), 카드 나누기 `sortCards`, 자리 놓기 `placeOnBoard`, 순서 맞추기 `orderCards`, 획 따라 그리기 `traceGlyph`
-  - `content/sources.js` 출처 S1~S22(고려편)·S23~S42(조선편), `content/glyphs.js` 5장 大藏經 획 자료(`tools/gen-glyphs.ps1`로 생성, 손으로 고치지 않음)
+  - `content/sources.js` 출처 S1~S22(고려편)·S23~S50(조선편)·S51~S62(근대~현대편), `content/glyphs.js` 5장 大藏經 획 자료(`tools/gen-glyphs.ps1`로 생성, 손으로 고치지 않음)
 
 ## 실행과 테스트
 
-- 개발 서버: `.claude/launch.json`의 `goryeo-game`(포트 8130). 장면 확인은 `?debug=ch3-scene`, 미니게임부터는 `?debug=ch3-minigame`(조선편은 `?debug=j3-scene`).
+- 개발 서버: `.claude/launch.json`의 `goryeo-game`(포트 8130). 장면 확인은 `?debug=ch3-scene`, 미니게임부터는 `?debug=ch3-minigame`(조선편은 `?debug=j3-scene`, 근대·일제 강점기·현대편은 `k3`·`i3`·`h3`).
 - 테스트: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 -Port 8141` (헤드리스 Edge, 자체 하네스 `tests/harness.js`). 포트 8123은 막혀 있어 8141을 쓴다. 출력이 길면 파일로 받아 `FAIL|RESULT` 줄만 본다.
 - 새 기능과 버그 수정은 테스트를 먼저 쓰고 실패를 본 뒤 고친다. 새 테스트 파일은 `tests/index.html`의 목록에 넣는다.
 - 화면에 보이는 변경은 브라우저 창에서 직접 확인한다(1000×560 정도로 탭 크기 흉내).
@@ -66,6 +67,7 @@
 ## 아직 남은 일
 
 - 조선편: 교사의 교과서 대조(비상 교과서의 조선 단원 순서·범위), 실제 탭에서 1~6장 시간과 프레임 재기.
+- 근대·일제 강점기·현대편: 실제 탭에서 시간과 프레임 재기, 교사의 플레이 의견 반영.
 - 실제 갤럭시 탭에서 프레임 확인(그래픽 강화 뒤), 1~6장 전체 시간 재기, 교사의 교과서 대조.
 - 배경음악은 소리를 직접 들어 보지 못했다(크기만 측정). 사용자 의견에 따라 장별 조정.
 - 첫 화면의 3D 병사가 버튼 뒤에 겹쳐 보인다(사용자에게 제안만 함).
