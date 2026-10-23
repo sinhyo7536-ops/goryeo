@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>minigame gallery</title>
+<link rel="stylesheet" href="../styles.css">
+<script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+<style>body { background: #556; } #bar { position: fixed; z-index: 99; left: 4px; bottom: 4px; font: 12px sans-serif; color: #fff; background: #0008; padding: 2px 6px; }</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="ui"></div>
+<div id="bar"></div>
+<script type="module">
+  // 개발용: 근대~현대편 장의 카드형 미니게임을 장면 없이 하나씩 띄워 화면 배치를 살핀다.
+  // ?part=k5:0 처럼 열거나, 콘솔에서 __gallery.show('k5', 0), __gallery.check()를 부른다.
+  import { MODERN, COLONIAL, PRESENT } from '../chapters/index.js';
+  import { chooseCards, sortCards, placeOnBoard, orderCards, timingBar } from '../core/minigame.js';
+  const ui = document.getElementById('ui');
+  const updates = new Set();
+  let last = performance.now();
+  (function loop(now) { const dt = (now - last) / 1000; last = now; for (const f of updates) f(dt, now / 1000); requestAnimationFrame(loop); })(last);
+  const ctx = { ui, testHooks: {}, onAction: () => () => {}, world: { onUpdate: f => { updates.add(f); return () => updates.delete(f); } } };
+  const metas = [...MODERN, ...COLONIAL, ...PRESENT];
+  const parts = {};
+  for (const m of metas) parts[m.id] = (await m.load()).default;
+  const run = p => {
+    switch (p.type) {
+      case 'choose': return chooseCards(ctx, { title: p.title, prompt: p.prompt, cards: p.cards, figure: p.figure });
+      case 'sort': return sortCards(ctx, { title: p.title, bins: p.bins, cards: p.cards });
+      case 'place': return placeOnBoard(ctx, { title: p.title, items: p.items, slots: p.slots, decor: p.decor, boardClass: p.boardClass });
+      case 'order': return orderCards(ctx, { title: p.title, cards: p.cards });
+      case 'gauge': return timingBar(ctx, { title: p.title, prompt: p.prompt, label: p.label, zone: p.zone, seconds: 1000 });
+      default: return null;
+    }
+  };
+  const list = [];
+  for (const m of metas) Object.values(parts[m.id].script.parts).forEach((p, i) => { if (p.type !== 'collect') list.push([m.id, i, p]); });
+  function show(id, i) {
+    ui.replaceChildren(); updates.clear();
+    const p = Object.values(parts[id].script.parts)[i];
+    document.getElementById('bar').textContent = `${id}:${i} ${p.type}`;
+    run(p);
+    return p;
+  }
+  // 화면 밖으로 나간 것, 서로 겹친 버튼, 글이 넘친 버튼, 카드 안 스크롤을 찾는다.
+  function check() {
+    const issues = [], W = innerWidth, H = innerHeight;
+    const btns = [...ui.querySelectorAll('button, .gauge-bar, .place-decor')].filter(b => !b.hidden);
+    for (const b of btns) {
+      const r = b.getBoundingClientRect();
+      if (r.left < -1 || r.top < -1 || r.right > W + 1 || r.bottom > H + 1) issues.push(`off-screen: ${b.textContent.slice(0, 20)}`);
+      if (b.scrollWidth > b.clientWidth + 2) issues.push(`text overflow: ${b.textContent.slice(0, 20)}`);
+    }
+    const slots = [...ui.querySelectorAll('.place-slot, .place-decor')];
+    for (let a = 0; a < slots.length; a++) for (let c = a + 1; c < slots.length; c++) {
+      const r1 = slots[a].getBoundingClientRect(), r2 = slots[c].getBoundingClientRect();
+      if (r1.left < r2.right - 2 && r2.left < r1.right - 2 && r1.top < r2.bottom - 2 && r2.top < r1.bottom - 2) issues.push(`overlap: ${slots[a].textContent.slice(0, 12)} / ${slots[c].textContent.slice(0, 12)}`);
+    }
+    const board = ui.querySelector('.place-board');
+    if (board) { const br = board.getBoundingClientRect(); for (const s of slots) { const r = s.getBoundingClientRect(); if (r.left < br.left - 1 || r.right > br.right + 1 || r.top < br.top - 1 || r.bottom > br.bottom + 1) issues.push(`outside board: ${s.textContent.slice(0, 12)}`); } }
+    const scr = ui.querySelector('.screen');
+    if (scr && scr.scrollHeight > scr.clientHeight + 2) issues.push(`screen scrolls ${scr.scrollHeight - scr.clientHeight}px`);
+    return issues;
+  }
+  // 자리 놓기를 정답으로 다 채운 모습(긴 글이 들어간 뒤)도 본다.
+  function fillPlace(p) {
+    for (const it of p.items.slice(0, -1)) { const s = p.slots.find(x => x.answer === it.id); ui.querySelector(`.place-slot[data-slot="${s.id}"]`).click(); }
+  }
+  function checkAll() {
+    const out = {};
+    for (const [id, i, p] of list) {
+      show(id, i);
+      let iss = check();
+      if (p.type === 'place') { fillPlace(p); iss = iss.concat(check().map(x => `filled ${x}`)); }
+      if (iss.length) out[`${id}:${i} ${p.type}`] = iss;
+    }
+    ui.replaceChildren(); updates.clear();
+    return out;
+  }
+  window.__gallery = { show, check, checkAll, fillPlace, list: list.map(([id, i, p]) => `${id}:${i}:${p.type}`) };
+  const q = new URLSearchParams(location.search).get('part');
+  if (q) { const [id, i] = q.split(':'); show(id, +i); if (new URLSearchParams(location.search).has('fill')) fillPlace(Object.values(parts[id].script.parts)[+i]); }
+  if (new URLSearchParams(location.search).has('checkall')) { const pre = document.createElement('pre'); pre.id = 'out'; pre.textContent = JSON.stringify({ size: [innerWidth, innerHeight], issues: checkAll() }); document.body.append(pre); }
+  document.title = 'gallery ready';
+</script>
+</body>
+</html>

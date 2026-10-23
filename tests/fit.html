@@ -7,7 +7,7 @@
 <div id="ui"></div>
 <script type="module">
   // 화면 맞춤 검사용: 쿼리에 따라 글자 새기기 판이나 카드 순서 맞추기 화면을 띄운다
-  import { traceGlyph, orderCards, chooseCards, placeOnBoard, sortCards } from '../core/minigame.js';
+  import { traceGlyph, orderCards, chooseCards, placeOnBoard, sortCards, timingBar } from '../core/minigame.js';
   import { GLYPHS } from '../content/glyphs.js';
   const ui = document.getElementById('ui');
   const kind = new URLSearchParams(location.search).get('kind');
@@ -25,6 +25,22 @@
   else if (kind === 'j4wing') { const [c, s] = await J('j4'); placeOnBoard({ ui }, { title: s.wing.title, ...c.WING_BOARD }); }
   else if (kind === 'j5sort') { const [, s] = await J('j5'); sortCards({ ui }, { title: s.sort.title, bins: s.sort.bins, cards: s.sort.cards }); }
   else if (kind === 'j6pulley') { const [c, s] = await J('j6'); chooseCards({ ui }, { title: s.pulley.title, prompt: s.pulley.prompt, figure: c.pulleySVG(), cards: s.pulley.cards }); }
+  // 근대~현대편 카드형 미니게임: kind=kit:h3:0 (장 id: 부분 번호), &fill=1 이면 자리 놓기를 마지막 하나만 남기고 채운다
+  else if (kind.startsWith('kit:')) {
+    const [, id, n] = kind.split(':');
+    const dir = { k: 'modern', i: 'colonial', h: 'present' }[id[0]];
+    const p = Object.values((await import(`../chapters/${dir}/${id}/script.js`)).default.parts)[+n];
+    const updates = new Set(); (function loop() { for (const f of updates) f(1 / 60); requestAnimationFrame(loop); })();
+    const ctx = { ui, testHooks: {}, onAction: () => () => {}, world: { onUpdate: f => { updates.add(f); return () => updates.delete(f); } } };
+    if (p.type === 'choose') chooseCards(ctx, { title: p.title, prompt: p.prompt, cards: p.cards, figure: p.figure });
+    if (p.type === 'sort') sortCards(ctx, { title: p.title, bins: p.bins, cards: p.cards });
+    if (p.type === 'order') orderCards(ctx, { title: p.title, cards: p.cards });
+    if (p.type === 'gauge') timingBar(ctx, { title: p.title, prompt: p.prompt, label: p.label, zone: p.zone, seconds: 1000 });
+    if (p.type === 'place') {
+      placeOnBoard(ctx, { title: p.title, items: p.items, slots: p.slots, decor: p.decor, boardClass: p.boardClass });
+      if (new URLSearchParams(location.search).has('fill')) for (const it of p.items.slice(0, -1)) ui.querySelector(`.place-slot[data-slot="${p.slots.find(s => s.answer === it.id).id}"]`).click();
+    }
+  }
   else orderCards({ ui }, { title: '고려를 지킨 사람들: 일어난 순서대로 눌러요', cards: ['서희의 담판 (993)', '양규의 흥화진 방어 (1010)', '강감찬의 귀주 대첩 (1019)', '강화도 천도 (1232년 7월)', '김윤후의 처인성 싸움 (1232년 12월)', '팔만대장경 만들기 (1236~1251)', '삼별초의 항쟁 (1270~1273)'] });
   document.documentElement.dataset.ready = '1';
 </script>

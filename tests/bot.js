@@ -54,25 +54,34 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
   const pe = (type, x, y) => zone.dispatchEvent(new PointerEvent(type, { pointerId: 3, clientX: x, clientY: y, bubbles: true }));
   let dragging = false, stopped = false, taps = 0, earlyPressed = !pressEarlyOnce;
   const release = () => { if (dragging) { pe('pointerup', 100, 100); dragging = false; } };
+  // 사람 손가락처럼 누른다: 버튼 한가운데 맨 위에 그 버튼이 있어야 한다(다른 화면이 덮고 있으면 기록해 두었다가 끝에 실패)
+  const covered = [];
+  const tap = b => {
+    b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    const r = b.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (!top || !(top === b || b.contains(top))) { const m = `"${b.textContent.trim().slice(0, 20)}" is covered by ${top ? (top.className || top.tagName) : 'nothing'}`; if (!covered.includes(m)) covered.push(m); }
+    b.click();
+  };
   const tick = () => {
     if (stopped) return;
     const start = [...ui.querySelectorAll('.screen button')].find(b => b.textContent === '시작');
-    if (start) { start.click(); return; }
+    if (start) { tap(start); return; }
     // 지도에서 고르기: mapPicks 순서대로 누르고, 마지막 것은 계속 누른다
     const place = picks.length && ui.querySelector(`.map-place[data-place="${picks[0]}"]`);
-    if (place) { if (picks.length > 1) picks.shift(); place.click(); return; }
+    if (place) { if (picks.length > 1) picks.shift(); tap(place); return; }
     // 카드 나누기: 지금 카드 글에 맞는 바구니를 sortPicks에서 찾아 누른다
     const sortNow = ui.querySelector('.sort-now');
     if (sortNow) {
       const key = Object.keys(sortPicks).find(k => sortNow.textContent.includes(k));
       const bin = key && ui.querySelector(`.sort-bin[data-bin="${sortPicks[key]}"]:not([disabled])`);
-      if (bin) bin.click();
+      if (bin) tap(bin);
       return;
     }
     // 카드 고르기: cardPicks에 든 카드만 누른다
     if (ui.querySelector('.screen.choose')) {
       const pick = [...ui.querySelectorAll('.screen.choose .order-card:not([disabled])')].find(b => cardPicks.has(b.textContent));
-      if (pick) pick.click();
+      if (pick) tap(pick);
       return;
     }
     // 자리 놓기: 지금 놓을 물건 이름으로 places에서 자리를 찾아 누른다
@@ -80,7 +89,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     if (now) {
       const label = Object.keys(places).find(k => now.textContent.includes(k));
       const slot = label && [].concat(places[label]).map(id => ui.querySelector(`.place-slot[data-slot="${id}"]:not([disabled])`)).find(Boolean); // 같은 물건이 여럿이면 자리 목록 중 빈 곳
-      if (slot) slot.click();
+      if (slot) tap(slot);
       return;
     }
     // 카드 순서 맞추기: 이미 놓은 카드 수로 다음 카드를 찾아 누른다
@@ -90,7 +99,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       const texts = cards.map(b => b.textContent);
       const order = orders.find(o => texts.every(t => o.includes(t)));
       const next = order && cards.find(b => b.textContent === order[placed]);
-      if (next) next.click();
+      if (next) tap(next);
       return;
     }
     // 획 따라 그리기: 지금 획의 점을 차례로 지나가도록 손가락을 끈다
@@ -119,14 +128,14 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
         if (!seenAt.has(key)) seenAt.set(key, performance.now());
         if (performance.now() - seenAt.get(key) < 300) return; // 열린 직후의 탭은 대화창이 무시한다
         if (wrongFirst.has(texts[i]) && !wrongUsed.has(key)) { wrongUsed.add(key); i = (i + 1) % buttons.length; }
-        buttons[i].click();
+        tap(buttons[i]);
         seenAt.delete(key);
       } else ui.querySelector('.dlg').click();
     } else {
       const target = !noTaps() && [...ui.querySelectorAll('.tap-target')].find(b => !b.hidden);
-      if (target) target.click();
+      if (target) tap(target);
       const big = ui.querySelector('.big-action');
-      if (big && (ctx.testHooks.ready || (!earlyPressed && ctx.testHooks.armed !== false))) { earlyPressed = true; big.click(); }
+      if (big && (ctx.testHooks.ready || (!earlyPressed && ctx.testHooks.armed !== false))) { earlyPressed = true; tap(big); }
       const g = w.getGoal();
       if (g && w.camMode === 'follow' && !holdStill()) {
         const p = w.player.position, dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);
@@ -142,5 +151,5 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     w.step(1 / 20, dialogue.isOpen() ? { x: 0, z: 0 } : input.move());
   };
   const timer = setInterval(tick, 15);
-  return { stop() { stopped = true; clearInterval(timer); release(); }, get taps() { return taps; } };
+  return { stop() { stopped = true; clearInterval(timer); release(); if (covered.length) throw new Error(`buttons a finger could not reach: ${covered.join('; ')}`); }, get taps() { return taps; }, covered };
 }

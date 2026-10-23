@@ -123,3 +123,16 @@ test('action: big button is fixed at the bottom and at least 64px tall', () => {
   ok(r.bottom > innerHeight - 120, 'near the bottom');
   a.remove(); ctx.done();
 });
+
+test('orderCards: 맞게 누른 카드가 빠져도 남은 카드는 제자리에 있다 (태블릿 빠른 두 번 누르기로 옆 카드가 눌리지 않게)', async () => {
+  const { orderCards } = await import('../core/minigame.js');
+  const ui = document.createElement('div'); ui.style.width = '400px'; document.body.appendChild(ui);
+  const cards = ['가나다라마바', '사아자차카', '타파하가나', '다라마바사'];
+  orderCards({ ui }, { title: '순서', cards });
+  const btn = t => [...ui.querySelectorAll('.order-card')].find(b => b.textContent === t);
+  const before = cards.map(t => btn(t).getBoundingClientRect().left + ',' + btn(t).getBoundingClientRect().top);
+  btn(cards[0]).click();
+  const after = cards.slice(1).map(t => btn(t).getBoundingClientRect().left + ',' + btn(t).getBoundingClientRect().top);
+  eq(after, before.slice(1));
+  ui.remove();
+});
