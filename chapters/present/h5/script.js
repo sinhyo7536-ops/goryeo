@@ -52,14 +52,15 @@ export default {
       fail: '화살표가 가리키는 빛나는 곳으로 가요.',
     },
     life: {
-      type: 'choose', src: ['S51'],
-      title: '6·25 전쟁 뒤의 생활 모습을 모두 골라요',
-      cards: [
+      type: 'find', src: ['S51'], title: '피란민 마을에서 6·25 전쟁 뒤의 생활 모습을 찾아요', counter: '찾은 모습',
+      howto: '마을 곳곳의 팻말 가운데 전쟁 뒤의 생활 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      items: [
         { text: '판잣집 같은 어려운 환경에서 살았다', correct: true },
         { text: '전쟁 뒤 곧바로 남북이 통일되었다', correct: false },
         { text: '많은 여성이 공장에 다니거나 행상을 하며 가족을 돌보았다', correct: true },
         { text: '도시로 오는 사람이 줄어들었다', correct: false },
         { text: '교실이 부서져 운동장에서 수업을 받았다', correct: true },
+        { text: '구호물품 밀가루로 밀면을 만들었다', correct: true },
       ],
       fail: '마을 사람들이 들려준 이야기를 떠올려 보세요.',
     },

@@ -78,7 +78,7 @@ for (const meta of [...MODERN, ...COLONIAL, ...PRESENT]) {
   test(`layout: ${meta.id} card minigames fit, can be tapped and do not overlap`, async () => {
     const parts = Object.values((await meta.load()).default.script.parts);
     for (const [n, p] of parts.entries()) {
-      if (p.type === 'collect') continue;
+      if (!['choose', 'sort', 'place', 'order', 'gauge'].includes(p.type)) continue; // 화면 카드 놀이만 (장면 속 놀이는 kit·play 테스트가 맡는다)
       for (const fill of p.type === 'place' ? ['', '&fill=1'] : ['']) {
         // 화면 크기마다 새 iframe을 띄우지 않고 하나를 크기만 바꿔 가며 본다(헤드리스 브라우저 메모리 아끼기)
         const frame = document.createElement('iframe');

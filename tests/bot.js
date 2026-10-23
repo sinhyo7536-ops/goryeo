@@ -136,7 +136,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       if (target) tap(target);
       const big = ui.querySelector('.big-action');
       if (big && (ctx.testHooks.ready || (!earlyPressed && ctx.testHooks.armed !== false))) { earlyPressed = true; tap(big); }
-      const g = w.getGoal();
+      const g = w.getGoal() || ctx.testHooks.walkTo; // 정답 자리를 화살표로 알려 주지 않는 놀이는 봇에게만 따로 알려 준다
       if (g && w.camMode === 'follow' && !holdStill()) {
         const p = w.player.position, dx = g.x - p.x, dz = g.z - p.z, d = Math.hypot(dx, dz);
         if (d > 1.2) {

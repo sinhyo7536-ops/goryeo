@@ -48,12 +48,20 @@ export default {
   },
   parts: {
     news: {
-      type: 'collect', title: '광복 소식을 집집마다 전해요', counter: '소식을 전한 집', seconds: 80,
+      type: 'drive', title: '광복 소식을 전하며 마을 길을 걸어요', counter: '소식을 전한 집', seconds: 80,
+      howto: '빛나는 집 앞을 차례로 지나가요. 소식을 들은 사람들이 태극기를 들고 따라 나와요.',
+      route: [
+        { label: '첫째 집', say: '"우리나라가 광복을 맞았어요!"' },
+        { label: '우물가', say: '"일본식 이름 대신 우리 이름을 되찾아요!"' },
+        { label: '서당', say: '"이제 우리말과 우리글을 마음껏 써요!"' },
+        { label: '장터', say: '"대한 독립 만세!"' },
+        { label: '마을 광장', say: '온 마을 사람들이 함께 만세를 불렀어요.' },
+      ],
       fail: '빛나는 곳을 따라 가요. 화살표가 길을 알려 줘요.',
     },
     change: {
-      type: 'sort', src: ['S51'],
-      title: '광복 뒤의 모습일까요, 일제 강점기의 모습일까요?',
+      type: 'deliver', src: ['S51'], title: '광복 뒤의 모습일까요, 일제 강점기의 모습일까요?', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 「광복 뒤」 학교나 「일제 강점기」 건물로 가져가 대화 버튼을 눌러요.',
       bins: [{ id: 'after', label: '광복 뒤' }, { id: 'before', label: '일제 강점기' }],
       cards: [
         { text: '우리말과 우리글을 자유롭게 써요', bin: 'after' },

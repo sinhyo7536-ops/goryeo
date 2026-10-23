@@ -280,7 +280,8 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       const len = Math.hypot(move.x, move.z), moving = len > 0.01;
       const p = player.position;
       if (moving) {
-        p.x += move.x * SPEED * dt; p.z += move.z * SPEED * dt;
+        const sp = SPEED * (world.speedScale || 1); // 배·전차 같은 탈것은 더 빠르게
+        p.x += move.x * sp * dt; p.z += move.z * sp * dt;
         for (const c of world.colliders) {
           const dx = p.x - c.x, dz = p.z - c.z, d = Math.hypot(dx, dz), min = c.r + PLAYER_R;
           if (d < min && d > 1e-6) { p.x = c.x + (dx / d) * min; p.z = c.z + (dz / d) * min; }

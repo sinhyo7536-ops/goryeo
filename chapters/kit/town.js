@@ -51,7 +51,7 @@ function flagMesh(w = 1.2, h = 0.8, color = null) {
 }
 
 // 부품마다 만드는 법. 모두 (0,0,0) 기준, 앞은 +z.
-const BUILD = {
+export const BUILD = {
   // 초가집 / 기와집
   hanok(g, p) {
     add(g, box(4, 2.2, 3.2), 0xe6dcc3, 0, 1.1, 0);
@@ -157,6 +157,15 @@ const BUILD = {
   },
   // 바다·강 (넓은 물판)
   water(g, p) { const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w || 200, p.d || 60).rotateX(-Math.PI / 2), new THREE.MeshPhongMaterial({ color: p.color || 0x3f7d9a, shininess: 60, transparent: true, opacity: 0.93 })); m.position.y = -0.3; g.add(m); return 0; },
+  // 섬·땅덩이(바다 무대): 모래톱 위에 풀. r 반지름
+  island(g, p) {
+    const r = p.r || 4;
+    add(g, new THREE.CylinderGeometry(r, r * 1.1, 0.6, 20), p.sand || 0xcdbb8a, 0, 0.1, 0);
+    add(g, new THREE.CylinderGeometry(r * 0.75, r * 0.9, 1.4, 16), p.color || 0x6a8a4c, 0, 0.6, 0);
+    return r;
+  },
+  // 부두(배를 대는 곳)
+  pier(g, p) { add(g, box(p.w || 8, 0.5, p.d || 3), 0x7a5a3c, 0, 0.3, 0, 'wood'); return 0; },
   // 큰 나무
   tree(g, p) {
     add(g, new THREE.CylinderGeometry(0.22, 0.32, 2.2, 6), 0x6b4a32, 0, 1.1, 0, 'wood');

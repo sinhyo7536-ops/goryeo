@@ -259,3 +259,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   .sort-now { font-size: 16px; min-height: 3em; }
   .sort-bin { min-height: 52px; font-size: 16px; }
 }
+/* 상황 놀이 알림: 화면 위쪽 가운데에 잠깐 뜬다 */
+.play-toast { position: fixed; z-index: 13; left: 50%; top: calc(86px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); max-width: min(560px, 90vw); padding: 10px 18px; border-radius: 6px; background: rgba(27,31,29,.88); color: var(--hanji); border: 2px solid var(--gold); font-size: 18px; line-height: 1.45; text-align: center; word-break: keep-all; pointer-events: none; }
+.play-toast.good { border-color: #6fae8f; }
+.play-toast.bad { border-color: var(--dan-red); }

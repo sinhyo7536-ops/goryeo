@@ -20,7 +20,7 @@ function Run-Once([string]$query, [int]$port) {
     Remove-Item -Recurse -Force $profileDir -ErrorAction SilentlyContinue
   }
 }
-$groups = @('kit: ', 'layout: ') # 오래 걸리는 묶음은 따로, 나머지는 한 번에
+$groups = @('kit: ', 'layout: ', 'play: ') # 오래 걸리는 묶음은 따로, 나머지는 한 번에
 $rest = '?skip=' + [Uri]::EscapeDataString($groups -join '|')
 $runs =if ($Only) { @('?only=' + [Uri]::EscapeDataString($Only)) } else { @($groups | ForEach-Object { '?only=' + [Uri]::EscapeDataString($_) }) + @($rest) }
 $pass = 0; $fail = 0; $skip = 0; $lines = @(); $n = 0

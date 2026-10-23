@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { showHowTo, chooseCards, sortCards, placeOnBoard, orderCards, timingBar } from '../../core/minigame.js';
 import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts } from '../joseon/common.js';
 import { buildTown } from './town.js';
+import { PLAY } from './play.js';
 
 const HOWTO = {
   choose: '맞는 카드를 모두 골라요. 틀린 카드를 누르면 다시 해요.',
@@ -20,6 +21,12 @@ const HOWTO = {
   order: '일어난 순서(또는 알맞은 차례)대로 카드를 눌러요.',
   gauge: '움직이는 표시가 빛나는 칸 안에 들어왔을 때 큰 버튼을 눌러요.',
   collect: '빛나는 곳으로 걸어가요. 화살표가 길을 알려 줘요.',
+  drive: '화살표를 따라 빛나는 곳을 차례로 지나가요. 부딪히면 앞 지점에서 다시 가요.',
+  stops: '이름표가 선 곳을 일어난 차례대로 찾아가 대화 버튼을 눌러요.',
+  deliver: '머리 위에 든 것을 알맞은 곳으로 가져가 대화 버튼을 눌러요.',
+  find: '맞는 팻말만 찾아가 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+  ambush: '적이 빛나는 자리에 들어오면 그 위의 버튼을 눌러요.',
+  sneak: '불빛(감시원이 보는 곳)을 피해 파란 고리를 차례로 지나가요. 들키면 앞 고리에서 다시 가요.',
 };
 
 // 장면 속 빛나는 고리들을 차례로 찾아가기. seconds 안에 다 가면 성공(쉬우면 시간 1.5배).
@@ -71,6 +78,7 @@ function runPart(ctx, scene, part, easy) {
     case 'order': return orderCards(ctx, { title: part.title, cards: part.cards, easy });
     case 'gauge': return timingBar(ctx, { title: part.title, prompt: part.prompt, label: part.label, zone: part.zone, seconds: part.seconds, easy });
     case 'collect': return collect(ctx, scene, part, easy);
+    case 'drive': case 'stops': case 'deliver': case 'find': case 'ambush': case 'sneak': return PLAY[part.type](ctx, part, easy);
     default: throw new Error(`unknown part ${part.type}`);
   }
 }
@@ -106,7 +114,9 @@ export function makeKitChapter(def) {
         touch: '카드와 버튼은 손가락으로 누르고, 걷기는 화면 왼쪽을 끌어요',
       });
       const results = [];
-      for (const part of def.parts) {
+      const q = typeof location !== 'undefined' ? new URLSearchParams(location.search) : null;
+      const from = q && q.get('debug') ? +(q.get('part') || 0) : 0; // 개발용: ?debug=h3-minigame&part=1 이면 그 부분부터
+      for (const part of def.parts.slice(from)) {
         if (part.intro) { await sayAll(dialogue, part.intro); dialogue.close(); }
         if (part.before) part.before(ctx, scene);
         results.push(await tryPart(ctx, easy => runPart(ctx, scene, part, easy), part.fail));
