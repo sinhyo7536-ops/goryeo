@@ -67,3 +67,35 @@ test('faces: every character looks solemn (no smile, no open mouth, no smiling e
     ok(!l.face.blush, `${id} no blush`);
   }
 });
+
+// 고증에 가까운 얼굴: 널리 알려진 사진·초상화의 특징을 그린다
+test('faces: 김구는 동그란 안경, 짧게 깎은 희끗한 머리, 둥근 얼굴, 두루마기', () => {
+  const k = LOOKS.kimgu;
+  eq(k.face.glasses, 'round'); eq(k.hat, 'buzz'); eq(k.face.shape, 'round'); eq(k.face.age, 'old');
+  const p = makePerson(k);
+  ok(p.getObjectByName('glasses'), '3D 안경');
+  ok(p.getObjectByName('hat:buzz'), '짧게 깎은 머리');
+});
+
+test('faces: 이승만은 뒤로 넘긴 흰머리, 갸름한 얼굴, 양복과 넥타이', () => {
+  const r = LOOKS.syngmanrhee;
+  eq(r.hat, 'swept'); eq(r.outfit, 'suit'); eq(r.face.shape, 'long'); eq(r.face.age, 'old');
+  ok(/^#[c-f]/i.test(r.hairColor), `흰머리 ${r.hairColor}`);
+  const p = makePerson(r);
+  ok(p.getObjectByName('tie'), '넥타이');
+  ok(!p.getObjectByName('collar'), '한복 깃 대신 셔츠');
+  const head = p.getObjectByName('headGroup');
+  ok(head.scale.y > head.scale.x, '갸름한(긴) 얼굴');
+});
+
+test('faces: 콧수염·안경·주름이 들어간 얼굴은 서로 다르게 그려지고, 모든 인물에 코와 귀가 있다', () => {
+  const ids = ['kimgu', 'syngmanrhee', 'ahnjunggeun', 'hongbeomdo', 'yugwansun', 'sejong', 'gojong', 'daewongun'];
+  const urls = ids.map(id => portraitURL(id));
+  eq(new Set(urls).size, ids.length, '초상화가 모두 다르다');
+  for (const id of Object.keys(LOOKS)) {
+    const p = makePerson(LOOKS[id]);
+    ok(p.getObjectByName('ears'), `${id} 귀`);
+    ok(p.getObjectByName('nose'), `${id} 코`);
+  }
+  eq(LOOKS.ahnjunggeun.face.beard, 'thick'); eq(LOOKS.hongbeomdo.face.beard, 'walrus');
+});

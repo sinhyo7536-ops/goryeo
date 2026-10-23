@@ -78,7 +78,7 @@ const JOSEON_HATS = {
 };
 
 // gear: 'spear'(창) · 'sword'(허리에 찬 칼) · 'bow'(등에 멘 활) · 없음
-export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null }) {
+export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null, outfit = null, hairColor = null }) {
   const g = new THREE.Group();
   const legs = [], arms = [];
   for (const sx of [-0.16, 0.16]) {
@@ -90,7 +90,11 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null 
   part(new THREE.CylinderGeometry(0.38, 0.58, 1.25, 7), robe, 0, 1.12, 0, g);
   part(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 7), trim, 0, 1.25, 0, g).name = 'belt'; // 허리띠
   part(new THREE.CylinderGeometry(0.585, 0.6, 0.08, 7), trim, 0, 0.53, 0, g).name = 'hem'; // 옷자락 끝단
-  // 앞섶(깃): 가슴에서 엇갈리는 흰 깃 두 줄
+  // 앞섶(깃): 가슴에서 엇갈리는 흰 깃 두 줄. 양복(suit)이면 흰 셔츠와 넥타이
+  if (outfit === 'suit') {
+    part(new THREE.BoxGeometry(0.3, 0.44, 0.05), 0xf2efe8, 0, 1.5, 0.36, g).rotation.x = -0.28;
+    const tie = part(new THREE.BoxGeometry(0.09, 0.4, 0.05), 0x7a2a2a, 0, 1.47, 0.39, g); tie.rotation.x = -0.28; tie.name = 'tie';
+  } else
   for (const [sx, rz] of [[-0.08, -0.5], [0.08, 0.5]]) {
     const c = part(new THREE.BoxGeometry(0.07, 0.42, 0.04), 0xece4d2, sx, 1.52, 0.37, g);
     c.rotation.set(-0.28, 0, rz); c.name = 'collar';
@@ -111,6 +115,31 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null 
   const faceGeo = new THREE.SphereGeometry(0.326, 16, 12, Math.PI / 2 - 1.15, 2.3, 0.62, 1.45);
   const faceMesh = new THREE.Mesh(faceGeo, faceMat(face));
   faceMesh.name = 'face'; hg.add(faceMesh);
+  // 얼굴 모양: 갸름한 얼굴(long)은 위아래로, 둥근 얼굴(round)은 옆으로 조금 늘린다
+  if (face.shape === 'long') hg.scale.set(HEAD_SCALE * 0.92, HEAD_SCALE * 1.1, HEAD_SCALE * 0.96);
+  else if (face.shape === 'round') hg.scale.set(HEAD_SCALE * 1.06, HEAD_SCALE * 0.98, HEAD_SCALE * 1.04);
+  // 귀와 코
+  const ears = new THREE.Group(); ears.name = 'ears'; hg.add(ears);
+  for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), headMat()); e.scale.set(0.55, 1, 0.8); e.position.set(sx * 0.315, -0.02, -0.02); ears.add(e); }
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.1, 6), headMat()); nose.name = 'nose';
+  nose.rotation.x = Math.PI / 2 + 0.25; nose.position.set(0, -0.02, 0.33); hg.add(nose);
+  // 안경(둥근 검은 테)
+  if (face.glasses === 'round') {
+    const gl = new THREE.Group(); gl.name = 'glasses'; hg.add(gl);
+    const frame = mat(0x1a1614, null, 'object');
+    for (const sx of [-1, 1]) { const r = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.012, 6, 16), frame); r.position.set(sx * 0.105, 0.015, 0.315); gl.add(r); }
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.012, 0.012), frame); bridge.position.set(0, 0.03, 0.33); gl.add(bridge);
+  }
+  // 머리카락 색(흰머리·희끗한 머리)
+  const hc = hairColor ? new THREE.Color(hairColor).getHex() : 0x1e1c1a;
+  if (hat === 'buzz') { // 아주 짧게 깎은 머리: 머리 모양을 따라 얇게
+    const hz = new THREE.Group(); hz.name = 'hat:buzz'; hg.add(hz);
+    part(new THREE.SphereGeometry(0.326, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2.3), hc, 0, 0.02, -0.012, hz, 'grain');
+  } else if (hat === 'swept') { // 뒤로 빗어 넘긴 머리
+    const hz = new THREE.Group(); hz.name = 'hat:swept'; hg.add(hz);
+    part(new THREE.SphereGeometry(0.338, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2.1), hc, 0, 0.03, -0.02, hz, 'grain');
+    part(new THREE.SphereGeometry(0.2, 10, 6), hc, 0, 0.2, -0.16, hz, 'grain');
+  }
   if (hat === 'official') {
     hp(new THREE.BoxGeometry(0.5, 0.32, 0.46), 0x1e1c1a, 0, 2.38, -0.02);
     hp(new THREE.BoxGeometry(1.2, 0.05, 0.07), 0x1e1c1a, 0, 2.38, -0.26);
@@ -129,7 +158,7 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null 
     hp(new THREE.SphereGeometry(0.1, 8, 6), 0x1e1c1a, 0, 2.4, -0.02);
   } else if (JOSEON_HATS[hat]) {    // 조선 모자: 묶음 하나(hat:이름)로 만든다
     const hatG = new THREE.Group(); hatG.name = `hat:${hat}`; hg.add(hatG);
-    for (const [geo, color, x, y, z] of JOSEON_HATS[hat]()) part(geo, color, x, y - HEAD_Y, z, hatG, 'grain');
+    for (const [geo, color, x, y, z] of JOSEON_HATS[hat]()) part(geo, hairColor && color === 0x1e1c1a ? hc : color, x, y - HEAD_Y, z, hatG, 'grain'); // 머리카락은 hairColor로
   }
   // 들고 있는 무기
   if (gear === 'spear') { // 오른손에 세워 든 창

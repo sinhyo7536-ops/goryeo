@@ -1,5 +1,7 @@
 // 등장인물 생김새: 3D 인물과 대화창 얼굴 그림이 함께 쓴다.
-// face: eyes(round·kind·stern), brows(normal·stern·worried), mouth(smile·flat·open), beard(null·mustache·goatee·full), beardColor, blush
+// face: eyes(round·kind·stern), brows(normal·stern·worried), mouth(smile·flat·open), beard(null·mustache·thin·thick·walrus·goatee·full),
+//       beardColor, browColor, glasses(round), shape(long·round), age(old), blush
+// outfit: suit(양복: 흰 셔츠와 넥타이), hairColor: 흰머리·희끗한 머리. hat buzz(아주 짧게 깎은 머리)·swept(뒤로 넘긴 머리)
 // 모든 인물은 근엄한 표정(가는 눈, 힘준 눈썹, 다문 입)으로 그린다.
 export const LOOKS = {
   player: { robe: 0x2f6b5e, hat: 'helmet', gear: 'spear', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -10,7 +12,7 @@ export const LOOKS = {
   sonn: { robe: 0x5b4a36, hat: 'fur', gear: 'sword', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   yanggyu: { robe: 0x7a2a1e, hat: 'general', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full' } },
   // 강감찬은 귀주 대첩 때 일흔이 넘은 나이여서 흰 수염으로 그린다
-  gangamchan: { robe: 0x8a2f24, hat: 'general', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', beardColor: '#e8e4dc' } },
+  gangamchan: { robe: 0x8a2f24, hat: 'general', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', beardColor: '#e8e4dc', age: 'old', browColor: '#bdb7ad' } },
   villager: { robe: 0xd8cfbf, hat: 'topknot', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   khitan: { robe: 0x6e5a44, hat: 'fur', gear: 'spear', face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   khitanBright: { robe: 0xa8834f, hat: 'fur', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -26,16 +28,16 @@ export const LOOKS = {
   // 조선편. 임금·세자는 익선관, 양반·학자는 갓, 조선 군사는 전립
   yiseonggye: { robe: 0x7a2a1e, hat: 'general', gear: 'bow', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full' } },
   joseonSoldier: { robe: 0x3c4c6a, hat: 'jeollip', gear: 'spear', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  sejong: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },
+  sejong: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', shape: 'round' } },
   crownPrince: { robe: 0x2c4a7a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   scholar: { robe: 0xc9d4d8, hat: 'gat', trim: 0x3a4a5a, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },
   jangyeongsil: { robe: 0x6a5a4a, hat: 'gat', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   commoner: { robe: 0xd8cfbf, hat: 'topknot', trim: 0x6b4a32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache', beardColor: '#5a5048' } },
   kid: { robe: 0xe6dcc3, hat: 'topknot', trim: 0x7a4e32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  yisunsin: { robe: 0x7a2a1e, hat: 'general', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full' } },
+  yisunsin: { robe: 0x7a2a1e, hat: 'general', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', shape: 'long' } },
   navy: { robe: 0x2f4a5e, hat: 'jeollip', gear: 'spear', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   injo: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  kimsangheon: { robe: 0x55608a, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', beardColor: '#cfc9bd' } },
+  kimsangheon: { robe: 0x55608a, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', beardColor: '#cfc9bd', age: 'old' } },
   choemyeonggil: { robe: 0x5d6b52, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },
   qingSoldier: { robe: 0x5a4632, hat: 'qing', gear: 'spear', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   jeongjo: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
@@ -43,32 +45,36 @@ export const LOOKS = {
   joseonOfficial: { robe: 0x55608a, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   worker: { robe: 0xc8b89a, hat: 'topknot', trim: 0x6b4a32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   // 근대·일제 강점기·현대편
-  daewongun: { robe: 0x4f5f86, hat: 'official', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee', beardColor: '#cfc9bd' } },
-  gojong: { robe: 0xc99a2e, hat: 'ikseon', trim: 0xa8392b, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  kimokgyun: { robe: 0xc9d4d8, hat: 'gat', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  jeonbongjun: { robe: 0xe6dcc3, hat: 'topknot', trim: 0x8a2f24, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },
+  daewongun: { robe: 0x4f5f86, hat: 'official', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee', beardColor: '#cfc9bd', age: 'old', shape: 'long', browColor: '#8a847a' } },
+  gojong: { robe: 0xc99a2e, hat: 'ikseon', trim: 0xa8392b, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee', shape: 'long' } },
+  kimokgyun: { robe: 0xc9d4d8, hat: 'gat', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'thin', shape: 'round' } },
+  jeonbongjun: { robe: 0xe6dcc3, hat: 'topknot', trim: 0x8a2f24, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee', shape: 'long' } },
   peasant: { robe: 0xddd2bb, hat: 'topknot', trim: 0x7a4e32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  seojaepil: { robe: 0x2b2f36, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  gentleman: { robe: 0x3a3530, hat: 'fedora', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
+  seojaepil: { robe: 0x2b2f36, outfit: 'suit', hat: 'short', trim: 0x2b2f36, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'thin' } },
+  gentleman: { robe: 0x3a3530, outfit: 'suit', hat: 'fedora', trim: 0x3a3530, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   student: { robe: 0x22262e, hat: 'cap', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   schoolgirl: { robe: 0xe9e4da, hat: 'braid', trim: 0x2c3a5a, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   woman: { robe: 0xb8768a, hat: 'bun', trim: 0x2f4a5e, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   uibyeong: { robe: 0xd8d0bc, hat: 'topknot', gear: 'rifle', trim: 0x6b4a32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  ahnjunggeun: { robe: 0x2b2f36, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  ahnchangho: { robe: 0x3a3a44, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
-  yugwansun: { robe: 0xf2efe6, hat: 'braid', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  kimgu: { robe: 0x3a3530, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  syngmanrhee: { robe: 0x2b2f36, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  hongbeomdo: { robe: 0x4e5840, hat: 'cap', gear: 'rifle', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full' } },
-  kimjwajin: { robe: 0x4e5840, hat: 'cap', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
+  // 안중근: 짧은 머리와 짙은 콧수염
+  ahnjunggeun: { robe: 0x2b2f36, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'thick' } },
+  ahnchangho: { robe: 0x3a3a44, outfit: 'suit', hat: 'short', trim: 0x3a3a44, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache', shape: 'round' } },
+  yugwansun: { robe: 0xf2efe6, hat: 'braid', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', shape: 'round' } },
+  // 김구: 널리 알려진 사진처럼 둥근 얼굴, 검은 동그란 안경, 아주 짧게 깎은 희끗한 머리, 짙은 두루마기
+  kimgu: { robe: 0x3a3836, hat: 'buzz', hairColor: '#8a8680', trim: 0x2b2826, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', glasses: 'round', shape: 'round', age: 'old', browColor: '#5a5650' } },
+  // 이승만: 정부 수립 무렵(70대) 사진처럼 갸름한 얼굴, 뒤로 넘긴 흰머리, 양복에 넥타이
+  syngmanrhee: { robe: 0x2b2f36, outfit: 'suit', hat: 'swept', hairColor: '#e4e0d8', trim: 0x2b2f36, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', shape: 'long', age: 'old', browColor: '#b8b2a8' } },
+  // 홍범도: 나이 든 장군, 크게 처진 콧수염
+  hongbeomdo: { robe: 0x4e5840, hat: 'cap', gear: 'rifle', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'walrus', age: 'old', beardColor: '#3a3632' } },
+  kimjwajin: { robe: 0x4e5840, hat: 'cap', gear: 'sword', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'thick', shape: 'long' } },
   independenceArmy: { robe: 0x5a6448, hat: 'cap', gear: 'rifle', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   gwangbokgun: { robe: 0x6b6a4a, hat: 'cap', gear: 'rifle', trim: 0xa8392b, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  scholarModern: { robe: 0x4a4f5a, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
+  scholarModern: { robe: 0x4a4f5a, outfit: 'suit', hat: 'short', trim: 0x4a4f5a, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache', glasses: 'round' } },
   gendarme: { robe: 0x55603f, hat: 'cap', trim: 0xb8452f, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   rokSoldier: { robe: 0x5a6448, hat: 'steel', gear: 'rifle', trim: 0x3a3f2c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   unSoldier: { robe: 0x6b6a4a, hat: 'steel', gear: 'rifle', trim: 0x3a3f2c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   citizen: { robe: 0x5d7a9a, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
-  grandma: { robe: 0xd8cfbf, hat: 'bun', trim: 0x6b4a32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
+  grandma: { robe: 0xd8cfbf, hat: 'bun', hairColor: '#b8b2a8', trim: 0x6b4a32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', age: 'old' } },
   nkSoldier: { robe: 0x6b6a3a, hat: 'cap', gear: 'rifle', trim: 0x8a2f24, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   builder: { robe: 0x8a7a5a, hat: 'steel', trim: 0x3a3f2c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
 };
