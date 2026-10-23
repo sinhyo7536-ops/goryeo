@@ -84,3 +84,60 @@ test('play: 무대는 끝나면 부딪힘과 경계까지 모두 치운다', () 
     eq(w.colliders.length, before); eq(w.bounds, b);
   } finally { w.dispose(); }
 });
+
+// 이야기가 있는 긴 놀이: 지점마다 대화, 기다리기(물때), 줍기, 여러 차례 공격, 숨을 곳
+const STORY = {
+  drive: { type: 'drive', title: '이야기 배 몰기', arena, vehicle: 'boat', from: [0, 15], seconds: 90,
+    route: [{ x: 0, z: 5, label: '첫째', talk: [{ who: 'a', text: '첫째 지점이야!' }] }, { x: 6, z: -4, label: '물때', hold: 3, talk: [{ who: 'a', text: '밀물이 찼어. 가자!' }] }, { x: 0, z: -14, label: '도착', needPickups: true }],
+    pickups: [{ x: -6, z: -8, label: '태극기' }, { x: 8, z: -12, label: '태극기' }] },
+  ambush: { type: 'ambush', title: '두 차례', arena, camera: { pos: [0, 18, 16], target: [0, 0, 0] }, path: [[0, -20], [0, 18]], zone: { x: 0, z: 0, r: 6 },
+    waves: [{ enemies: 3, need: 2, interval: 1.4, speed: 3 }, { enemies: 3, need: 2, interval: 1.4, speed: 3.5, talk: [{ who: 'a', text: '2차 공격이다!' }] }] },
+  stops: { type: 'stops', title: '이야기 찾아가기', arena, from: [0, 15],
+    spots: [{ x: -8, z: 0, label: '가', look: 'citizen', talk: [{ who: 'a', text: '가에서 들은 이야기' }] }, { x: 8, z: 0, label: '나', talk: [{ who: 'a', text: '나에서 들은 이야기' }] }] },
+};
+for (const [kind, part] of Object.entries(STORY)) {
+  test(`play: ${kind} 이야기 놀이 — 대화를 듣고 끝까지 한다`, async () => {
+    const ch = chapterWith({ [kind]: part });
+    const s = touchSetup(script.speakers);
+    const said = []; const say = s.dialogue.say; s.dialogue.say = l => { said.push(l.text); return say(l); };
+    const bot = touchBot(s, { answers: new Set(['맞음', '맞음2']) });
+    try {
+      const r = await runChapter({ id: 'zz', no: 1, title: '시험' }, ch, s.ctx, memSave());
+      eq(r.firstTryCorrect, r.firstTryTotal, `${kind}: 첫 시도에 성공`);
+      const talks = JSON.stringify(part).match(/"text":"[^"]+"/g).map(t => t.slice(8, -1));
+      for (const t of talks) ok(said.includes(t), `${kind}: 「${t}」를 들려준다`);
+    } finally { bot.stop(); s.done(); }
+  }, { timeout: 120000 });
+}
+
+test('play: 기다리기 지점은 빛나는 곳을 벗어나면 처음부터 다시 기다린다', async () => {
+  const s = touchSetup(script.speakers);
+  try {
+    const p = PLAY.drive(s.ctx, { arena, from: [0, 10], seconds: 60, route: [{ x: 0, z: 0, hold: 2 }] }, false);
+    const at = (x, z) => { s.w.player.position.set(300 + x, 0, z); };
+    at(0, 0); for (let i = 0; i < 20; i++) s.w.step(1 / 20, { x: 0, z: 0 }); // 1초
+    at(0, 8); s.w.step(1 / 20, { x: 0, z: 0 });                             // 벗어남
+    at(0, 0); for (let i = 0; i < 30; i++) s.w.step(1 / 20, { x: 0, z: 0 }); // 1.5초: 아직 모자람
+    let done = false; p.then(() => { done = true; });
+    await sleep(50); eq(done, false, '벗어나면 다시 세어야 한다');
+    for (let i = 0; i < 20; i++) s.w.step(1 / 20, { x: 0, z: 0 });
+    eq(await p, true);
+  } finally { s.done(); }
+});
+
+test('play: 숨을 곳(덤불) 안에 있으면 감시원이 보지 못한다', async () => {
+  const s = touchSetup(script.speakers);
+  try {
+    let caught = 0;
+    const p = PLAY.sneak(s.ctx, { arena, from: [0, 3], seconds: 30, caught: '들킴', waypoints: [{ x: 0, z: -15 }], hides: [{ x: 0, z: 3, r: 2 }],
+      guards: [{ path: [[0, 8.1], [0, 8]], speed: 0.01, range: 8 }] }, false); // 감시원은 학생 쪽(-z)을 본다
+    const toast = () => s.ui.querySelector('.play-toast');
+    for (let i = 0; i < 40; i++) { s.w.step(1 / 20, { x: 0, z: 0 }); if (toast() && !toast().hidden && toast().textContent === '들킴') caught += 1; }
+    eq(caught, 0, '덤불 속에서는 들키지 않는다');
+    s.w.player.position.set(300 + 0, 0, 5.5); // 덤불 밖, 감시원 앞
+    for (let i = 0; i < 10; i++) s.w.step(1 / 20, { x: 0, z: 0 });
+    ok(toast() && toast().textContent === '들킴', '덤불 밖에서는 들킨다');
+    s.w.player.position.set(300, 0, -15); for (let i = 0; i < 5; i++) s.w.step(1 / 20, { x: 0, z: 0 });
+    await p;
+  } finally { s.done(); }
+});

@@ -42,7 +42,8 @@ export default makeKitChapter({
     scatter: [{ kind: 'pine', count: 30, area: { x0: -60, x1: 60, z0: -40, z1: -14 }, seed: 241 }],
   },
   parts: [
-    { ...script.parts.paper, from: [0, 3], spots: [{ x: -13, z: 5.5 }, { x: -6, z: 7 }, { x: 9, z: 6 }, { x: 13, z: 5.5 }, { x: 14.5, z: -2 }] },
-    { ...script.parts.flow, arena: HANSEONG, from: [0, 19], spots: xy(script.parts.flow.spots, [{ x: -9, z: -11 }, { x: 10, z: 9 }, { x: -10, z: 9 }, { x: 10, z: -10 }, { x: 10, z: -1 }]) },
+    { ...script.parts.paper, arena: HANSEONG, from: [0, 19],
+      route: xy(script.parts.paper.route, [{ x: -11, z: 10 }, { x: 4, z: 4 }, { x: -6, z: -10 }, { x: 6, z: -4 }, { x: 0, z: 14 }]) },
+    { ...script.parts.flow, arena: HANSEONG, from: [0, 19], intro: [{ who: 'citizen', text: '한성 거리를 걸으며 그동안 있었던 일을 해마다 차례로 짚어 봐요.' }], spots: xy(script.parts.flow.spots, [{ x: -9, z: -11 }, { x: 10, z: 9 }, { x: -10, z: 9 }, { x: 10, z: -10 }, { x: 10, z: -1 }]) },
   ],
 });

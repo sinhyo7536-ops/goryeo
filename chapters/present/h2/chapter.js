@@ -13,6 +13,14 @@ const STREET = { // 역사 거리: 이름표가 차례와 다르게 흩어져 �
     { type: 'flagpole', x: 3, z: -6 }, { type: 'tree', x: -5, z: 6 }, { type: 'tree', x: 6, z: 6 },
   ],
 };
+const POLL = { // 투표소: 줄 서는 곳, 명부 책상, 가림막 기표소, 투표함
+  origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -16, x1: 16, z0: -16, z1: 16 },
+  props: [
+    { type: 'western', x: 0, z: -18, w: 20, d: 4, h: 6, color: 0xb8b0a0, solid: false }, { type: 'flagpole', x: -12, z: 12 },
+    { type: 'crowd', x: -10, z: 6, n: 6, cols: 2, looks: ['citizen', 'woman', 'grandma', 'gentleman'], face: Math.PI },
+    { type: 'desk', x: -6, z: -2 }, { type: 'wall', x: 8, z: -6, w: 4, h: 2.2 }, { type: 'desk', x: -1, z: -12 },
+  ],
+};
 const YARD = {
   origin: [400, 0], ground: 'stone', groundColor: 0xb0a890, bounds: { x0: -18, x1: 18, z0: -16, z1: 16 },
   props: [
@@ -49,6 +57,6 @@ export default makeKitChapter({
       spots: xy(script.parts.flow.spots, [{ x: -8, z: 8 }, { x: 9, z: -3 }, { x: -9, z: -8 }, { x: 8, z: 9 }, { x: 0, z: -12 }]) },
     { ...script.parts.views, arena: YARD, from: [0, 12],
       bins: xy(script.parts.views.bins, [{ x: -9, z: -6.5 }, { x: 9, z: -6.5 }]) },
-    { ...script.parts.vote, from: [0, 3], spots: [{ x: -6, z: 2 }, { x: -9.5, z: -0.5 }, { x: -13, z: -3 }] },
+    { ...script.parts.vote, arena: POLL, from: [0, 13], route: xy(script.parts.vote.route, [{ x: -5, z: 6 }, { x: -6, z: 1 }, { x: 8, z: -3 }, { x: -1, z: -9 }]) },
   ],
 });

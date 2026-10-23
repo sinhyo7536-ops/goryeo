@@ -16,6 +16,13 @@ export const CAMP = {
   ],
 };
 export const REASON_SPOTS = [{ x: -11, z: -2 }, { x: -6, z: 7 }, { x: 0, z: -1 }, { x: 11, z: -2 }, { x: 6, z: 7 }, { x: -12, z: 8 }];
+// 맞는 까닭을 찾으면 그 말을 한 사람이 다시 말해 준다(카드 차례와 같은 자리)
+const REASON_TALK = [
+  [{ who: 'yiseonggye', text: '작은 나라가 큰 나라를 거스르는 것은 옳지 않소.' }], null,
+  [{ who: 'soldier', text: '한창 농사철인 여름에 군사를 일으키면 백성이 힘들어요.' }],
+  [{ who: 'archer', text: '우리가 북쪽으로 간 틈에 남쪽 바다로 왜구가 쳐들어올 거예요.' }], null,
+  [{ who: 'archer', text: '장맛비에 활이 풀어지고, 병사들이 병에 걸리고 있어요.' }],
+];
 // 2) 새 도읍 한양 터: 북쪽에 백악(산), 동서남북 네 터에 궁궐·종묘·사직단을 가져다 놓는다
 const HANYANG_SITE = {
   origin: [400, 0], ground: 'grass', groundColor: 0x6a8a4c, bounds: { x0: -20, x1: 20, z0: -18, z1: 16 },
@@ -107,7 +114,7 @@ export default {
     });
     const a = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, ...REASON_SPOTS[i] })) }, easy);
+      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, look: i % 2 ? 'archer' : 'soldier', talk: REASON_TALK[i], ...REASON_SPOTS[i] })) }, easy);
       if (ok && tries === 1) firstTryCorrect += 1;
       return ok;
     }, { failHint: script.reasons.fail });

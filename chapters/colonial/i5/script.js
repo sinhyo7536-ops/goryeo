@@ -48,16 +48,30 @@ export default {
   },
   parts: {
     pages: {
-      type: 'collect', title: '「우리말 큰사전」 원고를 모아요', counter: '모은 원고', seconds: 80,
-      fail: '빛나는 곳을 따라가며 원고를 모아요.',
+      type: 'drive', src: ['S51'], title: '경찰을 피해 「우리말 큰사전」 원고를 모아 학회로 가져가요', counter: '지난 곳', pickupCounter: '모은 원고', seconds: 150,
+      howto: '마을 곳곳에 숨겨 둔 원고를 모두 모아 조선어 학회로 가져가요. 순찰하는 경찰과 부딪히면 앞 지점에서 다시 가요.',
+      intro: [
+        { who: 'linguist', text: '우리 조선어 학회는 우리말을 연구하고 널리 알려 민족 문화를 지키려 한단다.' },
+        { who: 'linguist', text: '「우리말 큰사전」 원고를 여러 집에 나누어 숨겨 두었지. 경찰 눈을 피해 모아 와 주렴.' },
+      ],
+      route: [
+        { label: '서점 앞', talk: [{ who: 'historian', text: '우리말을 지키는 일은 우리 민족을 지키는 일이네.' }] },
+        { label: '학교 담장', say: '학생들도 우리말 낱말을 모아 보내 주었어요.' },
+        { label: '조선어 학회', needPickups: true, needSay: '아직 모으지 못한 원고가 있어요! 화살표를 따라가 봐요.',
+          talk: [{ who: 'linguist', text: '고맙다! 이 원고로 한글 맞춤법을 다듬고 「우리말 큰사전」을 펴낼 거란다.' }] },
+      ],
+      pickups: [{ label: '원고' }, { label: '원고' }, { label: '원고' }, { label: '원고' }, { label: '원고' }],
+      bump: '경찰과 마주쳤어요! 앞 지점에서 다시 가요.',
+      fail: '빛나는 곳을 따라가며 원고를 모아요. 경찰이 지나간 뒤에 움직여요.',
       done: [{ who: 'narr', text: '조선어 학회는 우리말을 연구하고 보급해 민족 문화를 지키려 했어요.', src: ['S51'] }],
     },
     match: {
       type: 'deliver', src: ['S51'], title: '한 일을 그 사람에게 가져가요', counter: '전한 것',
       howto: '머리 위의 글을 신채호, 조선어 학회, 이육사 가운데 그 일을 한 쪽으로 가져가 대화 버튼을 눌러요.',
+      intro: [{ who: 'historian', text: '총칼 대신 붓과 글로 싸운 사람들도 있었네. 누가 어떤 일을 했는지 알맞게 전해 주게.' }],
       bins: [{ id: 'shin', label: '신채호' }, { id: 'hak', label: '조선어 학회' }, { id: 'yuk', label: '이육사' }],
       cards: [
-        { text: '우리 역사를 연구했다', bin: 'shin' },
+        { text: '우리 역사를 연구했다', bin: 'shin', talk: [{ who: 'historian', text: '우리 역사가 독자적이고 자주적으로 발전해 왔음을 밝혔지.' }] },
         { text: '「우리말 큰사전」을 펴내려 했다', bin: 'hak' },
         { text: '저항 의식을 담은 시를 썼다', bin: 'yuk' },
       ],
@@ -66,13 +80,14 @@ export default {
     kinds: {
       type: 'deliver', src: ['S51'], title: '어떤 노력일까요? 알맞은 곳으로 가져가요', counter: '가져다 놓은 것',
       howto: '머리 위의 글을 상점(민족의 힘 기르기), 학교(학생들의 항일 운동), 학회(우리말과 역사 지키기) 가운데 알맞은 곳으로 가져가요.',
+      intro: [{ who: 'student', text: '우리 민족은 여러 가지 방법으로 일제에 맞섰어요. 알맞은 곳으로 나눠 주세요.' }],
       bins: [{ id: 'power', label: '민족의 힘 기르기' }, { id: 'students', label: '학생들의 항일 운동' }, { id: 'culture', label: '우리말과 역사 지키기' }],
       cards: [
         { text: '우리나라에서 만든 물건을 쓰자', bin: 'power' },
-        { text: '6·10 만세 운동', bin: 'students' },
+        { text: '6·10 만세 운동', bin: 'students', talk: [{ who: 'student', text: '1926년 순종의 장례식에 맞춰 만세를 불렀어요.' }] },
         { text: '「우리말 큰사전」 만들기', bin: 'culture' },
         { text: '성금을 모아 대학을 세우자', bin: 'power' },
-        { text: '광주 학생 항일 운동', bin: 'students' },
+        { text: '광주 학생 항일 운동', bin: 'students', talk: [{ who: 'student', text: '1929년 광주에서 일어난 운동은 3·1 운동 뒤 가장 큰 항일 운동이었어요.' }] },
         { text: '우리 역사를 연구하기', bin: 'culture' },
       ],
       fail: '물건과 대학은 민족의 힘을 기르는 일, 만세는 학생 운동, 사전과 역사는 우리 문화를 지키는 일이에요.',

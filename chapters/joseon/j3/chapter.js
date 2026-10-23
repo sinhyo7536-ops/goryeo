@@ -10,6 +10,13 @@ const CLOCKYARD = {
   origin: [400, 0], ground: 'stone', groundColor: 0xb0a890, bounds: { x0: -16, x1: 16, z0: -10, z1: 14 },
   props: [{ type: 'landmark', name: 'jagyeongnu', x: 0, z: -7, scale: 1.4, rect: [10, 3] }, { type: 'hanok', x: 0, z: -14, tile: true, scale: 1.6, solid: false }],
 };
+// 움직임을 찾을 때마다 장영실이 자격루가 돌아가는 모습을 설명한다(카드 차례와 같다)
+const CLOCK_TALK = [
+  [{ who: 'jangyeongsil', text: '물항아리에서 물이 일정하게 흘러 들어와 차오르지.' }],
+  [{ who: 'jangyeongsil', text: '물이 차면 쇠구슬이 굴러 떨어진다네.' }],
+  [{ who: 'jangyeongsil', text: '떨어진 구슬이 나무 인형을 움직이지.' }],
+  [{ who: 'jangyeongsil', text: '인형이 종과 북을 울려 시간을 알린다! 사람이 손대지 않아도 말이야.' }],
+];
 const CLOCK_SPOTS = [{ x: 9, z: 1 }, { x: -9, z: 2 }, { x: 4, z: 7 }, { x: -4, z: 8 }];
 
 const ORDER = ['commoner', 'jangyeongsil', 'crownPrince'];
@@ -77,7 +84,7 @@ export default {
     }, script.dial.fail));
     await sayAll(dialogue, script.dial.done); dialogue.close();
     // 2) 자격루 차례
-    parts.push(await tryPart(ctx, easy => PLAY.stops(ctx, { arena: CLOCKYARD, from: [0, 12], counter: '찾은 움직임', spots: script.clock.cards.map((label, i) => ({ label, ...CLOCK_SPOTS[i] })) }, easy), script.clock.fail));
+    parts.push(await tryPart(ctx, easy => PLAY.stops(ctx, { arena: CLOCKYARD, from: [0, 12], counter: '찾은 움직임', spots: script.clock.cards.map((label, i) => ({ label, talk: CLOCK_TALK[i], ...CLOCK_SPOTS[i] })) }, easy), script.clock.fail));
     scene.ringClock(); ctx.audio.play('tap');
     await sayAll(dialogue, script.clock.done); dialogue.close();
     // 3) 소나기 뒤 측우기 읽기

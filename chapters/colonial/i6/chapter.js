@@ -8,7 +8,7 @@ const FIELD = { // 훈련장: 통나무가 굴러다니는 길과 깃발 언덕
   origin: [400, 0], ground: 'earth', groundColor: 0x8a7a5a, bounds: { x0: -20, x1: 20, z0: -26, z1: 26 },
   props: [
     { type: 'tent', x: -14, z: 20, color: 0x6b6a4a }, { type: 'tent', x: 14, z: 20, color: 0x6b6a4a },
-    { type: 'flagpole', x: -3, z: -22 }, { type: 'flagpole', x: 3, z: -22 },
+    { type: 'flagpole', x: -3, z: -24 }, { type: 'flagpole', x: 3, z: -24 }, { type: 'wall', x: -16, z: -15, w: 1.2, h: 1.6, color: 0xd8c08a }, // 사격장 과녁
     { type: 'crowd', x: 13, z: 10, n: 6, cols: 3, looks: ['gwangbokgun'], face: -Math.PI / 2 },
   ],
 };
@@ -43,7 +43,8 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.run, arena: FIELD, from: [0, 22],
-      route: xy(script.parts.run.route, [{ x: 0, z: 15 }, { x: 0, z: -2 }, { x: 0, z: -18 }]),
+      route: xy(script.parts.run.route, [{ x: 0, z: 17 }, { x: 0, z: 4 }, { x: -11, z: -15 }, { x: 0, z: -20 }]),
+      pickups: xy(script.parts.run.pickups, [{ x: 17, z: 13 }, { x: -15, z: 3 }, { x: 13, z: -14 }]),
       hazards: [{ x: -14, z: 8, to: [14, 8], kind: 'log', r: 1.2, speed: 0.8 }, { x: 14, z: 2, to: [-14, 2], kind: 'log', r: 1.2, speed: 0.7 }, { x: -14, z: -9, to: [14, -9], kind: 'log', r: 1.2, speed: 0.9 }] },
     { ...script.parts.sort, arena: FLAGS, from: [0, 11], bins: xy(script.parts.sort.bins, [{ x: -11, z: -5 }, { x: 11, z: -5 }]) },
   ],

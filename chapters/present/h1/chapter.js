@@ -48,7 +48,8 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.news, arena: VILLAGE, from: [0, 25], followers: { looks: ['citizen', 'woman', 'student', 'grandma', 'schoolgirl'], per: 2, flags: true },
-      route: xy(script.parts.news.route, [{ x: -3, z: 17 }, { x: 3, z: 9 }, { x: -3, z: 1 }, { x: 3, z: -7 }, { x: 0, z: -18 }]) },
+      route: xy(script.parts.news.route, [{ x: -3, z: 17 }, { x: 3, z: 9 }, { x: -3, z: 1 }, { x: 3, z: -7 }, { x: 0, z: -18 }]),
+      pickups: xy(script.parts.news.pickups, [{ x: 15, z: 14 }, { x: -16, z: 6 }, { x: 14, z: -2 }, { x: -14, z: -12 }]) },
     { ...script.parts.change, arena: SQUARE, from: [0, 12],
       bins: xy(script.parts.change.bins, [{ x: -10, z: -6 }, { x: 10, z: -6 }]) },
   ],

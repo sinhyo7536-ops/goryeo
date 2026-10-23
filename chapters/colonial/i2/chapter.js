@@ -42,9 +42,12 @@ export default makeKitChapter({
     signs: [{ id: 'signDeclare', title: '독립 선언', x: 4, z: 6.5 }, { id: 'signYu', title: '유관순', x: -13, z: 2.5 }, { id: 'signJeam', title: '제암리', x: 14, z: 1 }],
   },
   parts: [
-    { ...script.parts.flags, from: [0, 4], spots: [{ x: -12, z: 4.5 }, { x: -6, z: 4.5 }, { x: 7, z: 4.5 }, { x: 13, z: 4.5 }, { x: 0, z: -2 }] },
+    { ...script.parts.flags, arena: JONGNO, from: [0, 21],
+      route: xy(script.parts.flags.route, [{ x: -4, z: 4 }, { x: 4, z: -10 }]),
+      pickups: xy(script.parts.flags.pickups, [{ x: -16, z: 18 }, { x: 15, z: 14 }, { x: -15, z: 0 }, { x: 16, z: -2 }]) },
     { ...script.parts.march, arena: JONGNO, from: [0, 21], followers: { looks: ['student', 'schoolgirl', 'citizen', 'woman', 'peasant', 'yugwansun'], per: 2, flags: true },
-      route: xy(script.parts.march.route, [{ x: 0, z: 18 }, { x: 2, z: 6 }, { x: -2, z: -6 }, { x: 0, z: -18 }]) },
+      route: xy(script.parts.march.route, [{ x: 0, z: 18 }, { x: 2, z: 6 }, { x: -2, z: -6 }, { x: 0, z: -18 }]),
+      hazards: [{ x: -14, z: 0, to: [14, 0], kind: 'crowd', r: 1.6, speed: 0.4 }, { x: 14, z: -12, to: [-14, -12], kind: 'crowd', r: 1.6, speed: 0.45 }] },
     { ...script.parts.flow, arena: MEMORY, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: 9, z: 0 }, { x: -9, z: 5 }, { x: 0, z: -6 }, { x: -8, z: -7 }]) },
   ],
 });

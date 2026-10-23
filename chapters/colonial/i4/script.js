@@ -48,27 +48,43 @@ export default {
   },
   parts: {
     gather: {
-      type: 'drive', title: '숲속 진지를 돌며 흩어진 독립군 부대를 모아요', counter: '모은 부대', seconds: 70,
-      howto: '빛나는 진지를 차례로 지나가요. 독립군이 줄지어 따라와요.',
-      route: [
-        { label: '첫째 진지', say: '"장군님, 저희도 함께 싸우겠습니다!"' },
-        { label: '둘째 진지', say: '독립군이 하나둘 모여들었어요.' },
-        { label: '셋째 진지', say: '흩어졌던 부대가 다시 모였어요.' },
-        { label: '청산리 골짜기 입구', say: '이제 골짜기 양쪽 산에 숨어 기다려요.' },
+      type: 'drive', title: '숲속 진지를 돌며 흩어진 독립군 부대를 모아요', counter: '지난 진지', pickupCounter: '찾은 대원', seconds: 150,
+      howto: '빛나는 진지를 차례로 지나가요. 숲에 흩어진 대원을 찾으면 뒤따라와요. 모두 모아야 골짜기 입구로 갈 수 있어요.',
+      intro: [
+        { who: 'kimjwajin', text: '봉오동에서 진 일본군이 더 많은 군대를 이끌고 다시 쳐들어온다.' },
+        { who: 'kimjwajin', text: '흩어진 부대를 모아 청산리 골짜기로 가자!' },
       ],
+      route: [
+        { label: '첫째 진지', talk: [{ who: 'soldier', text: '장군님, 저희도 함께 싸우겠습니다!' }] },
+        { label: '둘째 진지', talk: [{ who: 'hongbeomdo', text: '봉오동에서 우리는 일본군을 크게 무찔렀네. 이번에는 김좌진 장군의 부대와 힘을 합치세.' }] },
+        { label: '셋째 진지', say: '흩어졌던 부대가 다시 모였어요.' },
+        { label: '청산리 골짜기 입구', needPickups: true, needSay: '아직 숲에 남은 대원이 있어요! 화살표를 따라가 봐요.',
+          talk: [{ who: 'kimjwajin', text: '모두 골짜기 양쪽 산에 숨어 기다려라. 적이 깊이 들어오면 공격한다!' }] },
+      ],
+      pickups: [{ label: '대원', follow: 'independenceArmy' }, { label: '대원', follow: 'independenceArmy' }, { label: '대원', follow: 'independenceArmy' }],
       fail: '화살표가 가리키는 빛나는 곳으로 가요.',
     },
     ambush: {
       type: 'ambush', title: '청산리 골짜기: 일본군이 깊이 들어오면 공격 신호!', label: '공격!', counter: '물리친 부대',
-      howto: '일본군이 골짜기 한가운데 빛나는 곳에 들어오면 그 위의 「공격!」을 눌러요.',
+      howto: '일본군이 골짜기 한가운데 빛나는 곳에 들어오면 그 위의 「공격!」을 눌러요. 싸움은 세 차례 이어져요.',
+      intro: [{ who: 'kimjwajin', text: '골짜기의 지형을 이용한다. 적이 빛나는 곳까지 깊이 들어왔을 때 신호를 보내라!' }],
+      waves: [
+        { enemies: 4, need: 3, interval: 2.1, speed: 2.8 },
+        { enemies: 5, need: 4, interval: 1.7, speed: 3.1, talk: [{ who: 'hongbeomdo', text: '일본군이 다시 밀려온다! 산 위에서 내려다보며 맞서라!' }] },
+        { enemies: 6, need: 4, interval: 1.4, speed: 3.4, talk: [{ who: 'kimjwajin', text: '마지막이다! 우리 독립군의 힘을 보여 주자!' }] },
+      ],
       fail: '골짜기 한가운데 들어왔을 때 신호를 보내야 해요. 다시 해 봐요.',
       done: [{ who: 'narr', text: '김좌진과 홍범도가 이끄는 독립군 부대는 청산리의 지형을 이용한 전술로 일본군에 큰 승리를 거두었어요(청산리 대첩, 1920년).', src: ['S51'] }],
     },
     leaders: {
       type: 'find', src: ['S51'], title: '청산리 대첩을 이끈 독립군 지도자 두 사람을 찾아가요', counter: '찾은 지도자',
       howto: '네 사람 가운데 청산리 대첩을 이끈 두 사람에게 가서 대화 버튼을 눌러요.',
+      intro: [{ who: 'soldier', text: '승리를 이끈 장군님들께 인사드리러 가요. 누구셨는지 기억나요?' }],
       items: [
-        { text: '김좌진', correct: true }, { text: '김옥균', correct: false }, { text: '홍범도', correct: true }, { text: '전봉준', correct: false },
+        { text: '김좌진', correct: true, talk: [{ who: 'kimjwajin', text: '모두가 힘을 합친 덕분이다.' }] },
+        { text: '김옥균', correct: false },
+        { text: '홍범도', correct: true, talk: [{ who: 'hongbeomdo', text: '나라를 되찾는 날까지 싸움은 계속되네.' }] },
+        { text: '전봉준', correct: false },
       ],
       fail: '오늘 만난 두 장군을 떠올려 보세요.',
     },

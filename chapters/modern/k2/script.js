@@ -50,13 +50,14 @@ export default {
   parts: {
     flow: {
       type: 'stops', src: ['S51'], title: '1884년 겨울밤, 갑신정변이 일어난 차례대로 찾아가요', counter: '찾아간 곳',
-      howto: '거리의 이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요.',
+      howto: '거리의 이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요. 그곳 사람이 무슨 일이 있었는지 들려줘요.',
+      intro: [{ who: 'merchant', text: '오늘 밤 우정총국 쪽이 시끌시끌해요. 무슨 일이 벌어지는지 따라가 봐요.' }],
       spots: [
-        { label: '우정총국 축하 잔치', say: '우정총국을 연 것을 축하하는 잔치가 열렸어요.' },
-        { label: '개화 세력의 정변', say: '김옥균 등 개화 세력이 잔치를 틈타 정변을 일으켰어요.' },
-        { label: '개혁안 발표', say: '새 정부를 세우고 개혁안을 발표했어요.' },
-        { label: '청의 군대', say: '청이 군대를 보내 개화 세력을 공격했어요.' },
-        { label: '3일 만에 끝남', say: '정변은 3일 만에 끝났어요.' },
+        { label: '우정총국 축하 잔치', look: 'joseonOfficial', talk: [{ who: 'clerk', text: '우리나라 최초로 우편 업무를 맡은 우정총국이 생긴 것을 축하하는 잔치라네.' }] },
+        { label: '개화 세력의 정변', look: 'kimokgyun', talk: [{ who: 'kimokgyun', text: '청에 의지하는 세력을 몰아내고 새로운 조선을 만들 것이오!' }] },
+        { label: '개혁안 발표', look: 'kimokgyun', talk: [{ who: 'kimokgyun', text: '새 정부를 세우고 개혁안을 발표하오.' }] },
+        { label: '청의 군대', look: 'qingSoldier', talk: [{ who: 'merchant', text: '청나라 군대가 몰려와 개화 세력을 공격했어요!' }] },
+        { label: '3일 만에 끝남', look: 'commoner', talk: [{ who: 'merchant', text: '결국 정변은 3일 만에 끝나 버렸어요.' }] },
       ],
       fail: '잔치를 틈타 정변을 일으키고, 개혁안을 발표했지만 청의 군대 때문에 끝났어요.',
       done: [{ who: 'narr', text: '갑신정변은 청이 군사를 동원하면서 3일 만에 끝났어요(1884년).', src: ['S51'] }],
@@ -64,10 +65,11 @@ export default {
     reform: {
       type: 'find', src: ['S51'], title: '방에 붙은 개혁안 가운데 갑신정변 때 발표한 내용을 찾아요', counter: '찾은 내용',
       howto: '마당의 방(벽보) 가운데 개화 세력이 발표한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      intro: [{ who: 'kimokgyun', text: '우리가 발표한 개혁안이 방에 붙어 있소. 진짜 개혁안만 골라 보시오.' }],
       items: [
-        { text: '청에 바치던 예물을 없앤다', correct: true },
+        { text: '청에 바치던 예물을 없앤다', correct: true, talk: [{ who: 'kimokgyun', text: '청에서 벗어나 자주적인 나라가 되어야 하오.' }] },
         { text: '신분에 따라 관리를 뽑는다', correct: false },
-        { text: '문벌을 없애 백성이 평등한 권리를 갖게 한다', correct: true },
+        { text: '문벌을 없애 백성이 평등한 권리를 갖게 한다', correct: true, talk: [{ who: 'merchant', text: '백성이 평등해진다니 놀라워요!' }] },
         { text: '청의 간섭을 더 받아들인다', correct: false },
         { text: '세금 제도를 고쳐 관리의 부정을 막는다', correct: true },
       ],

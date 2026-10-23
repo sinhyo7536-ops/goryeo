@@ -12,6 +12,15 @@ const TWO = { // 왼쪽 산속 의병 진지, 오른쪽 학교와 신문사
     { type: 'western', x: 13, z: -12, w: 8, d: 4, h: 4, color: 0xb8a070 }, { type: 'crowd', x: 13, z: -7.5, n: 3, cols: 3, looks: ['student', 'schoolgirl'], face: 0 },
   ],
 };
+const PASS = { // 산속 고갯길: 양쪽 숲에 의병이 숨어 있다
+  origin: [400, 0], ground: 'grass', groundColor: 0x55703f, bounds: { x0: -30, x1: 30, z0: -30, z1: 30 },
+  roads: [{ x: 0, z: 0, w: 5, d: 70, color: 0x7a6a50 }],
+  props: [
+    { type: 'tree', x: -8, z: -18, color: 0x34503a }, { type: 'tree', x: -10, z: -6, color: 0x34503a }, { type: 'tree', x: -8, z: 6, color: 0x34503a },
+    { type: 'tree', x: 8, z: -14, color: 0x34503a }, { type: 'tree', x: 10, z: -2, color: 0x34503a }, { type: 'tree', x: 8, z: 10, color: 0x34503a },
+    { type: 'crowd', x: -14, z: 4, n: 4, cols: 2, looks: ['uibyeong'], face: Math.PI / 2 }, { type: 'crowd', x: 13, z: -4, n: 3, cols: 1, looks: ['uibyeong'], face: -Math.PI / 2 },
+  ],
+};
 const HAGUE = { // 헤이그 회의장 앞
   origin: [400, 0], ground: 'stone', groundColor: 0xb0a890, bounds: { x0: -20, x1: 20, z0: -12, z1: 14 },
   props: [
@@ -49,6 +58,7 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.sort, arena: TWO, from: [0, 11], bins: xy(script.parts.sort.bins, [{ x: -13, z: -3 }, { x: 13, z: -3 }]) },
+    { ...script.parts.hills, arena: PASS, camera: { pos: [-14, 15, 18], target: [0, 0, -2] }, path: [[0, -32], [0, 30]], zone: { x: 0, z: 0, r: 7 }, look: 'gendarme' },
     { ...script.parts.envoys, arena: HAGUE, from: [0, 11], items: xy(script.parts.envoys.items, [{ x: -14, z: -3.5 }, { x: -7, z: -3.5 }, { x: 0, z: -3.5 }, { x: 7, z: -3.5 }, { x: 14, z: -3.5 }]) },
   ],
 });

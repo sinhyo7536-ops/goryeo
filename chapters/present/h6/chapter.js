@@ -60,6 +60,7 @@ export default makeKitChapter({
   parts: [
     { ...script.parts.highway, arena: HIGHWAY, from: [CITIES[0].x, CITIES[0].z + 6], speed: 1.5,
       route: xy(script.parts.highway.route, CITIES),
+      pickups: xy(script.parts.highway.pickups, [{ x: CITIES[0].x - 6, z: CITIES[0].z - 6 }, { x: CITIES[1].x + 7, z: CITIES[1].z - 3 }, { x: CITIES[2].x - 7, z: CITIES[2].z + 2 }]),
       hazards: [
         { x: -12, z: 9, to: [6, 9], kind: 'car', r: 1.6, speed: 0.55 },
         { x: 4, z: 30, to: [18, 15], kind: 'car', r: 1.6, speed: 0.5 },

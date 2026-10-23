@@ -167,6 +167,14 @@ export const BUILD = {
   },
   // 조선편 유물 모형(자격루·앙부일구·측우기 등): name은 landmarks.js의 함수 이름, r 부딪힘 반지름
   landmark(g, p) { g.add(LM[p.name]()); return p.rect ? { rect: p.rect } : (p.r ?? 2); },
+  // 우물: 돌로 쌓은 둥근 우물과 두레박 기둥
+  well(g) {
+    add(g, new THREE.CylinderGeometry(0.8, 0.85, 0.8, 14, 1, true), 0x8c8577, 0, 0.4, 0, 'stone');
+    add(g, new THREE.CylinderGeometry(0.72, 0.72, 0.05, 14), 0x2f4a5e, 0, 0.55, 0);
+    for (const sx of [-0.8, 0.8]) add(g, box(0.1, 1.6, 0.1), 0x5a3f2a, sx, 1.2, 0, 'wood');
+    add(g, box(1.8, 0.1, 0.1), 0x5a3f2a, 0, 1.95, 0, 'wood');
+    return 0.9;
+  },
   // 부두(배를 대는 곳)
   pier(g, p) { add(g, box(p.w || 8, 0.5, p.d || 3), 0x7a5a3c, 0, 0.3, 0, 'wood'); return 0; },
   // 큰 나무

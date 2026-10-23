@@ -12,6 +12,14 @@ const PALACE = { // 고쳐 짓는 경복궁 앞(왼쪽)과 다른 때의 일(오
     { type: 'water', x: 20, z: -30, w: 60, d: 20 },
   ],
 };
+const COAST = { // 강화도 해안: 갯벌 길, 망루, 포대, 연무당. 먼바다에 군함
+  origin: [400, 0], ground: 'earth', groundColor: 0x8a7a5a, bounds: { x0: -20, x1: 20, z0: -14, z1: 24 },
+  props: [
+    { type: 'water', x: 0, z: -40, w: 160, d: 40 }, { type: 'steamship', x: -10, z: -34, ry: Math.PI / 2, solid: false },
+    { type: 'pavilion', x: -14, z: 7 }, { type: 'wall', x: 9, z: -6, w: 8, color: 0x8c8577 }, { type: 'rice', x: 13, z: -3, n: 3 },
+    { type: 'hanok', x: 10, z: 18, tile: true }, { type: 'tree', x: -16, z: 18 },
+  ],
+};
 const YEONMU = { // 강화도 연무당: 조약을 맺은 곳
   origin: [400, 0], ground: 'earth', groundColor: 0x8a7a5a, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
   props: [
@@ -48,6 +56,7 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.regent, arena: PALACE, from: [0, 11], bins: xy(script.parts.regent.bins, [{ x: -11, z: -4 }, { x: 11, z: -4 }]) },
+    { ...script.parts.coast, arena: COAST, from: [0, 21], route: xy(script.parts.coast.route, [{ x: -4, z: 12 }, { x: -12, z: 0 }, { x: 6, z: -2 }, { x: 6, z: 14 }]) },
     { ...script.parts.treaty, arena: YEONMU, from: [0, 11], items: xy(script.parts.treaty.items, [{ x: -10, z: 2 }, { x: -3, z: 7 }, { x: 10, z: 2 }, { x: 4, z: 7 }]) },
   ],
 });

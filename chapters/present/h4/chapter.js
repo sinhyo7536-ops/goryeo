@@ -7,6 +7,16 @@ import { mapSpot } from '../../kit/play.js';
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
 const M = mapSpot({ x: 0, z: 0, w: 48 });
 const MAP = { origin: [400, 0], ground: 'earth', groundColor: 0xd8dade, bounds: { x0: -28, x1: 28, z0: -36, z1: 36 }, map: { x: 0, z: 0, w: 48 } };
+const SNOWROAD = { // 눈 덮인 피란길: 얼어붙은 강, 고갯길, 쉼터(천막)
+  origin: [400, 0], ground: 'earth', groundColor: 0xe6e8ec, bounds: { x0: -22, x1: 22, z0: -30, z1: 30 },
+  roads: [{ x: 0, z: 0, w: 5, d: 60, color: 0xb8b4aa }],
+  props: [
+    { type: 'water', x: 0, z: 8, w: 120, d: 6, color: 0xc8dce6 }, { type: 'shack', x: -12, z: 22 }, { type: 'shack', x: 12, z: 24 },
+    { type: 'crowd', x: 10, z: -15, n: 6, cols: 2, looks: ['woman', 'grandma', 'commoner', 'citizen'], face: Math.PI },
+    { type: 'tent', x: -6, z: -24, color: 0x8a8a7a }, { type: 'tent', x: 6, z: -24, color: 0x8a8a7a },
+    { type: 'tree', x: -16, z: -12, color: 0x6a7a6a }, { type: 'tree', x: 17, z: -6, color: 0x6a7a6a }, { type: 'tree', x: 16, z: 14, color: 0x6a7a6a },
+  ],
+};
 const PANMUN = { // 판문점: 가운데 휴전선(철조망)과 파란 회담 건물
   origin: [400, 0], ground: 'earth', groundColor: 0xe6e8ec, bounds: { x0: -20, x1: 20, z0: -6, z1: 18 },
   props: [
@@ -42,7 +52,10 @@ export default makeKitChapter({
     scatter: [{ kind: 'pine', count: 40, area: { x0: -70, x1: 70, z0: -50, z1: -14 }, seed: 541, color: 0x41604a }],
   },
   parts: [
-    { ...script.parts.help, from: [0, 3], spots: [{ x: -12, z: 1 }, { x: 12, z: 3 }, { x: -7, z: -1.5 }, { x: 7, z: -1.5 }, { x: 0, z: 10 }] },
+    { ...script.parts.help, arena: SNOWROAD, from: [0, 27],
+      route: xy(script.parts.help.route, [{ x: 0, z: 20 }, { x: 0, z: 8 }, { x: 2, z: -8 }, { x: 0, z: -18 }]),
+      pickups: xy(script.parts.help.pickups, [{ x: -14, z: 16 }, { x: 13, z: 2 }, { x: -12, z: -14 }]),
+      hazards: [{ x: -18, z: 14, to: [18, 14], kind: 'car', r: 1.5, speed: 0.45 }, { x: 18, z: -2, to: [-18, -2], kind: 'car', r: 1.5, speed: 0.5 }] },
     { ...script.parts.flow, arena: MAP, from: [0, 30],
       spots: xy(script.parts.flow.spots, [M(42, 14), M(28, 24), M(41, 52), M(50, 47), M(36, 44)]) },
     { ...script.parts.truce, arena: PANMUN, from: [0, 15],

@@ -15,6 +15,15 @@ const WORKSHOP = {
     { type: 'tent', x: 8, z: 12, color: 0x6b4a32 }, { type: 'desk', x: 2, z: -3 },
   ],
 };
+// 작업 자리마다 장인이 서 있고, 그 일을 마치면 한마디 한다
+const MAKING_TALK = [
+  [{ who: 'artisan1', text: '베어 낸 나무를 바닷물에 담갔네. 이제 다음 일을 하러 가세.' }],
+  [{ who: 'artisan1', text: '소금물에 푹 삶았네. 뜨거우니 조심하게.' }],
+  [{ who: 'artisan2', text: '그늘에서 천천히 말려야 갈라지지 않는다네.' }],
+  [{ who: 'artisan3', text: '한 자 한 자 정성껏 새겼구나. 부처님의 힘으로 나라를 지키려는 마음이란다.' }],
+  [{ who: 'artisan3', text: '네 모서리를 구리판으로 고정했네. 이걸 마구리라고 하지.' }],
+  [{ who: 'artisan4', text: '마지막으로 옻칠을 했으니 벌레가 먹지 않을 걸세. 경판 하나가 완성되었네!' }],
+];
 const MAKING_SPOTS = [{ x: -4, z: -14 }, { x: -10, z: -2 }, { x: 11, z: 4 }, { x: -9, z: 11 }, { x: 4, z: 0 }, { x: 5, z: 12 }];
 
 const ARTISANS = ['artisan1', 'artisan2', 'artisan3', 'artisan4'];
@@ -87,7 +96,9 @@ export default {
       steps: ['작업장의 이름표를 경판 만드는 차례대로 찾아가요.', '가까이 가서 대화 버튼을 누르면 그 일을 해요.', '차례가 틀리면 처음부터 다시 해요.'],
       keyboard: 'W A S D 또는 방향키로 걷고, E로 일해요', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 일해요',
     });
-    const making = { arena: WORKSHOP, from: [0, 14], counter: '마친 일', spots: script.making.cards.map((label, i) => ({ label, ...MAKING_SPOTS[i] })) };
+    const making = { arena: WORKSHOP, from: [0, 14], counter: '마친 일', spots: script.making.cards.map((label, i) => ({ label, look: 'artisan', talk: MAKING_TALK[i], ...MAKING_SPOTS[i] })),
+      intro: [{ who: 'monk', text: '몽골군이 불태운 대장경을 다시 만들어야 하오. 장인들에게 들은 순서대로 일을 해 보시오.' }] };
+    await sayAll(dialogue, making.intro); dialogue.close();
     const a = await runWithRetries(ctx, easy => PLAY.stops(ctx, making, easy), { failHint: script.making.failHint });
     ctx.audio.play('correct');
 

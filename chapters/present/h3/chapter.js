@@ -17,14 +17,14 @@ const RIVER = {
   ],
 };
 const SEA = {
-  origin: [400, 0], sea: true, bounds: { x0: -24, x1: 24, z0: -30, z1: 30 },
+  origin: [400, 0], sea: true, bounds: { x0: -24, x1: 24, z0: -30, z1: 46 },
   props: [
     { type: 'island', x: 0, z: -42, r: 15, color: 0x8a8a6a }, // 인천 땅
     { type: 'pier', x: 0, z: -26, w: 10, d: 3 },
     { type: 'western', x: -6, z: -32, w: 6, d: 4, h: 4, color: 0x9a948a, solid: false }, { type: 'western', x: 6, z: -33, w: 5, d: 4, h: 5, color: 0xa86a52, solid: false },
     { type: 'island', x: 7, z: -6, r: 3.5 }, // 월미도
-    { type: 'island', x: -16, z: -16, r: 4 }, { type: 'island', x: 17, z: 12, r: 3 },
-    { type: 'steamship', x: -14, z: 30, ry: 0.4, solid: false }, // 상륙정이 떠난 군함
+    { type: 'island', x: -18, z: -20, r: 4 }, { type: 'island', x: 19, z: 22, r: 3 },
+    { type: 'steamship', x: -18, z: 58, ry: 0.4, solid: false }, { type: 'steamship', x: 16, z: 60, ry: -0.3, solid: false }, // 상륙정이 떠난 군함들
   ],
 };
 const MAP = { origin: [400, 0], ground: 'earth', groundColor: 0x8a7a62, bounds: { x0: -28, x1: 28, z0: -36, z1: 36 }, map: { x: 0, z: 0, w: 48 } };
@@ -55,11 +55,15 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.river, arena: RIVER, camera: { pos: [0, 14, 15], target: [0, 0, -7] },
-      paths: [[[-9, -30], [-7, 9]], [[9, -30], [7, 9]], [[0, -30], [0, 9]]], zones: [{ x: 0, z: -5, r: 10 }],
-      enemies: 7, need: 5, interval: 1.7, speed: 2.4, look: 'nkSoldier' },
-    { ...script.parts.landing, arena: SEA, from: [0, 27], speed: 1.8,
-      route: xy(script.parts.landing.route, [{ x: -9, z: 15 }, { x: -2, z: -5 }, { x: 2, z: -22 }]),
-      hazards: [{ x: 9, z: 12, r: 1.5 }, { x: -13, z: 3, r: 1.6 }, { x: -1, z: 9, kind: 'mine', r: 1 }, { x: -18, z: -14.5, to: [14, -14.5], kind: 'ship', r: 1.8, speed: 0.5 }] },
+      paths: [[[-9, -30], [-7, 9]], [[9, -30], [7, 9]], [[0, -30], [0, 9]]], zones: [{ x: 0, z: -5, r: 10 }], look: 'nkSoldier' },
+    { ...script.parts.landing, arena: SEA, from: [0, 42], speed: 1.8,
+      route: xy(script.parts.landing.route, [{ x: -6, z: 34 }, { x: -12, z: 18 }, { x: -2, z: -5 }, { x: 2, z: -22 }]),
+      pickups: xy(script.parts.landing.pickups, [{ x: 10, z: -12 }, { x: -16, z: -8 }, { x: 12, z: 8 }]),
+      hazards: [
+        { x: 9, z: 14, r: 1.5 }, { x: -13, z: 3, r: 1.6 }, { x: -2, z: 26, kind: 'mine', r: 1 }, { x: -17, z: 26, kind: 'mine', r: 1 },
+        { x: -6, z: 12, kind: 'mine', r: 1 }, { x: -17, z: 10, kind: 'mine', r: 1 }, { x: 4, z: 5, kind: 'mine', r: 1 },
+        { x: -20, z: -14.5, to: [16, -14.5], kind: 'ship', r: 1.8, speed: 0.5 }, { x: 18, z: 2, to: [-20, 2], kind: 'ship', r: 1.8, speed: 0.4 },
+      ] },
     { ...script.parts.flow, arena: MAP, from: [0, 30],
       spots: xy(script.parts.flow.spots, [M(58, 41), M(40, 50), M(72, 76), M(31, 54), M(49, 46)]) },
   ],

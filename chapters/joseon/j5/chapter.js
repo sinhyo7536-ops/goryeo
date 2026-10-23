@@ -83,7 +83,7 @@ export default {
       keyboard: '걷기는 W A S D 또는 방향키, 놓기는 E', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 놓아요',
     });
     const parts = [];
-    parts.push(await tryPart(ctx, easy => PLAY.deliver(ctx, { arena: HALL, from: [0, 11], counter: '전한 말', bins: script.sort.bins.map((b, i) => ({ ...b, ...SORT_BINS[i] })), cards: script.sort.cards }, easy), script.sort.fail));
+    parts.push(await tryPart(ctx, easy => PLAY.deliver(ctx, { arena: HALL, from: [0, 11], counter: '전한 말', bins: script.sort.bins.map((b, i) => ({ ...b, ...SORT_BINS[i] })), cards: script.sort.cards.map((c, i) => ({ ...c, talk: i === 0 ? [{ who: 'kimsangheon', text: '그렇소. 끝까지 싸워 나라의 뜻을 지켜야 하오.' }] : i === 2 ? [{ who: 'choemyeonggil', text: '백성과 나라를 살리려면 화의해야 하오.' }] : null })) }, easy), script.sort.fail));
     await sayAll(dialogue, script.fires.howto); dialogue.close();
     parts.push(await tryPart(ctx, easy => lightFires(ctx, easy), script.fires.fail));
     await sayAll(dialogue, script.fires.done);

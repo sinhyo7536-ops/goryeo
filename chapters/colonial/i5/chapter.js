@@ -4,6 +4,15 @@ import script from './script.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const STREETS = { // 경성 골목: 서점, 학교 담장, 조선어 학회. 경찰이 순찰한다
+  origin: [400, 0], ground: 'stone', groundColor: 0x9a948a, bounds: { x0: -20, x1: 20, z0: -22, z1: 20 },
+  roads: [{ x: 0, z: 0, w: 5, d: 42, color: 0x8a8070 }],
+  props: [
+    { type: 'western', x: -12, z: 10, w: 6, d: 4, h: 4, color: 0x8a5a4a }, { type: 'hanok', x: 13, z: 12, tile: true },
+    { type: 'western', x: 12, z: -2, w: 7, d: 4, h: 5, color: 0xb8a070 }, { type: 'hanok', x: -13, z: -6 },
+    { type: 'western', x: 0, z: -21, w: 8, d: 4, h: 4, color: 0x8a5a4a },
+  ],
+};
 const PEOPLE = { // 세 사람(모임)이 기다리는 마당
   origin: [400, 0], ground: 'stone', groundColor: 0xa09a8c, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
   props: [
@@ -45,7 +54,10 @@ export default makeKitChapter({
     signs: [{ id: 'signGoods', title: '물산 장려 운동', x: 2, z: 7.5 }, { id: 'signJune', title: '6·10 만세 운동', x: -2, z: -4 }],
   },
   parts: [
-    { ...script.parts.pages, from: [0, 3], spots: [{ x: -13, z: 4.5 }, { x: 13, z: 4.5 }, { x: 2, z: -4 }, { x: -6, z: 8 }, { x: 12, z: -3 }] },
+    { ...script.parts.pages, arena: STREETS, from: [0, 17],
+      route: xy(script.parts.pages.route, [{ x: -6, z: 6 }, { x: 6, z: -4 }, { x: 0, z: -16 }]),
+      pickups: xy(script.parts.pages.pickups, [{ x: -16, z: 16 }, { x: 16, z: 6 }, { x: -16, z: 0 }, { x: 16, z: -12 }, { x: -14, z: -16 }]),
+      hazards: [{ x: -16, z: 8, to: [16, 8], kind: 'crowd', r: 1.6, speed: 0.4 }, { x: 16, z: -8, to: [-16, -8], kind: 'crowd', r: 1.6, speed: 0.45 }] },
     { ...script.parts.match, arena: PEOPLE, from: [0, 11], bins: xy(script.parts.match.bins, [{ x: -12, z: -5.5 }, { x: 0, z: -5 }, { x: 12, z: -5.5 }]) },
     { ...script.parts.kinds, arena: TOWN3, from: [0, 11], bins: xy(script.parts.kinds.bins, [{ x: -14, z: -4 }, { x: 0, z: -4.5 }, { x: 14, z: -4 }]) },
   ],

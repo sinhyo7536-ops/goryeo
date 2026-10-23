@@ -12,7 +12,7 @@ const SHANTY = {
     { type: 'shack', x: 14, z: 15 }, { type: 'shack', x: 19, z: 12 },
     { type: 'rice', x: 15, z: -12, n: 6 }, { type: 'crowd', x: 11, z: -12, n: 2, cols: 2, looks: ['woman', 'grandma'], face: Math.PI / 2 },
     { type: 'desk', x: -3, z: -14 }, { type: 'desk', x: 2, z: -14 }, { type: 'crowd', x: -2, z: -11, n: 6, cols: 3, looks: ['student', 'schoolgirl'], face: Math.PI },
-    { type: 'tent', x: 8, z: 15, color: 0xd8d0bc },
+    { type: 'tent', x: 8, z: 15, color: 0xd8d0bc }, { type: 'well', x: 2.6, z: 9 },
   ],
 };
 
@@ -40,7 +40,8 @@ export default makeKitChapter({
     signs: [{ id: 'signFamily', title: '이산가족 찾기', x: 12.5, z: 2.5 }, { id: 'signTask', title: '평화 통일', x: -11, z: 2.5 }],
   },
   parts: [
-    { ...script.parts.help, from: [0, 3], spots: [{ x: -13, z: 5 }, { x: -5, z: 7 }, { x: 9, z: 6 }, { x: -9, z: -3 }, { x: 12, z: -2 }] },
+    { ...script.parts.help, arena: SHANTY, from: [0, 19],
+      route: xy(script.parts.help.route, [{ x: 0, z: 9 }, { x: -14, z: 11 }, { x: 0, z: 9 }, { x: 14, z: 10 }, { x: 0, z: 9 }, { x: -2, z: -7 }]) },
     { ...script.parts.life, arena: SHANTY, from: [0, 19],
       items: xy(script.parts.life.items, [{ x: -15, z: -8 }, { x: -6, z: 9 }, { x: 13, z: -7 }, { x: 18, z: 4 }, { x: 0, z: -6.5 }, { x: 8, z: 10 }]) },
   ],

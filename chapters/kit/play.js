@@ -12,7 +12,10 @@
 //            { arena?, from, items: [{ text, correct, x, z }] }
 //   ambush : 위에서 내려다보는 골짜기(바다)에 적이 들어오면 그 위의 버튼을 눌러 물리친다(연기를 내며 물러난다).
 //            { arena?, camera: { pos, target }, path: [[x, z], [x, z]], zone: { x, z, r }, enemies, need, interval, speed, unit: 'soldier'|'ship', label }
-//   sneak  : 순찰하는 감시원의 불빛을 피해 숨을 곳을 차례로 지나 목적지까지 간다. 들키면 앞 숨을 곳으로.
+//   sneak  : 순찰하는 감시원의 불빛을 피해 숨을 곳을 차례로 지나 목적지까지 간다. 들키면 앞 숨을 곳으로. hides(덤불) 안에서는 들키지 않는다.
+// 이야기: drive·sneak의 지점, stops의 자리, find·deliver의 정답에 talk(대화 줄)를 달면 그때 대화가 나오고 시간이 멈춘다.
+//         drive 지점의 hold(초)는 그 안에서 버텨야 지나가고, pickups(줍기)·needPickups로 가는 길에 모을 것을 둔다. ambush는 waves로 여러 차례.
+//         stops·find·deliver 자리에 look을 주면 그때 사람이 서 있다.
 //            { arena?, from, waypoints: [{ x, z, label? }], guards: [{ path: [[x, z], [x, z]], speed, range?, look? }], seconds }
 // arena: 마을과 떨어진 곳(origin)에 미니게임 무대를 따로 세운다. { origin: [x, z], ground, groundColor, bounds, props, roads }
 //        좌표는 모두 무대 기준. arena가 없으면 장 마을에서 한다.
@@ -23,6 +26,7 @@ import { groundMaterial } from '../../core/textures.js';
 import { createTapTargets } from '../../core/minigame.js';
 import { MAP_OUTLINE } from '../../core/screens.js';
 import { LOOKS } from '../../content/characters.js';
+import { sayAll } from '../joseon/common.js';
 
 const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
 const add = (g, geo, color, x, y, z) => { const m = new THREE.Mesh(geo, mat(color)); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
@@ -149,8 +153,17 @@ function session(ctx, part, easy) {
   const back = part.arena && { p: world.player.position.clone(), ry: world.player.rotation.y, cam: world.camMode }; // 무대를 치우면 원래 자리로
   const cleanups = [() => { arena.dispose(); if (back) { world.player.position.copy(back.p); world.player.rotation.y = back.ry; world.camMode = back.cam === 'fixed' ? 'follow' : back.cam; world.snapCamera(); } }, () => clearToast(ctx), () => { hud.setTimer(null); hud.setCounter(null); world.setGoal(null); ctx.input.enabled = false; ctx.testHooks.walkTo = null; hud.setPrompt?.(null); hud.setTalkEnabled?.(false); }];
   const duration = part.seconds ? part.seconds * (easy ? 1.5 : 1) : null;
-  let t = 0, done = false, resolveFn;
+  let t = 0, done = false, busy = false, resolveFn;
+  const fns = [];
   const promise = new Promise(r => { resolveFn = r; });
+  // 시계는 하나만 돈다(부품이 update를 여러 번 불러도 시간이 겹쳐 흐르지 않게). 이야기 대화 중에는 시간과 놀이가 멈춘다.
+  const off = world.onUpdate((dt, el) => {
+    if (done || busy) return;
+    t += dt;
+    if (duration) { hud.setTimer(duration - t); if (t >= duration) { s.finish(false); return; } }
+    for (const fn of fns) { fn(dt, el); if (done) return; }
+  });
+  cleanups.push(off);
   const s = {
     arena, at: arena.at, t: () => t,
     finish(ok) {
@@ -159,15 +172,22 @@ function session(ctx, part, easy) {
       resolveFn(ok);
     },
     get done() { return done; },
+    get busy() { return busy; },
     cleanup(f) { cleanups.push(f); },
-    update(fn) {
-      const off = world.onUpdate((dt, el) => {
-        if (done) return;
-        t += dt;
-        if (duration) { hud.setTimer(duration - t); if (t >= duration) { s.finish(false); return; } }
-        fn(dt, el);
+    update(fn) { fns.push(fn); },
+    // 이야기 장면: 대화가 끝날 때까지 시간과 움직임을 멈춘다. then이 있으면 대화 뒤에 부른다.
+    say(lines, then) {
+      if (!lines || !lines.length || !ctx.dialogue) { if (then) then(); return; }
+      busy = true;
+      const wasInput = ctx.input.enabled;
+      ctx.input.enabled = false; ctx.input.releaseJoystick?.();
+      hud.setTalkEnabled?.(false); hud.setPrompt?.(null);
+      sayAll(ctx.dialogue, lines).then(() => {
+        ctx.dialogue.close();
+        busy = false;
+        if (!done) ctx.input.enabled = wasInput;
+        if (then && !done) then();
       });
-      cleanups.push(off);
     },
     promise,
   };
@@ -188,9 +208,12 @@ function pickWithButton(ctx, s, candidates, pick, reach = 1.9) {
     hud.setTalkEnabled?.(!!cur);
     hud.setPrompt?.(cur ? new THREE.Vector3(cur.pos.x, 0, cur.pos.z) : null);
   });
-  const off = ctx.onAction(() => { if (cur && !s.done) { const c = cur; cur = null; pick(c); } });
+  const off = ctx.onAction(() => { if (cur && !s.done && !s.busy) { const c = cur; cur = null; pick(c); } });
   s.cleanup(off);
 }
+
+// 장소에 서 있는 그때 사람(학생 쪽을 본다)
+function standPerson(g, look, x, z) { const p = makePerson(LOOKS[look] || LOOKS.citizen); p.position.set(x, 0, z); g.add(p); return p; }
 
 // ── drive ─────────────────────────────────────────────
 export function drive(ctx, part, easy) {
@@ -215,11 +238,46 @@ export function drive(ctx, part, easy) {
     else { const r = add(hg, new THREE.DodecahedronGeometry(hz.r || 1.4, 0), 0x6b6862, 0, 0.4, 0); r.scale.y = 0.6; }
     return { ...hz, hg, ph: Math.random() * 6 };
   });
+  // 줍기: 가는 길에 흩어진 것(태극기·편지 등). needPickups가 붙은 지점은 다 모아야 지나갈 수 있다.
+  const pickups = (part.pickups || []).map(pk => {
+    const pg = new THREE.Group(); pg.position.set(pk.x, 0, pk.z); g.add(pg);
+    const item = add(pg, box(0.5, 0.5, 0.5), 0xd9a441, 0, 1.0, 0); item.rotation.set(0.5, 0.5, 0);
+    const m = ring(0xd9a441, 0.6, 0.85); m.position.set(0, 0.09, 0); pg.add(m);
+    if (pk.label) { const lab = labelSprite(pk.label, { size: 0.7 }); lab.position.set(0, 2.1, 0); pg.add(lab); }
+    return { ...pk, pg, item, pos: s.at(pk.x, pk.z), got: false };
+  });
+  const left = () => pickups.filter(x => !x.got);
   const followers = [];
-  let next = 0, last = part.from, safe = 0;
+  let next = 0, last = part.from, safe = 0, held = 0;
   const total = route.length;
-  const show = () => { ctx.hud.setCounter(`${part.counter || '지난 곳'} ${next}/${total}`); const r = route[next]; world.setGoal(r ? r.pos : null); };
+  const show = () => {
+    const pk = pickups.length ? ` · ${part.pickupCounter || '모은 것'} ${pickups.length - left().length}/${pickups.length}` : '';
+    const r = route[next];
+    const wait = r && r.hold && held > 0 ? ` · ${r.holdLabel || '기다리는 중'} ${Math.min(r.hold, held).toFixed(1)}/${r.hold}초` : '';
+    ctx.hud.setCounter(`${part.counter || '지난 곳'} ${next}/${total}${pk}${wait}`);
+    // 다 모아야 하는 지점인데 아직 남았으면, 화살표는 가장 가까운 것을 가리킨다
+    if (r && r.needPickups && left().length) {
+      const p = world.player.position;
+      const n = left().sort((a, b) => Math.hypot(a.pos.x - p.x, a.pos.z - p.z) - Math.hypot(b.pos.x - p.x, b.pos.z - p.z))[0];
+      world.setGoal(n.pos);
+    } else world.setGoal(r ? r.pos : null);
+  };
   show();
+  const reach = r => {
+    audio.play('correct');
+    r.m.visible = false; if (r.lab) r.lab.visible = false;
+    if (r.say) toast(ctx, r.say, 'good');
+    last = [r.x, r.z]; next += 1; held = 0;
+    const p = world.player.position;
+    if (part.followers) for (let i = 0; i < part.followers.per; i++) {
+      const looks = part.followers.looks, f = new THREE.Group(); // 따라오는 사람(flags면 태극기를 든다)
+      BUILD.crowd(f, { n: 1, looks: [looks[followers.length % looks.length]], flags: part.followers.flags ? 1 : 0 });
+      f.position.copy(p); g.parent.add(f); followers.push(f);
+    }
+    if (route[next]) { route[next].m.visible = true; if (route[next].lab) route[next].lab.visible = true; }
+    show();
+    s.say(r.talk, () => { if (next === total) setTimeout(() => s.finish(true), 400); });
+  };
   s.update((dt, el) => {
     const p = world.player.position;
     safe = Math.max(0, safe - dt);
@@ -231,25 +289,30 @@ export function drive(ctx, part, easy) {
       }
       const hp = s.at(h.hg.position.x, h.hg.position.z);
       if (!safe && Math.hypot(p.x - hp.x, p.z - hp.z) < (h.r || 1.4) + 0.9) {
-        audio.play('wrong'); safe = 1.5;
+        audio.play('wrong'); safe = 1.5; held = 0;
         toast(ctx, part.bump || '부딪혔어요! 앞 지점에서 다시 가요.', 'bad');
         const back = s.at(...last); p.set(back.x, 0, back.z); world.snapCamera();
       }
     }
-    const r = route[next];
-    if (r && near(p, r.pos, 2)) {
-      audio.play('correct');
-      r.m.visible = false; if (r.lab) r.lab.visible = false;
-      if (r.say) toast(ctx, r.say, 'good');
-      last = [r.x, r.z]; next += 1;
-      if (part.followers) for (let i = 0; i < part.followers.per; i++) {
-        const looks = part.followers.looks, f = new THREE.Group(); // 따라오는 사람(flags면 태극기를 든다)
-        BUILD.crowd(f, { n: 1, looks: [looks[followers.length % looks.length]], flags: part.followers.flags ? 1 : 0 });
-        f.position.copy(p); g.parent.add(f); followers.push(f);
+    for (const pk of pickups) {
+      if (pk.got) continue;
+      pk.item.rotation.y += dt * 2;
+      if (near(p, pk.pos, 1.5)) {
+        pk.got = true; pk.pg.visible = false; audio.play('tap'); toast(ctx, pk.say || `${pk.label || '하나'}를 주웠어요!`, 'good'); show();
+        if (pk.follow) { const f = new THREE.Group(); BUILD.crowd(f, { n: 1, looks: [pk.follow] }); f.scale.setScalar(pk.small ? 0.7 : 1); f.position.copy(p); g.parent.add(f); followers.push(f); } // 찾은 사람이 뒤따라온다
       }
-      if (route[next]) { route[next].m.visible = true; if (route[next].lab) route[next].lab.visible = true; }
-      show();
-      if (next === total) { setTimeout(() => s.finish(true), 400); }
+    }
+    const r = route[next];
+    if (r) {
+      const inside = near(p, r.pos, 2);
+      if (inside && r.needPickups && left().length) { if (!r.warned) { r.warned = true; toast(ctx, r.needSay || `아직 ${part.pickupCounter || '모을 것'}이(가) 남았어요.`, 'bad'); } }
+      else if (inside && r.hold) { // 기다리기: 빛나는 곳 안에서 hold초를 버틴다(벗어나면 처음부터)
+        if (!held && r.holdSay) toast(ctx, r.holdSay);
+        held += dt; show();
+        if (held >= r.hold) reach(r);
+      } else if (inside) reach(r);
+      else if (held) { held = 0; toast(ctx, r.holdLeave || '빛나는 곳을 벗어나면 처음부터 다시 기다려요.', 'bad'); show(); }
+      if (!inside) r.warned = false;
     }
     // 따라오는 사람들: 앞사람을 줄지어 따라 걷는다
     let lead = world.player.position;
@@ -271,6 +334,7 @@ export function stops(ctx, part, easy) {
   const spots = part.spots.map((sp, i) => {
     const m = ring(0xd9a441); m.position.set(sp.x, 0.1, sp.z); g.add(m);
     const lab = labelSprite(sp.label); lab.position.set(sp.x, 2.6, sp.z); g.add(lab);
+    if (sp.look) standPerson(g, sp.look, sp.x, sp.z - 1.4);
     return { ...sp, i, m, lab, pos: s.at(sp.x, sp.z), done: false };
   });
   let next = 0;
@@ -287,7 +351,7 @@ export function stops(ctx, part, easy) {
       sp.lab.material.opacity = 0.55;
       if (sp.say) toast(ctx, sp.say, 'good');
       next += 1; show();
-      if (next === spots.length) setTimeout(() => s.finish(true), 500);
+      s.say(sp.talk, () => { if (next === spots.length) setTimeout(() => s.finish(true), 500); });
     } else {
       audio.play('wrong'); toast(ctx, `× ${sp.label}: 아직 이 차례가 아니에요.`, 'bad');
       setTimeout(() => s.finish(false), 700);
@@ -306,6 +370,7 @@ export function deliver(ctx, part, easy) {
     disc.position.set(b.x, 0.07, b.z); g.add(disc);
     const r = ring(0xd9a441, 2.0, 2.3); r.position.set(b.x, 0.08, b.z); g.add(r);
     const lab = labelSprite(b.label, { size: 1.25 }); lab.position.set(b.x, 3.4, b.z); g.add(lab);
+    if (b.look) standPerson(g, b.look, b.x, b.z - 2.6);
     return { ...b, pos: s.at(b.x, b.z) };
   });
   let i = 0, held = null;
@@ -327,7 +392,7 @@ export function deliver(ctx, part, easy) {
     if (b.id === c.bin) {
       audio.play('correct'); toast(ctx, `○ ${c.text} → ${b.label}`, 'good');
       i += 1; hold();
-      if (i === part.cards.length) setTimeout(() => s.finish(true), 500);
+      s.say(c.talk, () => { if (i === part.cards.length) setTimeout(() => s.finish(true), 500); });
     } else {
       audio.play('wrong'); toast(ctx, `× ${c.text}: ${b.label}이(가) 아니에요.`, 'bad');
       setTimeout(() => s.finish(false), 700);
@@ -345,6 +410,7 @@ export function find(ctx, part, easy) {
     const post = new THREE.Group(); post.position.set(it.x, 0, it.z); g.add(post);
     add(post, new THREE.CylinderGeometry(0.07, 0.08, 1.6, 6), 0x5a3f2a, 0, 0.8, 0);
     const lab = labelSprite(it.text, { size: 0.85 }); lab.position.set(0, 2.2, 0); post.add(lab);
+    if (it.look) standPerson(post, it.look, 0, -1.2);
     const m = ring(0xd9a441, 0.8, 1.05); m.position.set(0, 0.09, 0); post.add(m);
     return { ...it, post, lab, m, pos: s.at(it.x, it.z), got: false };
   });
@@ -362,7 +428,7 @@ export function find(ctx, part, easy) {
     if (it.correct) {
       audio.play('correct'); it.got = true; it.m.material.color.set(0x2f6b5e); it.lab.material.opacity = 0.55;
       toast(ctx, `○ ${it.text}`, 'good'); got += 1; show();
-      if (got === need) setTimeout(() => s.finish(true), 500);
+      s.say(it.talk, () => { if (got === need) setTimeout(() => s.finish(true), 500); });
     } else {
       audio.play('wrong'); toast(ctx, `× ${it.text}`, 'bad');
       setTimeout(() => s.finish(false), 700);
@@ -386,49 +452,63 @@ export function ambush(ctx, part, easy) {
   world.camMode = 'fixed';
   const taps = createTapTargets(ctx);
   s.cleanup(() => taps.dispose());
-  const total = part.enemies, need = Math.max(1, part.need - (easy ? 1 : 0));
-  const speed = (part.speed || 2.2) * (easy ? 0.7 : 1);
   const paths = part.paths || [part.path]; // 여러 길이면 번갈아 들어온다
   const zones = part.zones || [part.zone];
   for (const zn of zones) { const zm = new THREE.Mesh(new THREE.CircleGeometry(zn.r, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.18 })); zm.position.set(zn.x, 0.08, zn.z); g.add(zm); }
+  // 여러 차례 공격(waves): 차례마다 적 수·필요한 수·빠르기, 차례 사이 이야기(talk)
+  const waves = part.waves || [{ enemies: part.enemies, need: part.need, interval: part.interval, speed: part.speed }];
+  const needOf = w => Math.max(1, w.need - (easy ? 1 : 0));
+  const totalNeed = waves.reduce((a, w) => a + needOf(w), 0);
   const units = [];
-  let spawned = 0, hits = 0, gone = 0, clock = 0;
-  const count = () => ctx.hud.setCounter(`${part.counter || '물리친 적'} ${hits}/${need}`);
+  let wi = 0, spawned = 0, waveHits = 0, hits = 0, clock = 0, between = false;
+  const count = () => ctx.hud.setCounter(`${part.counter || '물리친 적'} ${hits}/${totalNeed}${waves.length > 1 ? ` · ${wi + 1}/${waves.length}차` : ''}`);
   count();
+  const wave = () => waves[wi];
   const spawn = () => {
+    const W = wave();
     const u = new THREE.Group(); g.add(u);
     if (part.unit === 'ship') { add(u, box(2.6, 1.6, 7), 0x3a3f46, 0, 0.5, 0); add(u, box(1.6, 2, 2.4), 0x2b2f36, 0, 2, -0.6); add(u, new THREE.CylinderGeometry(0.08, 0.08, 4, 5), 0x2b241c, 0, 3.4, 0.8); }
-    else for (let i = 0; i < 3; i++) { const p = makePerson(LOOKS[part.look || 'gendarme']); p.position.set((i - 1) * 0.9, 0, -i * 0.6); u.add(p); }
-    const [[ax, az], [bx, bz]] = paths[spawned % paths.length];
+    else for (let i = 0; i < 3; i++) { const p = makePerson(LOOKS[W.look || part.look || 'gendarme']); p.position.set((i - 1) * 0.9, 0, -i * 0.6); u.add(p); }
+    const [[ax, az], [bx, bz]] = paths[(spawned + wi) % paths.length];
     u.rotation.y = Math.atan2(bx - ax, bz - az);
-    const unit = { u, k: 0, state: 'come', t: null, smoke: null, a: [ax, az], b: [bx, bz], len: Math.hypot(bx - ax, bz - az) };
+    const unit = { u, k: 0, state: 'come', t: null, smoke: null, a: [ax, az], b: [bx, bz], len: Math.hypot(bx - ax, bz - az), speed: (W.speed || part.speed || 2.2) * (easy ? 0.7 : 1) };
     unit.t = taps.add(u, { label: part.label || '공격!', onTap: () => {
       if (unit.state !== 'come') return;
-      unit.state = 'back'; hits += 1; audio.play('correct'); count();
+      unit.state = 'back'; hits += 1; waveHits += 1; audio.play('correct'); count();
       const puff = new THREE.Mesh(new THREE.SphereGeometry(1.4, 10, 8), new THREE.MeshBasicMaterial({ color: 0xdedad2, transparent: true, opacity: 0.7 }));
       puff.position.set(0, 1.5, 0); u.add(puff); unit.smoke = puff;
-      if (hits >= need) setTimeout(() => s.finish(true), 900);
     } });
     unit.t.btn.hidden = true;
     units.push(unit); spawned += 1;
   };
   s.update(dt => {
+    if (between) return;
+    const W = wave();
     clock += dt;
-    if (spawned < total && clock >= spawned * (part.interval || 2.4) * (easy ? 1.3 : 1)) spawn();
+    if (spawned < W.enemies && clock >= spawned * (W.interval || part.interval || 2.4) * (easy ? 1.3 : 1)) spawn();
     for (const unit of units) {
       const [ax, az] = unit.a, [bx, bz] = unit.b, len = unit.len;
-      if (unit.state === 'come') unit.k += (speed * dt) / len;
-      else if (unit.state === 'back') { unit.k -= (speed * 1.6 * dt) / len; unit.u.rotation.y = Math.atan2(ax - bx, az - bz); }
+      if (unit.state === 'come') unit.k += (unit.speed * dt) / len;
+      else if (unit.state === 'back') { unit.k -= (unit.speed * 1.6 * dt) / len; unit.u.rotation.y = Math.atan2(ax - bx, az - bz); }
       const x = ax + (bx - ax) * unit.k, z = az + (bz - az) * unit.k;
       unit.u.position.set(x, 0, z);
       if (unit.smoke) { unit.smoke.scale.multiplyScalar(1 + dt * 0.6); unit.smoke.material.opacity = Math.max(0, unit.smoke.material.opacity - dt * 0.4); }
       const inZone = zones.some(zn => Math.hypot(x - zn.x, z - zn.z) < zn.r);
       unit.t.used = !(unit.state === 'come' && inZone); // 골짜기 안에 있을 때만 누를 수 있다
-      if (unit.state === 'come' && unit.k >= 1) { unit.state = 'gone'; gone += 1; audio.play('wrong'); toast(ctx, part.miss || '놓쳤어요! 다음을 기다려요.', 'bad'); }
+      if (unit.state === 'come' && unit.k >= 1) { unit.state = 'gone'; audio.play('wrong'); toast(ctx, part.miss || '놓쳤어요! 다음을 기다려요.', 'bad'); }
       if (unit.state === 'back' && unit.k <= -0.2) { unit.state = 'away'; unit.u.visible = false; }
       if (unit.state === 'gone') unit.u.visible = false;
     }
-    if (hits < need && spawned === total && units.every(u => u.state !== 'come')) s.finish(false);
+    // 이번 차례가 끝났는지: 다 나왔고 다가오는 적이 없을 때
+    if (spawned === W.enemies && units.every(u => u.state !== 'come')) {
+      if (waveHits < needOf(W)) { s.finish(false); return; }
+      if (wi === waves.length - 1) { setTimeout(() => s.finish(true), 900); between = true; return; }
+      between = true;
+      for (const u of units) { taps.remove(u.t); g.remove(u.u); }
+      units.length = 0;
+      wi += 1; spawned = 0; waveHits = 0; clock = 0; count();
+      s.say(wave().talk, () => { between = false; toast(ctx, `${wi + 1}차 공격이 와요!`); });
+    }
   });
   return s.promise;
 }
@@ -451,6 +531,13 @@ export function sneak(ctx, part, easy) {
     cone.position.y = 0.06; body.add(cone);
     return { ...gd, body, range, ph: Math.random() * 6, cone };
   });
+  // 숨을 곳(덤불·짐더미): 안에 들어가 있으면 감시원 불빛에 들키지 않는다
+  const hides = (part.hides || []).map(hd => {
+    const hg = new THREE.Group(); hg.position.set(hd.x, 0, hd.z); g.add(hg);
+    for (let i = 0; i < 4; i++) { const b = add(hg, new THREE.SphereGeometry(0.75, 8, 6), 0x3f6a3a, Math.cos(i * 1.7) * (hd.r || 1.6) * 0.55, 0.55, Math.sin(i * 1.7) * (hd.r || 1.6) * 0.55); b.scale.y = 0.8; }
+    return { ...hd, pos: s.at(hd.x, hd.z) };
+  });
+  const hidden = p => hides.some(hd => near(p, hd.pos, hd.r || 1.6));
   let next = 0, last = part.from, caught = 0;
   const show = () => { ctx.hud.setCounter(`${part.counter || '지난 숨을 곳'} ${next}/${wps.length}`); world.setGoal(wps[next] ? wps[next].pos : null); };
   show();
@@ -462,7 +549,7 @@ export function sneak(ctx, part, easy) {
       const k = (Math.sin((el + gd.ph) * (gd.speed || 0.5)) + 1) / 2, dk = Math.cos((el + gd.ph) * (gd.speed || 0.5));
       gd.body.position.set(ax + (bx - ax) * k, 0, az + (bz - az) * k);
       gd.body.rotation.y = dk >= 0 ? Math.atan2(bx - ax, bz - az) : Math.atan2(ax - bx, az - bz);
-      if (caught) continue;
+      if (caught || hidden(p)) continue;
       const gp = s.at(gd.body.position.x, gd.body.position.z), dx = p.x - gp.x, dz = p.z - gp.z, d = Math.hypot(dx, dz);
       let diff = Math.atan2(dx, dz) - gd.body.rotation.y; diff = Math.atan2(Math.sin(diff), Math.cos(diff));
       if (d < gd.range && Math.abs(diff) < 0.55) {
@@ -478,7 +565,7 @@ export function sneak(ctx, part, easy) {
       last = [w.x, w.z]; next += 1;
       if (wps[next]) { wps[next].m.visible = true; if (wps[next].lab) wps[next].lab.visible = true; }
       show();
-      if (next === wps.length) setTimeout(() => s.finish(true), 400);
+      s.say(w.talk, () => { if (next === wps.length) setTimeout(() => s.finish(true), 400); });
     }
   });
   return s.promise;

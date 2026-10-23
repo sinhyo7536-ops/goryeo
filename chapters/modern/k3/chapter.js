@@ -47,7 +47,8 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.gather, arena: FARMS, from: [0, 23], followers: { looks: ['peasant', 'commoner'], per: 2 },
-      route: xy(script.parts.gather.route, [{ x: -3, z: 15 }, { x: 3, z: 5 }, { x: -3, z: -5 }, { x: 0, z: -17 }]) },
+      route: xy(script.parts.gather.route, [{ x: -3, z: 15 }, { x: 3, z: 5 }, { x: -3, z: -5 }, { x: 0, z: -17 }]),
+      pickups: xy(script.parts.gather.pickups, [{ x: 16, z: 18 }, { x: -17, z: 4 }, { x: 15, z: -10 }]) },
     { ...script.parts.demands, arena: CAMP, from: [0, 11], items: xy(script.parts.demands.items, [{ x: -11, z: -4 }, { x: -6, z: 4 }, { x: 4, z: -2 }, { x: 11, z: -4 }, { x: 7, z: 6 }]) },
     { ...script.parts.flow, arena: PATH, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: 8, z: 7 }, { x: -9, z: 2 }, { x: 0, z: -9 }, { x: 10, z: -5 }, { x: -8, z: 10 }]) },
   ],
