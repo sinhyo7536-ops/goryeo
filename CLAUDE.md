@@ -7,8 +7,8 @@
 - 근대편 「새 나라를 꿈꾸다」(session 3, `k1`~`k6`, `chapters/modern/`), 일제 강점기편 「빼앗긴 나라를 되찾아라」(session 4, `i1`~`i6`, `chapters/colonial/`), 현대편 「대한민국을 세우다」(session 5, `h1`~`h6`, `chapters/present/`). 사실은 교사의 비상 5-2 교과서 98~145쪽(S51)을 따르고, 현대편 6장(4·19~서울 올림픽)은 교과서 밖이라 S58~S61을 따른다. 설계는 `docs/superpowers/specs/2026-10-23-modern-courses-design.md`.
 - 이 세 편은 장 부품 상자 `chapters/kit/`로 만든다: `town.js`의 `buildTown(world, layout)`(배치표로 건물·사람·안내판), `chapter.js`의 `makeKitChapter({ id, mood, player, script, layout, order, parts, spot })`. 장마다 `script.js`(대사·미니게임·퀴즈)와 `chapter.js`(배치표)만 쓴다. 미니게임 종류: choose, sort, place, order, gauge, collect.
 
-- 저장소: https://github.com/ssamgame/goryeo (조직 `ssamgame`, 브랜치 `main`)
-- 학생 주소: https://ssamgame.github.io/goryeo/ (GitHub Pages, main에서 바로 배포)
+- 저장소: https://github.com/ssamgame/history (조직 `ssamgame`, 브랜치 `main`) — 2026-10-23에 goryeo에서 history로 이름을 바꿨다(옛 주소 ssamgame.github.io/goryeo/는 열리지 않음)
+- 학생 주소: https://ssamgame.github.io/history/ (GitHub Pages, main에서 바로 배포)
 - 미리보기: https://claude.ai/artifact/QSh1YhvtwooxoyDRsBZsCT (링크 공유 중, 다시 올리면 모두에게 바뀐다)
 - 사용자는 초등 교사다. 답은 늘 한국어로, 쉬운 말로 한다.
 
@@ -46,7 +46,7 @@
 1. 작업 브랜치에서 고치고 전체 테스트 통과를 확인한다.
 2. `core/precache.js`의 `CACHE`(goryeo-vN)를 하나 올리고 `tests/sw.test.js`도 맞춘다. 새 파일은 `PRECACHE`에 넣는다.
 3. 커밋(메시지는 한국어) → main에 병합 → `git push origin main`.
-4. https://ssamgame.github.io/goryeo/core/precache.js 에 새 판 번호가 뜰 때까지 확인한다(1~2분).
+4. https://ssamgame.github.io/history/core/precache.js 에 새 판 번호가 뜰 때까지 확인한다(1~2분).
 5. 바뀐 파일을 스크래치패드의 `goryeo-dist` 복사본에 넣고 미리보기 아티팩트를 다시 올린다(없으면 저장소 내용으로 새로 만든다).
 
 ## 내용 원칙 (매우 중요)
