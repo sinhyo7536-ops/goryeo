@@ -268,7 +268,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       camTarget.copy(player.position).setY(1); camTarget.z += LOOK_AHEAD; camera.lookAt(camTarget);
     },
     // 따로 쓰는 벡터(offsetVec)에 담는다. tmp를 같이 쓰면 'tmp.copy(p).add(camOffset())'가 '오프셋×2'가 되어 카메라가 원점 근처에 머문다.
-    camOffset() { return offsetVec.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? 1.45 : 1); },
+    camOffset() { return offsetVec.copy(CAM_OFFSET).multiplyScalar(camera.aspect < 1 ? Math.min(2.1, 1.15 / camera.aspect) : 1); }, // 세로 화면은 좌우가 좁아 더 멀리서 본다
     onUpdate(fn) {
       updaters.push(fn);
       return () => { const i = updaters.indexOf(fn); if (i >= 0) updaters.splice(i, 1); };

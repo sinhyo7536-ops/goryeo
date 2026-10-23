@@ -17,7 +17,7 @@ export const WING_BOARD = {
     { id: 'w4', xy: [71, 46], answer: 'ship' }, { id: 'w5', xy: [86, 24], answer: 'ship' },
     { id: 'b1', xy: [27, 80], answer: null }, { id: 'b2', xy: [50, 80], answer: null }, { id: 'b3', xy: [73, 80], answer: null },
   ],
-  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 8] }, { label: '한산도 ▸', xy: [7, 62] }, { label: '↓ 남쪽', xy: [92, 93] }],
+  decor: [{ label: '▼▼ 쫓아오는 일본 배 ▼▼', xy: [50, 8] }, { label: '한산도 ▸', xy: [11, 62] }, { label: '↓ 남쪽', xy: [92, 93] }],
 };
 
 export default {

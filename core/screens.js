@@ -53,7 +53,8 @@ export function showTitle(root, { savedName, hasProgress, storageOk, courses = [
           h('div', { class: 'row' },
             h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터'),
             hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || '저장된 기록'})`)),
-          confirm)));
+          confirm,
+          h('p', { class: 'copyright' }, '© 2026 Jang ssam. All rights reserved.'))));
   });
 }
 

@@ -381,7 +381,8 @@ export function ambush(ctx, part, easy) {
   s.cleanup(() => { world.player.visible = true; world.camMode = 'follow'; });
   const cam = part.camera;
   const cp = s.at(cam.pos[0], cam.pos[2]), ct = s.at(cam.target[0], cam.target[2]);
-  world.setFixedCamera([cp.x, cam.pos[1], cp.z], [ct.x, cam.target[1], ct.z]);
+  const far = world.camera.aspect < 1 ? Math.min(2.4, 1.2 / world.camera.aspect) : 1; // 휴대폰 세로: 좌우가 좁으니 카메라를 뒤로
+  world.setFixedCamera([ct.x + (cp.x - ct.x) * far, cam.target[1] + (cam.pos[1] - cam.target[1]) * far, ct.z + (cp.z - ct.z) * far], [ct.x, cam.target[1], ct.z]);
   world.camMode = 'fixed';
   const taps = createTapTargets(ctx);
   s.cleanup(() => taps.dispose());

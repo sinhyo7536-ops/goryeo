@@ -2,8 +2,8 @@
 import { test, ok } from './harness.js';
 import { sleep } from './bot.js';
 
-const KINDS = ['j1cards', 'j1board', 'j2cons', 'j2vowel', 'j2word', 'j3dial', 'j3gauge', 'j3clock', 'j4wing', 'j5sort', 'j6pulley'];
-const SIZES = [[1000, 530], [1000, 600], [1280, 720], [1366, 650], [740, 360]];
+const KINDS = ['j3dial', 'j3gauge', 'j4wing', 'j6pulley']; // 아직 게임에 남은 화면 카드 놀이(나머지는 장면 속 놀이로 바뀜)
+const SIZES = [[1000, 530], [1000, 600], [1280, 720], [1366, 650], [740, 360], [390, 844], [360, 740]]; // 마지막 둘: 휴대폰 세로
 const overlap = (a, b) => a.left < b.right - 2 && b.left < a.right - 2 && a.top < b.bottom - 2 && b.top < a.bottom - 2;
 
 for (const kind of KINDS) {
@@ -73,7 +73,7 @@ test('layout: 한산도 바다 — 미끼 배 출발점, 견내량 입구, 기�
 
 // 근대~현대편 카드형 미니게임: 모든 버튼이 화면 안에 있고, 손가락으로 누를 수 있으며(다른 것에 덮이지 않음), 자리 놓기 판의 칸이 겹치지 않는다
 import { MODERN, COLONIAL, PRESENT } from '../chapters/index.js';
-const KIT_SIZES = [[1000, 530], [1280, 720], [1280, 800], [1366, 650], [740, 360]];
+const KIT_SIZES = [[1000, 530], [1280, 720], [1280, 800], [1366, 650], [740, 360], [390, 844], [360, 740]];
 for (const meta of [...MODERN, ...COLONIAL, ...PRESENT]) {
   test(`layout: ${meta.id} card minigames fit, can be tapped and do not overlap`, async () => {
     const parts = Object.values((await meta.load()).default.script.parts);

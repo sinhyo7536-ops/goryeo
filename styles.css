@@ -19,8 +19,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 #stage, #stage canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; }
 :where(#ui) > * { pointer-events: auto; } /* 낮은 우선순위: .fade, .prompt의 pointer-events: none이 이기도록 */
-#rotate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--ink); font-size: 22px; text-align: center; padding: 24px; }
-#rotate[hidden] { display: none; }
 
 /* 대화창: 한지 위에 먹글씨 */
 .dlg {
@@ -162,7 +160,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .fade { position: fixed; inset: 0; z-index: 40; background: #000; opacity: 0; pointer-events: none; transition: opacity .6s; }
 .fade.on { opacity: 1; }
 
-@media (orientation: portrait) and (pointer: coarse) and (max-width: 1100px) { #rotate[hidden] { display: grid; } }
 @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
 
 /* 미니게임 */
@@ -263,3 +260,26 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .play-toast { position: fixed; z-index: 13; left: 50%; top: calc(86px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); max-width: min(560px, 90vw); padding: 10px 18px; border-radius: 6px; background: rgba(27,31,29,.88); color: var(--hanji); border: 2px solid var(--gold); font-size: 18px; line-height: 1.45; text-align: center; word-break: keep-all; pointer-events: none; }
 .play-toast.good { border-color: #6fae8f; }
 .play-toast.bad { border-color: var(--dan-red); }
+/* 저작권 표시: 첫 화면 맨 밑 */
+.copyright { margin: 2px 0 0; font-size: 13px; color: #a89f8c; letter-spacing: .02em; text-align: center; }
+/* 휴대폰 세로: 첫 화면을 위아래로 쌓고 글자·간격을 줄여 한 화면에 담는다 */
+@media (max-width: 760px) and (orientation: portrait) {
+  .screen.title { place-items: start center; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .title-inner { row-gap: 12px; }
+  .title h1 { font-size: 30px; }
+  .title .lead { font-size: 15px; line-height: 1.5; }
+  .title .controls { font-size: 12px; line-height: 1.4; }
+  .title .eyebrow { font-size: 12px; }
+  .title-intro { gap: 8px; }
+  .title-course { min-height: 46px; padding: 3px 12px; grid-template-columns: 6.4em minmax(0, 1fr); row-gap: 0; }
+  .title-course-progress { grid-column: 2; font-size: 12px; }
+  .title-course-name { font-size: 17px; }
+  .title-actions .btn { min-width: 0; flex: 1; min-height: 50px; font-size: 17px; }
+  .title-actions .row { width: 100%; flex-wrap: nowrap; }
+}
+/* 세로 화면에서는 자리 놓기 판도 세로로 길게(가로로 긴 판이 너무 작아지지 않게) */
+@media (max-aspect-ratio: 1/1) {
+  .place-board { aspect-ratio: 4 / 5; width: min(100%, calc(58vh * 4 / 5)); }
+  .place-slot { min-width: 48px; padding: 3px 5px; font-size: 13px; }
+  .place-decor { font-size: 12px; }
+}

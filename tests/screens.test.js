@@ -249,8 +249,8 @@ test('title: 처음부터도 고른 시대로 시작한다', async () => {
   el.remove();
 });
 
-test('title: 태블릿 가로 화면에서 소개는 왼쪽, 시대는 오른쪽, 버튼은 아래에 다 보인다', async () => {
-  for (const [w, h] of [[1000, 530], [1280, 800], [1366, 650]]) {
+test('title: 태블릿 가로와 휴대폰 세로 화면에서 소개·시대·버튼이 다 보이고, 맨 밑에 저작권 표시', async () => {
+  for (const [w, h] of [[1000, 530], [1280, 800], [1366, 650], [390, 844], [360, 740]]) {
     const frame = document.createElement('iframe');
     frame.src = './fit.html?kind=title'; frame.style.cssText = `width:${w}px;height:${h}px;position:fixed;left:-3000px;top:0;border:0`;
     document.body.appendChild(frame);
@@ -260,8 +260,12 @@ test('title: 태블릿 가로 화면에서 소개는 왼쪽, 시대는 오른쪽
       for (let i = 0; i < 100 && !d.querySelector('.title-course'); i++) await sleep(20);
       await sleep(80);
       const intro = d.querySelector('.title-intro').getBoundingClientRect(), list = d.querySelector('.title-courses').getBoundingClientRect(), acts = d.querySelector('.title-actions').getBoundingClientRect();
-      ok(intro.right <= list.left + 1, `${w}x${h}: 소개가 시대 목록 왼쪽`);
+      if (w > h) ok(intro.right <= list.left + 1, `${w}x${h}: 소개가 시대 목록 왼쪽`);
+      else ok(intro.bottom <= list.top + 1, `${w}x${h}: 세로 화면에서는 소개가 시대 목록 위`);
       ok(acts.top >= Math.max(intro.bottom, list.bottom) - 1, `${w}x${h}: 버튼이 맨 아래`);
+      const cr = d.querySelector('.copyright');
+      ok(cr && cr.textContent.includes('©') && cr.textContent.includes('Jang ssam'), `${w}x${h}: 저작권 표시`);
+      ok(cr && cr.getBoundingClientRect().top >= acts.top - 1 && cr.getBoundingClientRect().bottom <= h, `${w}x${h}: 저작권 표시가 맨 밑, 화면 안`);
       for (const b of d.querySelectorAll('button')) {
         if (b.closest('[hidden]')) continue;
         const r = b.getBoundingClientRect();
@@ -273,3 +277,10 @@ test('title: 태블릿 가로 화면에서 소개는 왼쪽, 시대는 오른쪽
     } finally { frame.remove(); }
   }
 }, { timeout: 30000 });
+
+test('portrait: 휴대폰 세로로 들어도 「가로로 돌려 주세요」 화면이 막지 않는다', async () => {
+  const html = await (await fetch('../index.html', { cache: 'no-store' })).text();
+  ok(!html.includes('id="rotate"'), 'rotate overlay removed');
+  const css = await (await fetch('../styles.css', { cache: 'no-store' })).text();
+  ok(!css.includes('#rotate'), 'no rotate rule');
+});
