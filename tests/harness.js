@@ -22,6 +22,7 @@ export async function run() {
   const lines = [];
   for (const t of tests) {
     if (filter && !t.name.startsWith(filter)) continue;
+    out.textContent = `RUNNING ${t.name} (${lines.length} done)`; // 멈추면 어디서 멈췄는지 보이게(짧게: 긴 글이 시험 화면을 덮지 않게)
     try {
       await Promise.race([
         t.fn(),

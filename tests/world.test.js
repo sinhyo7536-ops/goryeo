@@ -151,3 +151,19 @@ test('world: follow camera stays behind the player even far from the origin', ()
   ok(c.z > 60 + 5, `camera is south of (behind) the player: z ${c.z.toFixed(1)}`);
   w.dispose();
 });
+
+// 안내판 글씨: 판에 비해 글자가 작거나 눌려 보이지 않게, 모든 제목을 큰 글씨로 판 안에 쓴다
+test('signs: 모든 안내판 제목이 판 높이의 절반쯤 되는 큰 글씨로 판 안에 들어간다', async () => {
+  const { signTextLayout, SIGN_CANVAS } = await import('../core/signs.js');
+  const titles = ['5·10 총선거', '6·10 만세 운동', '88 서울 올림픽', '여성 독립운동가', '고려와 송, 거란', '훈민정음 해례본', '화성성역의궤', '임시 정부 청사', '제주 4·3 사건', '탕평비 이야기', '물산 장려 운동', '종묘', '강동 6주'];
+  const c = document.createElement('canvas').getContext('2d');
+  for (const t of titles) {
+    const L = signTextLayout(c, t);
+    const lineH = L.size * L.lines.length;
+    ok(L.size >= SIGN_CANVAS.h * 0.32, `${t}: ${L.size}px is too small for a ${SIGN_CANVAS.h}px board`);
+    ok(lineH <= SIGN_CANVAS.h * 0.85, `${t}: too tall`);
+    c.font = L.font;
+    for (const line of L.lines) ok(c.measureText(line).width <= SIGN_CANVAS.w * 0.9, `${t}: "${line}" wider than the board`);
+    eq(L.lines.join(' '), t);
+  }
+});

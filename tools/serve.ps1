@@ -11,7 +11,7 @@ $listener.Start()
 Write-Output "serving $rootFull on http://localhost:$Port/"
 try {
   while ($listener.IsListening) {
-    $ctx = $listener.GetContext()
+    try { $ctx = $listener.GetContext() } catch { continue } # 연결이 끊긴 요청 하나 때문에 서버가 멈추지 않게
     $res = $ctx.Response
     try {
       $rel = [Uri]::UnescapeDataString($ctx.Request.Url.AbsolutePath).TrimStart('/')
@@ -22,12 +22,13 @@ try {
         if (Test-Path $path -PathType Leaf) {
           $ext = [System.IO.Path]::GetExtension($path).ToLower()
           $res.ContentType = if ($mime.ContainsKey($ext)) { $mime[$ext] } else { 'application/octet-stream' }
-          $res.Headers.Add('Cache-Control', 'no-store')
+          $res.Headers.Add('Cache-Control', $(if ($rel.StartsWith('vendor/')) { 'max-age=3600' } else { 'no-store' })) # 바뀌지 않는 라이브러리는 브라우저가 다시 받지 않게(테스트 iframe이 많을 때)
           $bytes = [System.IO.File]::ReadAllBytes($path)
           $res.OutputStream.Write($bytes, 0, $bytes.Length)
         } else { $res.StatusCode = 404 }
       }
-    } catch { $res.StatusCode = 500 }
-    $res.Close()
+    } catch { try { $res.StatusCode = 500 } catch {} } # 브라우저가 받다가 끊어도(테스트의 iframe 제거) 서버는 계속
+
+    try { $res.Close() } catch {}
   }
 } finally { $listener.Stop() }

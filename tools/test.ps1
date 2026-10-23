@@ -12,7 +12,7 @@ try {
   if (-not $ready) { Write-Output 'server did not start'; Receive-Job $job; exit 1 }
   $url = "http://localhost:$Port/tests/index.html"
   if ($Only) { $url += '?only=' + [Uri]::EscapeDataString($Only) }
-  $dom = & $edge --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist --no-first-run "--user-data-dir=$profileDir" --virtual-time-budget=400000 --dump-dom $url 2>$null | Out-String
+  $dom = & $edge --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist --no-first-run "--user-data-dir=$profileDir" --virtual-time-budget=900000 --dump-dom $url 2>$null | Out-String
   $m = [regex]::Match($dom, '<pre id="out"[^>]*>([\s\S]*?)</pre>')
   $text = if ($m.Success) { [System.Net.WebUtility]::HtmlDecode($m.Groups[1].Value) } else { "NO OUTPUT`n$dom" }
   Write-Output $text
