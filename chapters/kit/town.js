@@ -183,6 +183,30 @@ const BUILD = {
     for (const dz of [-1.6, 1.6]) for (const sx of [-1.05, 1.05]) { const w = add(g, new THREE.CylinderGeometry(0.45, 0.45, 0.3, 12), 0x1e1c1a, sx, 0.45, dz); w.rotation.z = Math.PI / 2; }
     return { rect: [2.4, 5.2] };
   },
+  // 증기 기관차와 화물칸(쌀가마를 싣고), 선로
+  train(g, p) {
+    const len = p.track || 50;
+    for (const dx of [-0.7, 0.7]) add(g, box(0.1, 0.08, len), 0x6b6862, dx, 0.04, 0, null, false);
+    for (let z = -len / 2; z < len / 2; z += 1.4) add(g, box(2, 0.08, 0.3), 0x5a3f2a, 0, 0.02, z, 'wood', false);
+    add(g, box(2.2, 2.2, 5), 0x2b2b2b, 0, 1.5, -6);
+    add(g, new THREE.CylinderGeometry(1, 1, 3.4, 14), 0x2b2b2b, 0, 1.8, -7.6).rotation.x = Math.PI / 2;
+    add(g, new THREE.CylinderGeometry(0.35, 0.45, 1.4, 10), 0x1e1c1a, 0, 3.3, -8.6);
+    for (let k = 0; k < (p.cars || 3); k++) {
+      add(g, box(2.2, 1.6, 4.6), 0x6b4a32, 0, 1.2, -1 + k * 5, 'wood');
+      for (let i = 0; i < 6; i++) { const s = add(g, new THREE.CylinderGeometry(0.35, 0.35, 0.8, 8), 0xd8c08a, (i % 2) * 0.8 - 0.4, 2.3, -2.6 + k * 5 + Math.floor(i / 2) * 1.2); s.rotation.z = Math.PI / 2; }
+    }
+    for (let k = -1; k < (p.cars || 3); k++) for (const dz of [-1.5, 1.5]) for (const sx of [-0.8, 0.8]) { const w = add(g, new THREE.CylinderGeometry(0.4, 0.4, 0.15, 10), 0x1e1c1a, sx, 0.4, (k < 0 ? -6 : -1 + k * 5) + dz); w.rotation.z = Math.PI / 2; }
+    return { rect: [2.6, 6 + (p.cars || 3) * 5] };
+  },
+  // 팔각정(탑골 공원): 돌 기단, 기둥 여덟, 팔각 지붕
+  pavilion(g) {
+    add(g, new THREE.CylinderGeometry(3.4, 3.6, 0.6, 8), 0xb3ab99, 0, 0.3, 0, 'stone');
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(g, new THREE.CylinderGeometry(0.16, 0.16, 3, 8), 0xa8392b, Math.cos(a) * 2.8, 2.1, Math.sin(a) * 2.8); }
+    add(g, new THREE.CylinderGeometry(3.1, 3.1, 0.3, 8), 0x2f6b5e, 0, 3.6, 0);
+    add(g, new THREE.ConeGeometry(4.2, 2.2, 8), 0x3d4846, 0, 4.8, 0, 'tile');
+    add(g, new THREE.ConeGeometry(1.2, 1.4, 8), 0x3d4846, 0, 6.2, 0, 'tile');
+    return 3.6;
+  },
   // 철조망 울타리 (휴전선)
   fence(g, p) {
     const w = p.w || 20;
