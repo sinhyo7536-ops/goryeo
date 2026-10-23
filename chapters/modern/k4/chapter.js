@@ -2,6 +2,20 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400): 1890년대 한성. 궁궐·러시아 공사관·신문사·환구단·종로가 흩어져 있다.
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const HANSEONG = {
+  origin: [400, 0], ground: 'earth', groundColor: 0x9a8a6a, bounds: { x0: -24, x1: 24, z0: -22, z1: 22 },
+  roads: [{ x: 0, z: 0, w: 46, d: 5, color: 0x8a8070 }, { x: 0, z: 0, w: 5, d: 44, color: 0x8a8070 }],
+  props: [
+    { type: 'hanok', x: -15, z: -16, tile: true, scale: 1.6 },              // 경복궁
+    { type: 'western', x: 15, z: 15, w: 6, d: 6, h: 9, color: 0xe8e4da },   // 러시아 공사관
+    { type: 'western', x: -15, z: 15, w: 6, d: 4, h: 4, color: 0x8a5a4a },  // 독립신문사
+    { type: 'pavilion', x: 15, z: -16 },                                    // 환구단
+    { type: 'stage', x: 15, z: 4 }, { type: 'crowd', x: 9, z: 2, n: 6, cols: 3, looks: ['citizen', 'gentleman', 'student'], face: Math.PI / 2 }, // 종로
+  ],
+};
+
 export default makeKitChapter({
   id: 'k4', mood: 'morning', script,
   player: { robe: 0x5d7a9a, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -29,6 +43,6 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.paper, from: [0, 3], spots: [{ x: -13, z: 5.5 }, { x: -6, z: 7 }, { x: 9, z: 6 }, { x: 13, z: 5.5 }, { x: 14.5, z: -2 }] },
-    script.parts.flow,
+    { ...script.parts.flow, arena: HANSEONG, from: [0, 19], spots: xy(script.parts.flow.spots, [{ x: -9, z: -11 }, { x: 10, z: 9 }, { x: -10, z: 9 }, { x: 10, z: -10 }, { x: 10, z: -1 }]) },
   ],
 });

@@ -2,6 +2,23 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400)
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const JONGNO = { // 탑골 공원 문에서 종로 거리, 시장, 큰길로
+  origin: [400, 0], ground: 'stone', groundColor: 0xa09a8c, bounds: { x0: -24, x1: 24, z0: -28, z1: 28 },
+  roads: [{ x: 0, z: 0, w: 7, d: 56, color: 0x8a8070 }, { x: 0, z: -14, w: 40, d: 6, color: 0x8a8070 }],
+  props: [
+    { type: 'pavilion', x: 0, z: 25, solid: false },
+    { type: 'hanok', x: -9, z: 12, ry: Math.PI / 2, tile: true }, { type: 'hanok', x: 9, z: 6, ry: -Math.PI / 2, tile: true },
+    { type: 'rice', x: -8, z: -4, n: 6 }, { type: 'tent', x: 8, z: -6 },
+    { type: 'western', x: -14, z: -22, w: 8, d: 5, h: 5, color: 0x8a4a3a }, { type: 'western', x: 14, z: -22, w: 8, d: 5, h: 6, color: 0x9a948a },
+  ],
+};
+const MEMORY = {
+  origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -18, x1: 18, z0: -16, z1: 18 },
+  props: [{ type: 'pavilion', x: 0, z: -13, solid: false }, { type: 'tree', x: -14, z: -10 }, { type: 'tree', x: 14, z: -10 }],
+};
+
 export default makeKitChapter({
   id: 'i2', mood: 'morning', script,
   player: { robe: 0x22262e, hat: 'cap', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -26,6 +43,8 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.flags, from: [0, 4], spots: [{ x: -12, z: 4.5 }, { x: -6, z: 4.5 }, { x: 7, z: 4.5 }, { x: 13, z: 4.5 }, { x: 0, z: -2 }] },
-    script.parts.cheer, script.parts.flow,
+    { ...script.parts.march, arena: JONGNO, from: [0, 21], followers: { looks: ['student', 'schoolgirl', 'citizen', 'woman', 'peasant', 'yugwansun'], per: 2, flags: true },
+      route: xy(script.parts.march.route, [{ x: 0, z: 18 }, { x: 2, z: 6 }, { x: -2, z: -6 }, { x: 0, z: -18 }]) },
+    { ...script.parts.flow, arena: MEMORY, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: 9, z: 0 }, { x: -9, z: 5 }, { x: 0, z: -6 }, { x: -8, z: -7 }]) },
   ],
 });

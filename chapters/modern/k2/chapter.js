@@ -2,6 +2,21 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400): 겨울밤의 우정총국 거리와 개혁안을 붙인 마당
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const NIGHT = {
+  origin: [400, 0], ground: 'stone', groundColor: 0x6a6660, bounds: { x0: -20, x1: 20, z0: -18, z1: 18 },
+  roads: [{ x: 0, z: 0, w: 6, d: 36, color: 0x5a5650 }],
+  props: [
+    { type: 'hanok', x: -9, z: 10, ry: Math.PI / 2, tile: true }, { type: 'hanok', x: 10, z: -2, ry: -Math.PI / 2, tile: true, scale: 1.3 },
+    { type: 'hanok', x: -12, z: -12, tile: true, scale: 1.4 }, { type: 'tent', x: 12, z: -12, color: 0x6b6a4a }, { type: 'crowd', x: 15, z: -8, n: 3, cols: 3, looks: ['gendarme'], face: -Math.PI / 2 },
+  ],
+};
+const YARD = {
+  origin: [400, 0], ground: 'earth', groundColor: 0x8a7a62, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
+  props: [{ type: 'hanok', x: 0, z: -12, tile: true, scale: 1.5 }, { type: 'wall', x: -14, z: -2, w: 2 }, { type: 'wall', x: 14, z: -2, w: 2 }],
+};
+
 export default makeKitChapter({
   id: 'k2', mood: 'sunset', script,
   player: { robe: 0xc9d4d8, hat: 'topknot', trim: 0x3a4a5a, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -25,5 +40,8 @@ export default makeKitChapter({
     signs: [{ id: 'signPost', title: '우정총국', x: -4, z: -2 }, { id: 'signCoup', title: '갑신정변', x: 5, z: 7.5 }],
     scatter: [{ kind: 'pine', count: 30, area: { x0: -60, x1: 60, z0: -40, z1: -14 }, seed: 211 }],
   },
-  parts: [script.parts.reform, script.parts.flow],
+  parts: [
+    { ...script.parts.flow, arena: NIGHT, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: -4, z: 9 }, { x: 4, z: -10 }, { x: 5, z: 4 }, { x: 9, z: -12 }, { x: -6, z: -4 }]) },
+    { ...script.parts.reform, arena: YARD, from: [0, 11], items: xy(script.parts.reform.items, [{ x: -10, z: -3 }, { x: -5, z: 4 }, { x: 0, z: -4 }, { x: 5, z: 4 }, { x: 10, z: -3 }]) },
+  ],
 });

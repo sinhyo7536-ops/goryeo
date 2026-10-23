@@ -48,9 +48,9 @@ export default {
   },
   parts: {
     charter: {
-      type: 'choose', src: ['S51'],
-      title: '대한민국 임시 헌법(1919년 9월)의 내용을 모두 골라요',
-      cards: [
+      type: 'find', src: ['S51'], title: '임시 정부 청사에서 대한민국 임시 헌법(1919년 9월)의 내용을 찾아요', counter: '찾은 조항',
+      howto: '청사 곳곳의 팻말 가운데 임시 헌법의 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      items: [
         { text: '대한민국은 민주 공화제로 한다', correct: true },
         { text: '왕이 모든 권력을 가진다', correct: false },
         { text: '대한민국의 주권은 대한 인민 전체에 있다', correct: true },
@@ -60,12 +60,17 @@ export default {
       fail: '임시 정부는 국민이 주인이고 모두가 평등한 나라를 꿈꾸었어요.',
     },
     letters: {
-      type: 'collect', title: '비밀 연락망으로 소식을 전해요', counter: '전한 소식', seconds: 80,
-      fail: '빛나는 곳을 따라 가요. 화살표가 길을 알려 줘요.',
+      type: 'sneak', title: '일본 경찰의 눈을 피해 비밀 편지를 전해요', counter: '지난 숨을 곳', seconds: 90,
+      howto: '불빛(경찰이 보는 곳)에 들어가지 않게 파란 고리를 차례로 지나 연락원에게 편지를 전해요.',
+      waypoints: [
+        { label: '골목 담 뒤' }, { label: '쌀가게 뒤' }, { label: '연락원', say: '편지를 무사히 전했어요! 이렇게 나라 안과 비밀리에 연락했어요.' },
+      ],
+      caught: '들켰어요! 앞의 숨을 곳에서 다시 가요.',
+      fail: '시간 안에 전하지 못했어요. 불빛이 지나간 뒤에 움직여 봐요.',
     },
     roles: {
-      type: 'sort', src: ['S51'],
-      title: '임시 정부의 활동을 나누어요',
+      type: 'deliver', src: ['S51'], title: '임시 정부의 활동을 알맞은 부서로 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 알맞은 부서 책상으로 가져가 대화 버튼을 눌러요.',
       bins: [{ id: 'home', label: '나라 안과 연락' }, { id: 'diplo', label: '외교와 자금' }, { id: 'army', label: '무장 투쟁' }],
       cards: [
         { text: '비밀 조직으로 독립운동 자금을 모았다', bin: 'home' },

@@ -53,8 +53,8 @@ export default {
   },
   parts: {
     sort: {
-      type: 'sort', src: ['S51'],
-      title: '의병 운동일까요, 애국 계몽 운동일까요?',
+      type: 'deliver', src: ['S51'], title: '의병 운동일까요, 애국 계몽 운동일까요? 알맞은 곳으로 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 산속 「의병 진지」나 「애국 계몽 학교」로 가져가 대화 버튼을 눌러요.',
       bins: [{ id: 'army', label: '의병 운동' }, { id: 'edu', label: '애국 계몽 운동' }],
       cards: [
         { text: '학교를 세워 새로운 지식을 가르쳤다', bin: 'edu' },
@@ -67,9 +67,9 @@ export default {
       fail: '무기를 들고 싸운 것은 의병 운동, 배우고 알려서 힘을 기른 것은 애국 계몽 운동이에요.',
     },
     envoys: {
-      type: 'choose', src: ['S51'],
-      title: '헤이그에 간 특사 세 사람을 골라요',
-      cards: [
+      type: 'find', src: ['S51'], title: '헤이그 만국 평화 회의장 앞에서 특사 세 사람을 찾아가요', counter: '찾은 특사',
+      howto: '다섯 사람 가운데 헤이그에 간 특사에게 가서 대화 버튼을 눌러요. 틀린 사람을 고르면 다시 해요.',
+      items: [
         { text: '이준', correct: true }, { text: '김옥균', correct: false }, { text: '이상설', correct: true },
         { text: '전봉준', correct: false }, { text: '이위종', correct: true },
       ],

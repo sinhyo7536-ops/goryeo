@@ -2,6 +2,25 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400)
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const PEOPLE = { // 세 사람(모임)이 기다리는 마당
+  origin: [400, 0], ground: 'stone', groundColor: 0xa09a8c, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
+  props: [
+    { type: 'crowd', x: -12, z: -8.5, n: 1, looks: ['scholarModern'] },
+    { type: 'western', x: 0, z: -12, w: 7, d: 4, h: 4, color: 0x8a5a4a }, { type: 'crowd', x: 0, z: -8.5, n: 3, cols: 3, looks: ['gentleman', 'scholarModern', 'gentleman'] },
+    { type: 'crowd', x: 12, z: -8.5, n: 1, looks: ['ahnchangho'] },
+  ],
+};
+const TOWN3 = { // 상점·학교·학회
+  origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -22, x1: 22, z0: -14, z1: 14 },
+  props: [
+    { type: 'hanok', x: -14, z: -12, tile: true }, { type: 'rice', x: -10, z: -8, n: 6 },
+    { type: 'western', x: 0, z: -13, w: 9, d: 5, h: 5, color: 0xb8a070 }, { type: 'crowd', x: 0, z: -9, n: 4, cols: 4, looks: ['student', 'schoolgirl'], face: 0 },
+    { type: 'western', x: 14, z: -12, w: 7, d: 5, h: 4, color: 0x8a5a4a }, { type: 'desk', x: 11, z: -8 },
+  ],
+};
+
 export default makeKitChapter({
   id: 'i5', mood: 'morning', script,
   player: { robe: 0xe9e4da, hat: 'braid', trim: 0x2c3a5a, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -27,6 +46,7 @@ export default makeKitChapter({
   },
   parts: [
     { ...script.parts.pages, from: [0, 3], spots: [{ x: -13, z: 4.5 }, { x: 13, z: 4.5 }, { x: 2, z: -4 }, { x: -6, z: 8 }, { x: 12, z: -3 }] },
-    script.parts.match, script.parts.kinds,
+    { ...script.parts.match, arena: PEOPLE, from: [0, 11], bins: xy(script.parts.match.bins, [{ x: -12, z: -5.5 }, { x: 0, z: -5 }, { x: 12, z: -5.5 }]) },
+    { ...script.parts.kinds, arena: TOWN3, from: [0, 11], bins: xy(script.parts.kinds.bins, [{ x: -14, z: -4 }, { x: 0, z: -4.5 }, { x: 14, z: -4 }]) },
   ],
 });

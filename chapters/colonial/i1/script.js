@@ -53,8 +53,8 @@ export default {
   },
   parts: {
     eras: {
-      type: 'sort', src: ['S51'],
-      title: '언제 일어난 일일까요?',
+      type: 'deliver', src: ['S51'], title: '언제 일어난 일일까요? 알맞은 시대의 문으로 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 「1910년대」, 「1920년대」, 「1930년대 후반」 가운데 알맞은 문으로 가져가 대화 버튼을 눌러요.',
       bins: [{ id: 'a', label: '1910년대' }, { id: 'b', label: '1920년대' }, { id: 'c', label: '1930년대 후반' }],
       cards: [
         { text: '헌병이 경찰 일을 맡고 태형을 내렸다', bin: 'a' },
@@ -67,9 +67,9 @@ export default {
       fail: '헌병과 칼은 1910년대, 경찰을 늘리고 쌀을 가져간 것은 1920년대, 이름과 우리말을 빼앗은 것은 1930년대 후반이에요.',
     },
     rail: {
-      type: 'choose', src: ['S51'],
-      title: '일제가 철도를 놓은 까닭을 모두 골라요',
-      cards: [
+      type: 'find', src: ['S51'], title: '기차역에서 일제가 철도를 놓은 까닭을 찾아요', counter: '찾은 까닭',
+      howto: '역 곳곳의 팻말 가운데 일제가 철도를 놓은 까닭을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      items: [
         { text: '한반도의 물자를 일본으로 가져가려고', correct: true },
         { text: '한국 사람들이 편하게 여행하라고', correct: false },
         { text: '일본 상품을 한국에 팔기 쉽게 하려고', correct: true },

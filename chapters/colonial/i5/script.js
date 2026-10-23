@@ -53,19 +53,19 @@ export default {
       done: [{ who: 'narr', text: '조선어 학회는 우리말을 연구하고 보급해 민족 문화를 지키려 했어요.', src: ['S51'] }],
     },
     match: {
-      type: 'place', src: ['S51'],
-      title: '사람과 한 일을 짝지어요',
-      items: [{ id: 'shin', label: '신채호' }, { id: 'hak', label: '조선어 학회' }, { id: 'yuk', label: '이육사' }],
-      slots: [
-        { id: 'sPoem', label: '저항 의식을 담은 시를 썼다', xy: [19, 28], answer: 'yuk' },
-        { id: 'sHist', label: '우리 역사를 연구했다', xy: [50, 72], answer: 'shin' },
-        { id: 'sDict', label: '「우리말 큰사전」을 펴내려 했다', xy: [81, 28], answer: 'hak' },
+      type: 'deliver', src: ['S51'], title: '한 일을 그 사람에게 가져가요', counter: '전한 것',
+      howto: '머리 위의 글을 신채호, 조선어 학회, 이육사 가운데 그 일을 한 쪽으로 가져가 대화 버튼을 눌러요.',
+      bins: [{ id: 'shin', label: '신채호' }, { id: 'hak', label: '조선어 학회' }, { id: 'yuk', label: '이육사' }],
+      cards: [
+        { text: '우리 역사를 연구했다', bin: 'shin' },
+        { text: '「우리말 큰사전」을 펴내려 했다', bin: 'hak' },
+        { text: '저항 의식을 담은 시를 썼다', bin: 'yuk' },
       ],
       fail: '신채호는 역사학자, 이육사는 시인, 조선어 학회는 우리말을 연구했어요.',
     },
     kinds: {
-      type: 'sort', src: ['S51'],
-      title: '어떤 노력일까요?',
+      type: 'deliver', src: ['S51'], title: '어떤 노력일까요? 알맞은 곳으로 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 상점(민족의 힘 기르기), 학교(학생들의 항일 운동), 학회(우리말과 역사 지키기) 가운데 알맞은 곳으로 가져가요.',
       bins: [{ id: 'power', label: '민족의 힘 기르기' }, { id: 'students', label: '학생들의 항일 운동' }, { id: 'culture', label: '우리말과 역사 지키기' }],
       cards: [
         { text: '우리나라에서 만든 물건을 쓰자', bin: 'power' },

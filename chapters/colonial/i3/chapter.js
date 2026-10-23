@@ -2,6 +2,30 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400)
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const HALL = { // 상하이 임시 정부 청사 앞마당
+  origin: [400, 0], ground: 'stone', groundColor: 0xa09888, bounds: { x0: -20, x1: 20, z0: -14, z1: 16 },
+  props: [
+    { type: 'western', x: 0, z: -15, w: 16, d: 5, h: 7, color: 0x8a5a4a }, { type: 'flagpole', x: -4, z: -11 }, { type: 'flagpole', x: 4, z: -11 },
+    { type: 'tree', x: -16, z: 8 }, { type: 'tree', x: 16, z: 8 },
+  ],
+};
+const ALLEY = { // 상하이 골목: 담과 가게 사이로 몰래
+  origin: [400, 0], ground: 'stone', groundColor: 0x8c8577, bounds: { x0: -18, x1: 18, z0: -22, z1: 20 },
+  props: [
+    { type: 'wall', x: -9, z: 8, w: 8 }, { type: 'wall', x: 9, z: -4, w: 8 }, { type: 'rice', x: -10, z: -8, n: 6 },
+    { type: 'western', x: -15, z: -18, w: 6, d: 5, h: 5, color: 0x8a4a3a }, { type: 'western', x: 15, z: 16, w: 6, d: 5, h: 5, color: 0x9a948a },
+  ],
+};
+const OFFICE = { // 청사 안의 세 부서 책상
+  origin: [400, 0], ground: 'stone', groundColor: 0x8a6a4a, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
+  props: [
+    { type: 'desk', x: -12, z: -9 }, { type: 'desk', x: 0, z: -10 }, { type: 'desk', x: 12, z: -9 },
+    { type: 'flagpole', x: 0, z: -13 },
+  ],
+};
+
 export default makeKitChapter({
   id: 'i3', mood: 'overcast', script,
   player: { robe: 0x3a3a44, hat: 'short', trim: 0xe6dcc3, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -27,8 +51,12 @@ export default makeKitChapter({
     signs: [{ id: 'signOffice', title: '임시 정부 청사', x: -5, z: -1 }, { id: 'signBond', title: '독립 공채', x: 13, z: 3 }],
   },
   parts: [
-    script.parts.charter,
-    { ...script.parts.letters, from: [0, 3], spots: [{ x: -13, z: 5.5 }, { x: 13, z: 6 }, { x: -9, z: -4 }, { x: 10, z: -4 }, { x: 0, z: 8 }] },
-    script.parts.roles,
+    { ...script.parts.charter, arena: HALL, from: [0, 13],
+      items: xy(script.parts.charter.items, [{ x: -10, z: -4 }, { x: 0, z: 2 }, { x: 10, z: -4 }, { x: -9, z: 7 }, { x: 9, z: 7 }]) },
+    { ...script.parts.letters, arena: ALLEY, from: [0, 17],
+      waypoints: xy(script.parts.letters.waypoints, [{ x: -9, z: 5.5 }, { x: -12, z: -5 }, { x: 4, z: -17 }]),
+      guards: [{ path: [[-2, 12], [-2, -2]], speed: 0.7, range: 5 }, { path: [[-14, -12], [6, -12]], speed: 0.55, range: 5 }] },
+    { ...script.parts.roles, arena: OFFICE, from: [0, 11],
+      bins: xy(script.parts.roles.bins, [{ x: -12, z: -5 }, { x: 0, z: -6 }, { x: 12, z: -5 }]) },
   ],
 });

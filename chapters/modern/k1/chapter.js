@@ -2,6 +2,25 @@
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
 
+// 미니게임 무대(마을에서 떨어진 x 400)
+const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
+const PALACE = { // 고쳐 짓는 경복궁 앞(왼쪽)과 다른 때의 일(오른쪽)
+  origin: [400, 0], ground: 'earth', groundColor: 0x9a8a6a, bounds: { x0: -20, x1: 20, z0: -14, z1: 14 },
+  props: [
+    { type: 'hanok', x: -11, z: -12, tile: true, scale: 1.4 }, { type: 'rice', x: -15, z: -6, n: 6 },
+    { type: 'western', x: 11, z: -12, w: 7, d: 4, h: 4, color: 0x8c8577 }, { type: 'steamship', x: 16, z: -22, ry: Math.PI / 2, solid: false },
+    { type: 'water', x: 20, z: -30, w: 60, d: 20 },
+  ],
+};
+const YEONMU = { // 강화도 연무당: 조약을 맺은 곳
+  origin: [400, 0], ground: 'earth', groundColor: 0x8a7a5a, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
+  props: [
+    { type: 'pavilion', x: 0, z: -11 }, { type: 'desk', x: 0, z: -6 },
+    { type: 'crowd', x: -4, z: -5, n: 2, cols: 2, looks: ['joseonOfficial'], face: Math.PI / 2 }, { type: 'crowd', x: 4, z: -5, n: 2, cols: 2, looks: ['gentleman'], face: -Math.PI / 2 },
+    { type: 'water', x: 0, z: -40, w: 160, d: 30 }, { type: 'steamship', x: -16, z: -24, ry: Math.PI / 2, solid: false },
+  ],
+};
+
 export default makeKitChapter({
   id: 'k1', mood: 'sea', script,
   player: { robe: 0xddd2bb, hat: 'topknot', trim: 0x7a4e32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
@@ -27,5 +46,8 @@ export default makeKitChapter({
     signs: [{ id: 'signTreaty', title: '강화도 조약', x: -6, z: -1 }, { id: 'signWest', title: '서양과의 조약', x: 6, z: 7 }],
     scatter: [{ kind: 'grass', count: 60, area: { x0: -15, x1: 15, z0: -8, z1: 12 }, avoid: [{ x: 0, z: 2, r: 3 }], seed: 201 }],
   },
-  parts: [script.parts.regent, script.parts.treaty],
+  parts: [
+    { ...script.parts.regent, arena: PALACE, from: [0, 11], bins: xy(script.parts.regent.bins, [{ x: -11, z: -4 }, { x: 11, z: -4 }]) },
+    { ...script.parts.treaty, arena: YEONMU, from: [0, 11], items: xy(script.parts.treaty.items, [{ x: -10, z: 2 }, { x: -3, z: 7 }, { x: 10, z: 2 }, { x: 4, z: 7 }]) },
+  ],
 });

@@ -52,29 +52,30 @@ export default {
   },
   parts: {
     match: {
-      type: 'place', src: ['S51'],
-      title: '근대 문물과 하는 일을 짝지어요',
-      items: [{ id: 'tram', label: '전차' }, { id: 'phone', label: '전화' }, { id: 'lamp', label: '전등' }, { id: 'tele', label: '전신' }],
-      slots: [
-        { id: 'sLamp', label: '밤거리를 밝혀요', xy: [25, 22], answer: 'lamp' },
-        { id: 'sTram', label: '사람을 싣고 선로를 달려요', xy: [75, 22], answer: 'tram' },
-        { id: 'sTele', label: '글자를 전기 신호로 보내요', xy: [25, 78], answer: 'tele' },
-        { id: 'sPhone', label: '먼 곳과 목소리로 이야기해요', xy: [75, 78], answer: 'phone' },
-      ],
+      type: 'deliver', src: ['S51'], title: '근대 문물을 하는 일에 맞게 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 이름을 그 문물이 하는 일 팻말로 가져가 대화 버튼을 눌러요.',
+      bins: [{ id: 'lamp', label: '밤거리를 밝혀요' }, { id: 'tram', label: '사람을 싣고 선로를 달려요' }, { id: 'tele', label: '글자를 전기 신호로 보내요' }, { id: 'phone', label: '먼 곳과 목소리로 이야기해요' }],
+      cards: [{ text: '전차', bin: 'tram' }, { text: '전화', bin: 'phone' }, { text: '전등', bin: 'lamp' }, { text: '전신', bin: 'tele' }],
       fail: '전신은 글자나 숫자를 전기 신호로 바꾸어 보내는 통신이에요.',
     },
     tram: {
-      type: 'gauge', title: '전차를 정류장에 맞춰 세워요', label: '멈춰!', zone: [0.62, 0.78], seconds: 4,
-      prompt: '움직이는 전차(붉은 표시)가 정류장(빛나는 칸)에 들어왔을 때 눌러요.',
-      fail: '표시가 빛나는 칸 안에 들어온 다음에 눌러요.',
+      type: 'drive', src: ['S51'], title: '전차를 몰아 서대문에서 청량리까지 가요', vehicle: 'tram', counter: '지난 정류장', seconds: 70, speed: 1.3,
+      howto: '선로를 따라 전차를 몰아 정류장(빛나는 곳)을 차례로 지나가요. 길을 건너는 사람과 수레를 조심해요.',
+      route: [
+        { label: '서대문', say: '1899년, 서대문에서 청량리까지 전차가 다니기 시작했어요.' },
+        { label: '종로', say: '전차를 다니게 하려고 길을 넓히고 전봇대도 세웠어요.' },
+        { label: '동대문', say: '가운데에는 요금이 비싼 특별석이 있었어요.' },
+        { label: '청량리', say: '청량리에 닿았어요!' },
+      ],
+      bump: '길을 건너던 수레와 부딪힐 뻔했어요! 앞 정류장에서 다시 가요.',
+      fail: '시간 안에 청량리에 닿지 못했어요. 수레가 지나간 뒤에 가 봐요.',
     },
     then: {
-      type: 'sort', src: ['S51'],
-      title: '개항 뒤 새로 들어온 것일까요, 그 전부터 있던 것일까요?',
-      bins: [{ id: 'new', label: '새로 들어온 근대 문물' }, { id: 'old', label: '그 전부터 있던 것' }],
-      cards: [
-        { text: '전차', bin: 'new' }, { text: '갓', bin: 'old' }, { text: '전화기', bin: 'new' },
-        { text: '초가집', bin: 'old' }, { text: '앙부일구', bin: 'old' }, { text: '양복과 구두', bin: 'new' },
+      type: 'find', src: ['S51'], title: '거리에서 개항 뒤 새로 들어온 근대 문물을 찾아요', counter: '찾은 문물',
+      howto: '거리의 팻말 가운데 새로 들어온 근대 문물을 찾아 대화 버튼을 눌러요. 그 전부터 있던 것을 고르면 다시 해요.',
+      items: [
+        { text: '전차', correct: true }, { text: '갓', correct: false }, { text: '전화기', correct: true },
+        { text: '초가집', correct: false }, { text: '앙부일구', correct: false }, { text: '양복과 구두', correct: true },
       ],
       fail: '전기를 쓰거나 서양에서 들어온 것은 근대 문물이에요.',
     },

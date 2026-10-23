@@ -226,7 +226,7 @@ export const BUILD = {
 };
 
 // 부딪힘 자리: 둥근 것은 원 하나, 네모난 건물은 긴 쪽을 따라 작은 원을 줄지어 놓는다(앞마당까지 막지 않게)
-function addFootprint(world, p, r) {
+export function addFootprint(world, p, r) {
   const s = p.scale || 1;
   if (typeof r === 'number') { world.addCollider({ x: p.x, z: p.z, r: r * s }); return; }
   let [w, d] = r.rect; w *= s; d *= s;

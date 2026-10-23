@@ -48,19 +48,26 @@ export default {
   },
   parts: {
     gather: {
-      type: 'collect', title: '흩어진 독립군 부대를 모아요', counter: '모은 부대', seconds: 70,
+      type: 'drive', title: '숲속 진지를 돌며 흩어진 독립군 부대를 모아요', counter: '모은 부대', seconds: 70,
+      howto: '빛나는 진지를 차례로 지나가요. 독립군이 줄지어 따라와요.',
+      route: [
+        { label: '첫째 진지', say: '"장군님, 저희도 함께 싸우겠습니다!"' },
+        { label: '둘째 진지', say: '독립군이 하나둘 모여들었어요.' },
+        { label: '셋째 진지', say: '흩어졌던 부대가 다시 모였어요.' },
+        { label: '청산리 골짜기 입구', say: '이제 골짜기 양쪽 산에 숨어 기다려요.' },
+      ],
       fail: '화살표가 가리키는 빛나는 곳으로 가요.',
     },
     ambush: {
-      type: 'gauge', title: '일본군이 골짜기 깊이 들어오면 공격 신호!', label: '공격!', zone: [0.58, 0.78], seconds: 4.5,
-      prompt: '표시가 빛나는 칸(골짜기 한가운데)에 들어왔을 때 눌러요.',
-      fail: '너무 이르거나 늦었어요. 적이 골짜기 한가운데 왔을 때 신호를 보내요.',
+      type: 'ambush', title: '청산리 골짜기: 일본군이 깊이 들어오면 공격 신호!', label: '공격!', counter: '물리친 부대',
+      howto: '일본군이 골짜기 한가운데 빛나는 곳에 들어오면 그 위의 「공격!」을 눌러요.',
+      fail: '골짜기 한가운데 들어왔을 때 신호를 보내야 해요. 다시 해 봐요.',
       done: [{ who: 'narr', text: '김좌진과 홍범도가 이끄는 독립군 부대는 청산리의 지형을 이용한 전술로 일본군에 큰 승리를 거두었어요(청산리 대첩, 1920년).', src: ['S51'] }],
     },
     leaders: {
-      type: 'choose', src: ['S51'],
-      title: '청산리 대첩을 이끈 독립군 지도자 두 사람을 골라요',
-      cards: [
+      type: 'find', src: ['S51'], title: '청산리 대첩을 이끈 독립군 지도자 두 사람을 찾아가요', counter: '찾은 지도자',
+      howto: '네 사람 가운데 청산리 대첩을 이끈 두 사람에게 가서 대화 버튼을 눌러요.',
+      items: [
         { text: '김좌진', correct: true }, { text: '김옥균', correct: false }, { text: '홍범도', correct: true }, { text: '전봉준', correct: false },
       ],
       fail: '오늘 만난 두 장군을 떠올려 보세요.',

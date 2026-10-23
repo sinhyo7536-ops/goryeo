@@ -17,7 +17,7 @@
 // arena: 마을과 떨어진 곳(origin)에 미니게임 무대를 따로 세운다. { origin: [x, z], ground, groundColor, bounds, props, roads }
 //        좌표는 모두 무대 기준. arena가 없으면 장 마을에서 한다.
 import * as THREE from 'three';
-import { BUILD } from './town.js';
+import { BUILD, addFootprint } from './town.js';
 import { mat, makePerson } from '../../core/people.js';
 import { groundMaterial } from '../../core/textures.js';
 import { createTapTargets } from '../../core/minigame.js';
@@ -76,10 +76,7 @@ export function buildArena(world, arena) {
       const pg = new THREE.Group(); pg.position.set(p.x, 0, p.z); pg.rotation.y = p.ry || 0; if (p.scale) pg.scale.setScalar(p.scale); g.add(pg);
       const r = BUILD[p.type](pg, p);
       if (p.type === 'water') pg.position.y = 0.32; // 무대 땅 위로 물이 보이게
-      if (r && p.solid !== false) {
-        const rr = typeof r === 'number' ? r : Math.max(...r.rect) / 2;
-        world.addCollider({ ...at(p.x, p.z), r: rr * (p.scale || 1) });
-      }
+      if (r && p.solid !== false) addFootprint(world, { ...p, ...at(p.x, p.z) }, r); // 긴 건물·기차는 작은 원을 줄지어
     }
     for (const c of arena.colliders || []) world.addCollider({ ...at(c.x, c.z), r: c.r });
     const b = arena.bounds; world.bounds = { x0: b.x0 + ox, x1: b.x1 + ox, z0: b.z0 + oz, z1: b.z1 + oz };
@@ -209,7 +206,8 @@ export function drive(ctx, part, easy) {
   });
   const hazards = (part.hazards || []).map(hz => {
     const hg = new THREE.Group(); hg.position.set(hz.x, 0, hz.z); g.add(hg);
-    if (hz.kind === 'ship') { add(hg, box(2.6, 1.4, 6), 0x3a3f46, 0, 0.5, 0); add(hg, box(1.6, 1.4, 2), 0x2b2f36, 0, 1.8, -0.5); }
+    if (hz.kind === 'log') { const l = add(hg, new THREE.CylinderGeometry(0.5, 0.5, 4, 10), 0x6b4a32, 0, 0.5, 0); l.rotation.z = Math.PI / 2; } // 굴러오는 통나무(가는 쪽과 직각으로 눕힘)
+    else if (hz.kind === 'ship') { add(hg, box(2.6, 1.4, 6), 0x3a3f46, 0, 0.5, 0); add(hg, box(1.6, 1.4, 2), 0x2b2f36, 0, 1.8, -0.5); }
     else if (hz.kind === 'mine') { add(hg, new THREE.SphereGeometry(0.6, 10, 8), 0x2b2b2b, 0, 0.3, 0); }
     else if (hz.kind === 'crowd') { for (let i = 0; i < 3; i++) { const p = makePerson(LOOKS.gendarme); p.position.set(i - 1, 0, 0); hg.add(p); } }
     else if (hz.kind === 'car') { BUILD.truck(hg, { color: 0x8a2f24 }); }

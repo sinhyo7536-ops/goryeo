@@ -48,12 +48,19 @@ export default {
   },
   parts: {
     run: {
-      type: 'collect', title: '광복군 훈련: 빛나는 곳을 차례로 달려요', counter: '달린 곳', seconds: 70,
-      fail: '화살표를 따라 가장 가까운 곳부터 달려요.',
+      type: 'drive', title: '광복군 훈련: 굴러오는 통나무를 피해 훈련장을 달려요', counter: '지난 곳', seconds: 70, speed: 1.15,
+      howto: '빛나는 곳을 차례로 지나가요. 굴러오는 통나무에 부딪히면 앞 지점에서 다시 가요.',
+      route: [
+        { label: '출발', say: '"광복군, 훈련 시작!"' },
+        { label: '통나무 길', say: '한국광복군은 국내로 들어갈 날을 준비하며 훈련했어요.' },
+        { label: '깃발 언덕', say: '훈련을 마쳤어요!' },
+      ],
+      bump: '통나무에 부딪혔어요! 앞 지점에서 다시 가요.',
+      fail: '화살표를 따라 통나무를 피해서 달려요.',
     },
     sort: {
-      type: 'sort', src: ['S51', 'S55', 'S56'],
-      title: '한인 애국단일까요, 한국광복군일까요?',
+      type: 'deliver', src: ['S51', 'S55', 'S56'], title: '한인 애국단일까요, 한국광복군일까요? 알맞은 깃발 아래로 가져가요', counter: '가져다 놓은 것',
+      howto: '머리 위의 글을 「한인 애국단」이나 「한국광복군」 깃발 아래로 가져가 대화 버튼을 눌러요.',
       bins: [{ id: 'aegukdan', label: '한인 애국단' }, { id: 'gwangbok', label: '한국광복군' }],
       cards: [
         { text: '이봉창이 도쿄에서 의거를 일으켰다', bin: 'aegukdan' },
