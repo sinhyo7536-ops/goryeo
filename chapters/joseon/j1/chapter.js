@@ -1,8 +1,27 @@
 // 조선편 1장 「위화도 회군과 조선 건국」: 위화도 진영 탐험 → 4불가론 카드 고르기 → 회군 장면 → 한양 배치 → 퀴즈.
 import { buildJ1Scene } from './scene.js';
 import { roam } from '../../../core/flow.js';
-import { showHowTo, runWithRetries, chooseCards, placeOnBoard } from '../../../core/minigame.js';
+import { showHowTo, runWithRetries } from '../../../core/minigame.js';
+import { PLAY } from '../../kit/play.js';
 import script from './script.js';
+
+// 미니게임 무대(마을에서 떨어진 x 400)
+// 1) 비 내리는 위화도 진영: 군사들이 하는 말(팻말) 가운데 이성계가 든 까닭을 찾는다
+export const CAMP = {
+  origin: [400, 0], ground: 'grass', groundColor: 0x55704a, bounds: { x0: -18, x1: 18, z0: -14, z1: 14 },
+  props: [
+    { type: 'water', x: 0, z: -36, w: 140, d: 30, color: 0x5a7a86 }, { type: 'water', x: 0, z: 34, w: 140, d: 30, color: 0x5a7a86 },
+    { type: 'tent', x: -14, z: -9, color: 0xb8a888 }, { type: 'tent', x: 14, z: -9, color: 0xb8a888 }, { type: 'tent', x: 0, z: -12, color: 0x9a3a2a },
+    { type: 'crowd', x: -3, z: -7, n: 4, cols: 4, looks: ['soldier'], face: Math.PI },
+  ],
+};
+export const REASON_SPOTS = [{ x: -11, z: -2 }, { x: -6, z: 7 }, { x: 0, z: -1 }, { x: 11, z: -2 }, { x: 6, z: 7 }, { x: -12, z: 8 }];
+// 2) 새 도읍 한양 터: 북쪽에 백악(산), 동서남북 네 터에 궁궐·종묘·사직단을 가져다 놓는다
+const HANYANG_SITE = {
+  origin: [400, 0], ground: 'grass', groundColor: 0x6a8a4c, bounds: { x0: -20, x1: 20, z0: -18, z1: 16 },
+  props: [{ type: 'island', x: 0, z: -30, r: 12, color: 0x4f6a3e, sand: 0x6a7a4c }, { type: 'wall', x: 0, z: 15, w: 40, h: 1.2 }],
+};
+const SITES = [{ id: 'north', label: '북쪽 터', x: 0, z: -11 }, { id: 'east', label: '동쪽 터', x: 12, z: -1 }, { id: 'west', label: '서쪽 터', x: -12, z: -1 }, { id: 'south', label: '남쪽 터', x: 0, z: 9 }];
 
 const NPC_ORDER = ['archer', 'soldier', 'yiseonggye'];
 let scene = null;
@@ -83,12 +102,12 @@ export default {
     let tries = 0, firstTryCorrect = 0;
     await showHowTo(ctx.ui, {
       title: '이성계가 반대한 까닭',
-      steps: ['카드 여섯 장 중에서 이성계와 군사들이 말한 까닭을 골라요.', '맞는 카드 네 장을 모두 고르면 성공이에요.', '틀린 카드를 누르면 처음부터 다시 해요.'],
-      keyboard: '마우스로 카드를 눌러요', touch: '카드를 손가락으로 눌러요',
+      steps: ['비 내리는 진영의 팻말 여섯 개 중에서 이성계와 군사들이 말한 까닭을 찾아가요.', '맞는 팻말 네 개에 가서 대화 버튼을 누르면 성공이에요.', '틀린 팻말을 고르면 처음부터 다시 해요.'],
+      keyboard: 'W A S D 또는 방향키로 걷고, E로 골라요', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 골라요',
     });
     const a = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await chooseCards(ctx, { title: script.reasons.title, cards: script.reasons.cards, easy });
+      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, ...REASON_SPOTS[i] })) }, easy);
       if (ok && tries === 1) firstTryCorrect += 1;
       return ok;
     }, { failHint: script.reasons.fail });
@@ -121,7 +140,7 @@ export default {
     tries = 0;
     const b = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await placeOnBoard(ctx, { title: script.hanyang.title, ...HANYANG, boardClass: 'map', easy });
+      const ok = await PLAY.deliver(ctx, { arena: HANYANG_SITE, from: [0, 13], counter: '놓은 곳', bins: SITES, cards: HANYANG.items.map(it => ({ text: it.label, bin: HANYANG.slots.find(s => s.answer === it.id).id })) }, easy);
       if (ok && tries === 1) firstTryCorrect += 1;
       return ok;
     }, { failHint: script.hanyang.fail });

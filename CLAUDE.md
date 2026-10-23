@@ -5,7 +5,7 @@
 - 고려편 「고려를 지켜라」(외세의 침입과 고려의 노력): 장 id `ch1`~`ch6`, 폴더 `chapters/ch1`~`ch6`, 결과 카드 `SESSIONS[1]`.
 - 조선편 「조선을 걷다」(조선의 건국과 발전): 장 id `j1`~`j6`, 폴더 `chapters/joseon/j1`~`j6`, 결과 카드 `SESSIONS[2]`. 설계는 `docs/superpowers/specs/2026-10-22-joseon-course-design.md`.
 - 근대편 「새 나라를 꿈꾸다」(session 3, `k1`~`k6`, `chapters/modern/`), 일제 강점기편 「빼앗긴 나라를 되찾아라」(session 4, `i1`~`i6`, `chapters/colonial/`), 현대편 「대한민국을 세우다」(session 5, `h1`~`h6`, `chapters/present/`). 사실은 교사의 비상 5-2 교과서 98~145쪽(S51)을 따르고, 현대편 6장(4·19~서울 올림픽)은 교과서 밖이라 S58~S61을 따른다. 설계는 `docs/superpowers/specs/2026-10-23-modern-courses-design.md`.
-- 이 세 편은 장 부품 상자 `chapters/kit/`로 만든다: `town.js`의 `buildTown(world, layout)`(배치표로 건물·사람·안내판), `chapter.js`의 `makeKitChapter({ id, mood, player, script, layout, order, parts, spot })`. 장마다 `script.js`(대사·미니게임·퀴즈)와 `chapter.js`(배치표)만 쓴다. 미니게임 종류: choose, sort, place, order, gauge, collect.
+- 이 세 편은 장 부품 상자 `chapters/kit/`로 만든다: `town.js`의 `buildTown(world, layout)`(배치표로 건물·사람·안내판), `chapter.js`의 `makeKitChapter({ id, mood, player, script, layout, order, parts, spot })`. 장마다 `script.js`(대사·미니게임·퀴즈)와 `chapter.js`(배치표)만 쓴다. 미니게임은 장면 속 상황 놀이(`chapters/kit/play.js`): drive(배·차·전차 몰기, 행진), stops(차례대로 찾아가기), deliver(가져다 놓기), find(찾기), ambush(매복), sneak(몰래 지나가기), collect(빛나는 곳). 마을과 떨어진 무대(arena, x 400)를 따로 세우고 끝나면 치운다. 바닥 지도는 `mapSpot`. 카드 놀이(choose·sort·place·order·gauge)는 남아 있지만 새 장에는 쓰지 않는다(2026-10-23 사용자: 카드는 단조롭다). 고려·조선편의 순서·고르기 카드도 같은 부품으로 바꿨다(그림 읽기·도읍 고르기·학익진 배치판만 남김).
 
 - 저장소: https://github.com/ssamgame/history (조직 `ssamgame`, 브랜치 `main`) — 2026-10-23에 goryeo에서 history로 이름을 바꿨다(옛 주소 ssamgame.github.io/goryeo/는 열리지 않음)
 - 학생 주소: https://ssamgame.github.io/history/ (GitHub Pages, main에서 바로 배포)
@@ -36,7 +36,7 @@
 ## 실행과 테스트
 
 - 개발 서버: `.claude/launch.json`의 `goryeo-game`(포트 8130). 장면 확인은 `?debug=ch3-scene`, 미니게임부터는 `?debug=ch3-minigame`(조선편은 `?debug=j3-scene`, 근대·일제 강점기·현대편은 `k3`·`i3`·`h3`).
-- 근대~현대편 카드형 미니게임은 `tools/minigame-gallery.html?part=h3:0`(&fill=1이면 자리 놓기를 채운 모습)으로 장면 없이 띄워 본다. `tests/layout.test.js`가 모든 화면 크기에서 버튼이 화면 안에 있고 손가락으로 누를 수 있는지(다른 판에 덮이지 않는지) 검사하고, 테스트 봇(`tests/bot.js`)도 누르기 전에 같은 검사를 한다.
+- 개발용: `?debug=h3-minigame&part=1` 처럼 미니게임의 몇 번째 부분부터 볼 수 있다. 근대~현대편 카드형 미니게임은 `tools/minigame-gallery.html?part=h3:0`(&fill=1이면 자리 놓기를 채운 모습)으로 장면 없이 띄워 본다. `tests/layout.test.js`가 모든 화면 크기에서 버튼이 화면 안에 있고 손가락으로 누를 수 있는지(다른 판에 덮이지 않는지) 검사하고, 테스트 봇(`tests/bot.js`)도 누르기 전에 같은 검사를 한다.
 - 테스트: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 -Port 8141` (헤드리스 Edge, 자체 하네스 `tests/harness.js`). 포트 8123은 막혀 있어 8141을 쓴다. 출력이 길면 파일로 받아 `FAIL|RESULT` 줄만 본다.
 - 새 기능과 버그 수정은 테스트를 먼저 쓰고 실패를 본 뒤 고친다. 새 테스트 파일은 `tests/index.html`의 목록에 넣는다.
 - 화면에 보이는 변경은 브라우저 창에서 직접 확인한다(1000×560 정도로 탭 크기 흉내).

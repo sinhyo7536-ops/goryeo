@@ -1,8 +1,16 @@
 // 조선편 3장 「세종 때의 과학 기술」: 한양 탐험(백성·장영실·세자) → 앙부일구 읽기 → 자격루 차례 → 측우기 눈금 읽기 → 퀴즈.
 import { buildJ3Scene } from './scene.js';
-import { showHowTo, chooseCards, orderCards } from '../../../core/minigame.js';
+import { showHowTo, chooseCards } from '../../../core/minigame.js';
+import { PLAY } from '../../kit/play.js';
 import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts } from '../common.js';
 import script from './script.js';
+
+// 자격루 마당(마을에서 떨어진 x 400): 커다란 자격루 둘레에 움직임 이름표가 흩어져 있다(차례와 다르게)
+const CLOCKYARD = {
+  origin: [400, 0], ground: 'stone', groundColor: 0xb0a890, bounds: { x0: -16, x1: 16, z0: -10, z1: 14 },
+  props: [{ type: 'landmark', name: 'jagyeongnu', x: 0, z: -7, scale: 1.4, rect: [10, 3] }, { type: 'hanok', x: 0, z: -14, tile: true, scale: 1.6, solid: false }],
+};
+const CLOCK_SPOTS = [{ x: 9, z: 1 }, { x: -9, z: 2 }, { x: 4, z: 7 }, { x: -4, z: 8 }];
 
 const ORDER = ['commoner', 'jangyeongsil', 'crownPrince'];
 const SPOT = [-4, -3];
@@ -55,8 +63,8 @@ export default {
     world.setGoal(null);
     await showHowTo(ctx.ui, {
       title: '시간과 비를 재라',
-      steps: ['앙부일구의 그림자가 가리키는 동물을 세 번 읽어요.', '자격루가 시간을 알리는 차례를 맞춰요.', '측우기에 고인 빗물의 깊이를 두 번 읽어요.'],
-      keyboard: '마우스로 카드를 눌러요', touch: '카드를 손가락으로 눌러요',
+      steps: ['앙부일구의 그림자가 가리키는 동물을 세 번 읽어요.', '커다란 자격루 둘레의 이름표를 시간을 알리는 차례대로 찾아가요(대화 버튼).', '측우기에 고인 빗물의 깊이를 두 번 읽어요.'],
+      keyboard: '카드는 마우스로, 걷기는 W A S D 또는 방향키, 고르기는 E', touch: '카드는 손가락으로 누르고, 걷기는 화면 왼쪽을 끌어요',
     });
     const parts = [];
     // 1) 앙부일구: 세 번 모두 맞히면 성공
@@ -69,7 +77,7 @@ export default {
     }, script.dial.fail));
     await sayAll(dialogue, script.dial.done); dialogue.close();
     // 2) 자격루 차례
-    parts.push(await tryPart(ctx, easy => orderCards(ctx, { title: script.clock.title, cards: script.clock.cards, easy }), script.clock.fail));
+    parts.push(await tryPart(ctx, easy => PLAY.stops(ctx, { arena: CLOCKYARD, from: [0, 12], counter: '찾은 움직임', spots: script.clock.cards.map((label, i) => ({ label, ...CLOCK_SPOTS[i] })) }, easy), script.clock.fail));
     scene.ringClock(); ctx.audio.play('tap');
     await sayAll(dialogue, script.clock.done); dialogue.close();
     // 3) 소나기 뒤 측우기 읽기

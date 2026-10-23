@@ -7,7 +7,8 @@ import { scatter } from '../../core/props.js';
 import { makeSign } from '../../core/signs.js';
 import { LOOKS } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
-import { hipRoof, gableRoof } from '../joseon/landmarks.js';
+import * as LM from '../joseon/landmarks.js';
+const { hipRoof, gableRoof } = LM;
 
 const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
 function add(g, geo, color, x, y, z, kind = null, cast = true) {
@@ -164,6 +165,8 @@ export const BUILD = {
     add(g, new THREE.CylinderGeometry(r * 0.75, r * 0.9, 1.4, 16), p.color || 0x6a8a4c, 0, 0.6, 0);
     return r;
   },
+  // 조선편 유물 모형(자격루·앙부일구·측우기 등): name은 landmarks.js의 함수 이름, r 부딪힘 반지름
+  landmark(g, p) { g.add(LM[p.name]()); return p.rect ? { rect: p.rect } : (p.r ?? 2); },
   // 부두(배를 대는 곳)
   pier(g, p) { add(g, box(p.w || 8, 0.5, p.d || 3), 0x7a5a3c, 0, 0.3, 0, 'wood'); return 0; },
   // 큰 나무

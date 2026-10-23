@@ -3,7 +3,7 @@ import { SOURCES } from '../content/sources.js';
 import { validateScript } from '../core/content.js';
 import j2Script from '../chapters/joseon/j2/script.js';
 import { buildJ2Scene } from '../chapters/joseon/j2/scene.js';
-import j2, { CONSONANTS, VOWELS } from '../chapters/joseon/j2/chapter.js';
+import j2, { CONSONANTS, VOWELS, YARD, C_BINS } from '../chapters/joseon/j2/chapter.js';
 import { runChapter } from '../core/flow.js';
 import { JOSEON } from '../chapters/index.js';
 import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
@@ -49,9 +49,15 @@ test('j2: a wrong letter place fails with a hint and retries', async () => {
   const said = [];
   const say = s.dialogue.say;
   s.dialogue.say = l => { said.push(l.text); return say(l); };
-  const p = { ...places, 'ㄱ': 'mouth' }; // 처음엔 ㄱ을 입 모양에 놓는다
-  const bot = touchBot(s, { answers, places: p, orders });
-  const off = s.w.onUpdate(() => { if (said.includes(j2Script.consonants.fail)) p['ㄱ'] = 'root'; });
+  const bot = touchBot(s, { answers, places, orders });
+  // 처음 한 번은 ㄱ을 '입 모양' 팻말로 가져가게 한다
+  const mouth = C_BINS[CONSONANTS.slots.findIndex(sl => sl.id === 'mouth')];
+  let wrongOnce = true;
+  const off = s.w.onUpdate(() => {
+    if (!wrongOnce) return;
+    if (said.includes(j2Script.consonants.fail)) { wrongOnce = false; return; }
+    if (s.ctx.testHooks.walkTo) s.ctx.testHooks.walkTo = { x: YARD.origin[0] + mouth.x, z: YARD.origin[1] + mouth.z };
+  });
   try {
     j2.buildScene(s.w, s.ctx);
     j2.enterStage(s.ctx, 'minigame');

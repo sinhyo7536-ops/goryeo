@@ -1,8 +1,19 @@
 // 조선편 5장 「병자호란과 남한산성」: 산성 탐험(병사·창고지기·김상헌·최명길) → 척화·주화 나누기 → 화톳불 다시 켜기 → 항복 해설 → 퀴즈.
 import { buildJ5Scene } from './scene.js';
-import { showHowTo, sortCards } from '../../../core/minigame.js';
+import { showHowTo } from '../../../core/minigame.js';
+import { PLAY } from '../../kit/play.js';
 import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts } from '../common.js';
 import script from './script.js';
+
+// 행궁 마당(마을에서 떨어진 x 400): 왼쪽에 김상헌(척화), 오른쪽에 최명길(주화). 말을 그 생각을 한 사람에게 가져간다.
+const HALL = {
+  origin: [400, 0], ground: 'stone', groundColor: 0xd8dade, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
+  props: [
+    { type: 'hanok', x: 0, z: -14, tile: true, scale: 1.6 },
+    { type: 'crowd', x: -10, z: -8.5, n: 1, looks: ['kimsangheon'] }, { type: 'crowd', x: 10, z: -8.5, n: 1, looks: ['choemyeonggil'] },
+  ],
+};
+const SORT_BINS = [{ x: -10, z: -5 }, { x: 10, z: -5 }];
 
 const ORDER = ['soldier', 'keeper', 'kimsangheon', 'choemyeonggil'];
 const SPOT = [0, -3];
@@ -68,11 +79,11 @@ export default {
     world.setGoal(null);
     await showHowTo(ctx.ui, {
       title: '남한산성의 겨울',
-      steps: ['성안 사람들의 말을 \'싸우자(척화)\'와 \'화의하자(주화)\'로 나누어요.', '눈보라에 꺼진 화톳불 여섯 개에 시간 안에 다가가 다시 켜요.'],
-      keyboard: '카드는 마우스로, 걷기는 W A S D 또는 방향키', touch: '카드는 손가락으로, 걷기는 화면 왼쪽을 끌어요',
+      steps: ['머리 위의 말을 김상헌(싸우자, 척화)이나 최명길(화의하자, 주화)에게 가져가 대화 버튼을 눌러요.','눈보라에 꺼진 화톳불 여섯 개에 시간 안에 다가가 다시 켜요.'],
+      keyboard: '걷기는 W A S D 또는 방향키, 놓기는 E', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 놓아요',
     });
     const parts = [];
-    parts.push(await tryPart(ctx, easy => sortCards(ctx, { title: script.sort.title, bins: script.sort.bins, cards: script.sort.cards, easy }), script.sort.fail));
+    parts.push(await tryPart(ctx, easy => PLAY.deliver(ctx, { arena: HALL, from: [0, 11], counter: '전한 말', bins: script.sort.bins.map((b, i) => ({ ...b, ...SORT_BINS[i] })), cards: script.sort.cards }, easy), script.sort.fail));
     await sayAll(dialogue, script.fires.howto); dialogue.close();
     parts.push(await tryPart(ctx, easy => lightFires(ctx, easy), script.fires.fail));
     await sayAll(dialogue, script.fires.done);

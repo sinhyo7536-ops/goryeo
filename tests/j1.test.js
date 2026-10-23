@@ -3,7 +3,7 @@ import { SOURCES } from '../content/sources.js';
 import { validateScript } from '../core/content.js';
 import j1Script from '../chapters/joseon/j1/script.js';
 import { buildJ1Scene } from '../chapters/joseon/j1/scene.js';
-import j1 from '../chapters/joseon/j1/chapter.js';
+import j1, { REASON_SPOTS, CAMP } from '../chapters/joseon/j1/chapter.js';
 import { runChapter } from '../core/flow.js';
 import { JOSEON, isUnlocked } from '../chapters/index.js';
 import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
@@ -51,7 +51,7 @@ test('j1: completes with touch-only actions', async () => {
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
 
-test('j1: a wrong card fails with a hint, then retry succeeds', async () => {
+test('j1: a wrong sign fails with a hint, then retry succeeds', async () => {
   const s = touchSetup(j1Script.speakers);
   const said = [];
   const say = s.dialogue.say;
@@ -60,13 +60,19 @@ test('j1: a wrong card fails with a hint, then retry succeeds', async () => {
   let wrongOnce = true;
   const bot = touchBot(s, { answers, cardPicks: picks, places });
   // 처음 한 번만 틀린 카드를 고르게 하고, 그다음에는 맞는 카드만
-  const off = s.w.onUpdate(() => { if (wrongOnce && said.includes(j1Script.reasons.fail)) { wrongOnce = false; picks.delete('명나라 군사가 고려보다 적다'); } });
+  // 처음 한 번만 틀린 팻말('명나라 군사가 고려보다 적다')로 걸어가 고르게 한다
+  const wrong = REASON_SPOTS[j1Script.reasons.cards.findIndex(c => c.text === '명나라 군사가 고려보다 적다')];
+  const off = s.w.onUpdate(() => {
+    if (!wrongOnce) return;
+    if (said.includes(j1Script.reasons.fail)) { wrongOnce = false; return; }
+    if (s.ctx.testHooks.walkTo) s.ctx.testHooks.walkTo = { x: CAMP.origin[0] + wrong.x, z: CAMP.origin[1] + wrong.z };
+  });
   try {
     j1.buildScene(s.w, s.ctx);
     j1.enterStage(s.ctx, 'minigame');
     const r = await j1.minigame(s.ctx);
     ok(said.includes(j1Script.reasons.fail), 'hint shown');
-    eq(r.firstTryCorrect, 1, 'cards failed the first time, board right the first time');
+    eq(r.firstTryCorrect, 1, 'signs failed the first time, Hanyang right the first time');
     eq(r.easyModeUsed, false);
   } finally { off(); bot.stop(); s.done(); }
 }, { timeout: 150000 });

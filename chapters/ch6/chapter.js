@@ -1,8 +1,15 @@
 // 6장 「삼별초의 항쟁」: 강화도 포구 → 바닷길 항해(진도, 제주) → 마무리 연표 → 퀴즈.
 import { buildCh6Scene } from './scene.js';
 import { roam } from '../../core/flow.js';
-import { showHowTo, runWithRetries, orderCards } from '../../core/minigame.js';
+import { showHowTo, runWithRetries } from '../../core/minigame.js';
+import { PLAY, mapSpot } from '../kit/play.js';
 import script from './script.js';
+
+// 마무리: 바닥에 그린 지도(마을에서 떨어진 x 400) 위에서 고려를 지킨 곳들을 일어난 차례대로 찾아간다.
+const GMAP = { x: 0, z: 0, w: 48, line38: false }, GM = mapSpot(GMAP);
+const TIMELINE_ARENA = { origin: [400, 0], ground: 'grass', groundColor: 0x5f7a4c, bounds: { x0: -28, x1: 28, z0: -36, z1: 36 }, map: GMAP };
+// 서희(서북 국경), 흥화진, 귀주, 강화도, 처인성, 해인사(합천), 진도·제주 — 카드 차례와 같다
+const TIMELINE_SPOTS = [GM(33, 27), GM(20, 17), GM(27, 22), GM(31, 47), GM(44, 55), GM(62, 76), GM(37, 83)];
 
 const CATCH_R = 2.4;
 const CHASE_DELAY = 2.5;
@@ -117,7 +124,8 @@ export default {
     ctx.setGoal(script.goals[3]);
     await sayAll(dialogue, script.timeline.intro);
     dialogue.close();
-    const c = await runWithRetries(ctx, easy => orderCards(ctx, { title: script.timeline.title, cards: script.timeline.cards, easy }), { failHint: script.timeline.failHint });
+    const timeline = { arena: TIMELINE_ARENA, from: [0, 30], counter: '찾아간 곳', spots: script.timeline.cards.map((label, i) => ({ label, ...TIMELINE_SPOTS[i] })) };
+    const c = await runWithRetries(ctx, easy => PLAY.stops(ctx, timeline, easy), { failHint: script.timeline.failHint });
     showAftermath(ctx);
     return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed || b.easyModeUsed || c.easyModeUsed };
   },

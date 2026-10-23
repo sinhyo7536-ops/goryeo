@@ -56,7 +56,7 @@ export default {
 
   reasons: {
     src: ['S23'],
-    title: '이성계가 요동 정벌에 반대한 까닭 네 가지를 골라요',
+    title: '이성계가 요동 정벌에 반대한 까닭 네 가지를 찾아요',
     cards: [
       { text: '작은 나라가 큰 나라를 거스르면 안 된다', correct: true },
       { text: '요동은 너무 멀어서 가는 길을 모른다', correct: false },
@@ -78,7 +78,7 @@ export default {
 
   hanyang: {
     howto: [
-      { who: 'guide', text: '새 도읍 한양에 궁궐과 종묘, 사직단을 놓아 보자.' },
+      { who: 'guide', text: '새 도읍 한양 터에 궁궐과 종묘, 사직단을 하나씩 들고 가서 알맞은 터에 놓아 보자.' },
       { who: 'narr', text: '궁궐인 경복궁은 북쪽 산(백악)을 뒤로 하고 지었어요.', src: ['S26'] },
       { who: 'narr', text: '궁궐에서 남쪽을 바라볼 때 왼쪽에 종묘, 오른쪽에 사직단을 두었어요.', src: ['S25'] },
     ],

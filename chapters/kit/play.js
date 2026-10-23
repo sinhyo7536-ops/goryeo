@@ -146,7 +146,8 @@ const place = (world, [x, z], ry = Math.PI) => { const p = world.player; p.visib
 function session(ctx, part, easy) {
   const { world, hud } = ctx;
   const arena = buildArena(world, part.arena);
-  const cleanups = [() => arena.dispose(), () => clearToast(ctx), () => { hud.setTimer(null); hud.setCounter(null); world.setGoal(null); ctx.input.enabled = false; ctx.testHooks.walkTo = null; hud.setPrompt?.(null); hud.setTalkEnabled?.(false); }];
+  const back = part.arena && { p: world.player.position.clone(), ry: world.player.rotation.y, cam: world.camMode }; // 무대를 치우면 원래 자리로
+  const cleanups = [() => { arena.dispose(); if (back) { world.player.position.copy(back.p); world.player.rotation.y = back.ry; world.camMode = back.cam === 'fixed' ? 'follow' : back.cam; world.snapCamera(); } }, () => clearToast(ctx), () => { hud.setTimer(null); hud.setCounter(null); world.setGoal(null); ctx.input.enabled = false; ctx.testHooks.walkTo = null; hud.setPrompt?.(null); hud.setTalkEnabled?.(false); }];
   const duration = part.seconds ? part.seconds * (easy ? 1.5 : 1) : null;
   let t = 0, done = false, resolveFn;
   const promise = new Promise(r => { resolveFn = r; });
