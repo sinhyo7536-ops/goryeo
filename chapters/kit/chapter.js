@@ -1,0 +1,122 @@
+// 장 만들기 틀: 근대·일제 강점기·현대편 장은 대본(script)과 배치표(layout)와 미니게임 순서(parts)만 쓰면 된다.
+// 흐름: 해설 카드 → 차례대로 말 걸기 탐험(안내판은 볼거리) → 미니게임 부분들 → 해설 → 퀴즈.
+// 부분(part) 종류
+//   choose  : 카드 고르기 { title, prompt?, cards: [{ text, correct }], figure? }
+//   sort    : 카드 나누기 { title, bins: [{ id, label }], cards: [{ text, bin }] }
+//   place   : 자리 놓기 { title, items, slots, decor?, boardClass? }
+//   order   : 순서 맞추기 { title, cards: [정답 순서] }
+//   gauge   : 때 맞춰 누르기(움직이는 막대) { title, label, zone: [시작, 끝] (0~1) }
+//   collect : 장면 속 빛나는 곳에 차례로 가기 { title, spots: [{ x, z }], seconds, howto }
+// 모든 부분에 fail(다시 할 때 힌트), done(끝난 뒤 대사), before/after(ctx, scene) 를 둘 수 있다.
+import * as THREE from 'three';
+import { showHowTo, chooseCards, sortCards, placeOnBoard, orderCards, timingBar } from '../../core/minigame.js';
+import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts } from '../joseon/common.js';
+import { buildTown } from './town.js';
+
+const HOWTO = {
+  choose: '맞는 카드를 모두 골라요. 틀린 카드를 누르면 다시 해요.',
+  sort: '카드가 한 장씩 나오면 알맞은 쪽을 눌러요.',
+  place: '놓을 것을 보고 알맞은 자리를 눌러요.',
+  order: '일어난 순서(또는 알맞은 차례)대로 카드를 눌러요.',
+  gauge: '움직이는 표시가 빛나는 칸 안에 들어왔을 때 큰 버튼을 눌러요.',
+  collect: '빛나는 곳으로 걸어가요. 화살표가 길을 알려 줘요.',
+};
+
+// 장면 속 빛나는 고리들을 차례로 찾아가기. seconds 안에 다 가면 성공(쉬우면 시간 1.5배).
+function collect(ctx, scene, part, easy) {
+  const { world, hud, audio } = ctx;
+  const duration = (part.seconds || 80) * (easy ? 1.5 : 1);
+  placePlayer(world, part.from || scene.start);
+  ctx.input.enabled = true;
+  const rings = part.spots.map(s => {
+    const r = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.25, 28), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+    r.rotation.x = -Math.PI / 2; r.position.set(s.x, 0.08, s.z); world.level.add(r);
+    return { ...s, r, got: false };
+  });
+  let t = 0, done = false;
+  return new Promise(resolve => {
+    const finish = ok => {
+      if (done) return; done = true;
+      off(); rings.forEach(x => world.level.remove(x.r));
+      hud.setTimer(null); hud.setCounter(null); world.setGoal(null); ctx.input.enabled = false;
+      resolve(ok);
+    };
+    const off = world.onUpdate((dt, el) => {
+      if (done) return;
+      t += dt;
+      const p = world.player.position;
+      let near = null, nd = Infinity;
+      for (const x of rings) {
+        if (x.got) continue;
+        x.r.material.opacity = 0.55 + Math.sin(el * 4) * 0.3;
+        const d = Math.hypot(p.x - x.x, p.z - x.z);
+        if (d < 1.6) { x.got = true; x.r.visible = false; audio.play('correct'); if (part.onReach) part.onReach(ctx, scene, rings.indexOf(x)); continue; }
+        if (d < nd) { nd = d; near = x; }
+      }
+      const got = rings.filter(x => x.got).length;
+      hud.setTimer(duration - t);
+      hud.setCounter(`${part.counter || '찾은 곳'} ${got}/${rings.length}`);
+      world.setGoal(near ? { x: near.x, z: near.z } : null);
+      if (got === rings.length) return finish(true);
+      if (t >= duration) finish(false);
+    });
+  });
+}
+
+function runPart(ctx, scene, part, easy) {
+  switch (part.type) {
+    case 'choose': return chooseCards(ctx, { title: part.title, prompt: part.prompt, cards: part.cards, figure: part.figure, easy });
+    case 'sort': return sortCards(ctx, { title: part.title, bins: part.bins, cards: part.cards, easy });
+    case 'place': return placeOnBoard(ctx, { title: part.title, items: part.items, slots: part.slots, decor: part.decor, boardClass: part.boardClass, easy });
+    case 'order': return orderCards(ctx, { title: part.title, cards: part.cards, easy });
+    case 'gauge': return timingBar(ctx, { title: part.title, prompt: part.prompt, label: part.label, zone: part.zone, seconds: part.seconds, easy });
+    case 'collect': return collect(ctx, scene, part, easy);
+    default: throw new Error(`unknown part ${part.type}`);
+  }
+}
+
+// def: { id, mood, player, script, layout, order: [말 걸 차례], parts: [...], spot: [x, z], decorate?(world, built) }
+export function makeKitChapter(def) {
+  const { script } = def;
+  let scene = null;
+  const restoreEnd = ctx => { for (const p of def.parts) if (p.after) p.after(ctx, scene); };
+  return {
+    id: def.id, mood: def.mood, player: def.player, script, quizzes: script.quizzes,
+    buildScene(world) {
+      const built = buildTown(world, def.layout);
+      scene = { ...built, start: def.layout.start };
+      if (def.decorate) Object.assign(scene, def.decorate(world, built) || {});
+      return scene;
+    },
+    enterStage(ctx, stage) {
+      if (stage === 'minigame' || stage === 'quiz') placePlayer(ctx.world, def.spot || def.layout.start);
+      if (stage === 'quiz') { restoreEnd(ctx); ctx.setGoal(script.goals[script.goals.length - 1]); }
+    },
+    explore(ctx) { return talkInOrder(ctx, script, def.order, def.layout.start); },
+    async minigame(ctx) {
+      const { world, dialogue, input } = ctx;
+      input.enabled = false;
+      setTalkStep(ctx, script, def.order, def.order.length);
+      world.setGoal(null);
+      const kinds = [...new Set(def.parts.map(p => p.type))];
+      await showHowTo(ctx.ui, {
+        title: script.minigameTitle,
+        steps: def.parts.map(p => p.howto || p.title).concat(kinds.map(k => HOWTO[k])).slice(0, 5),
+        keyboard: '카드와 버튼은 마우스로, 걷기는 W A S D 또는 방향키, 큰 버튼은 E·스페이스도 돼요',
+        touch: '카드와 버튼은 손가락으로 누르고, 걷기는 화면 왼쪽을 끌어요',
+      });
+      const results = [];
+      for (const part of def.parts) {
+        if (part.intro) { await sayAll(dialogue, part.intro); dialogue.close(); }
+        if (part.before) part.before(ctx, scene);
+        results.push(await tryPart(ctx, easy => runPart(ctx, scene, part, easy), part.fail));
+        if (part.after) part.after(ctx, scene);
+        if (part.done) { await sayAll(dialogue, part.done); dialogue.close(); }
+      }
+      await sayAll(dialogue, script.result); dialogue.close();
+      placePlayer(world, def.spot || def.layout.start);
+      ctx.setGoal(script.goals[script.goals.length - 1]);
+      return sumParts(results);
+    },
+  };
+}

@@ -5,19 +5,10 @@
 <pre id="out">RUNNING</pre>
 <script type="module">
   // 장별 대사에서 출처가 달린 문장을 모아 선생님 대조용 마크다운 표를 만든다.
-  import ch1 from '../chapters/ch1/script.js';
-  import ch2 from '../chapters/ch2/script.js';
-  import ch3 from '../chapters/ch3/script.js';
-  import ch4 from '../chapters/ch4/script.js';
-  import ch5 from '../chapters/ch5/script.js';
-  import ch6 from '../chapters/ch6/script.js';
-  import j1 from '../chapters/joseon/j1/script.js';
-  import j2 from '../chapters/joseon/j2/script.js';
-  import j3 from '../chapters/joseon/j3/script.js';
-  import j4 from '../chapters/joseon/j4/script.js';
-  import j5 from '../chapters/joseon/j5/script.js';
-  import j6 from '../chapters/joseon/j6/script.js';
-  const chapters = [['1장 서희의 외교 담판', ch1], ['2장 양규와 흥화진', ch2], ['3장 강감찬과 귀주 대첩', ch3], ['4장 강화도 천도와 처인성·충주성', ch4], ['5장 팔만대장경', ch5], ['6장 삼별초의 항쟁', ch6], ['조선편 1장 위화도 회군과 조선 건국', j1], ['조선편 2장 세종과 훈민정음', j2], ['조선편 3장 세종 때의 과학 기술', j3], ['조선편 4장 임진왜란과 한산도 대첩', j4], ['조선편 5장 병자호란과 남한산성', j5], ['조선편 6장 영조·정조와 수원 화성', j6]];
+  import { COURSES } from '../chapters/index.js';
+  const DIR = { goryeo: '', joseon: 'joseon/', modern: 'modern/', colonial: 'colonial/', present: 'present/' };
+  const chapters = [];
+  for (const c of COURSES) for (const ch of c.chapters) chapters.push([`${c.era}편 ${ch.no}장 ${ch.title}`, (await import(`../chapters/${DIR[c.id]}${ch.id}/script.js`)).default]);
   const rows = [];
   const esc = s => String(s).replace(/\|/g, '\\|');
   function visit(node, speakers) {
@@ -37,6 +28,7 @@
     }
     if (Array.isArray(node.cards) && node.src) { // 카드 고르기: 맞는 카드도 출처와 함께 싣는다
       for (const c of node.cards) if (c.correct) rows.push(['정답 카드', c.text, node.src]);
+      for (const c of node.cards) if (typeof c === 'string') rows.push(['차례 카드', c, node.src]);
       for (const c of node.cards) if (c.bin && node.bins) rows.push([node.bins.find(b => b.id === c.bin).label, c.text, node.src]);
     }
     if (typeof node.text === 'string' && node.who) {

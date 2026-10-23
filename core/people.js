@@ -57,6 +57,20 @@ const JOSEON_HATS = {
     [new THREE.CylinderGeometry(0.56, 0.56, 0.03, 18), 0x2a2622, 0, 2.27, 0],
     [new THREE.SphereGeometry(0.3, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x2a2622, 0, 2.28, 0],
     [new THREE.SphereGeometry(0.08, 8, 6), 0xb8452f, 0, 2.6, 0]],
+  // 근대·현대: 짧은 머리, 중절모, 챙 달린 모자(학생·군인), 철모, 쪽진 머리, 땋은 머리
+  short: () => [[new THREE.SphereGeometry(0.335, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.2), 0x1e1c1a, 0, 2.05, -0.01]],
+  fedora: () => [
+    [new THREE.CylinderGeometry(0.52, 0.52, 0.03, 18), 0x3a3530, 0, 2.3, 0],
+    [new THREE.CylinderGeometry(0.27, 0.31, 0.3, 14), 0x3a3530, 0, 2.45, 0],
+    [new THREE.CylinderGeometry(0.315, 0.315, 0.06, 14), 0x1e1c1a, 0, 2.33, 0]],
+  cap: () => [
+    [new THREE.CylinderGeometry(0.34, 0.33, 0.2, 14), 0x22262e, 0, 2.36, 0],
+    [new THREE.BoxGeometry(0.4, 0.03, 0.22), 0x111214, 0, 2.27, 0.3]],
+  steel: () => [
+    [new THREE.SphereGeometry(0.37, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x5a6448, 0, 2.12, 0],
+    [new THREE.CylinderGeometry(0.42, 0.42, 0.03, 16), 0x4e5840, 0, 2.13, 0]],
+  bun: () => [HAIR(), [new THREE.SphereGeometry(0.13, 8, 6), 0x1e1c1a, 0, 1.98, -0.32]],
+  braid: () => [HAIR(), [new THREE.CylinderGeometry(0.06, 0.04, 0.55, 6), 0x1e1c1a, 0, 1.75, -0.3]],
   // 청나라 모자: 낮은 원뿔과 붉은 술
   qing: () => [
     [new THREE.ConeGeometry(0.44, 0.3, 14), 0x3a3028, 0, 2.4, 0],
@@ -128,6 +142,10 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null 
     part(new THREE.BoxGeometry(0.08, 0.95, 0.12), 0x2b2118, 0, -0.2, 0, s, 'wood');
     part(new THREE.BoxGeometry(0.2, 0.05, 0.16), 0xd9a441, 0, 0.29, 0, s, 'grain');
     part(new THREE.CylinderGeometry(0.035, 0.035, 0.24, 5), 0x3a2c20, 0, 0.42, 0, s, 'wood');
+  } else if (gear === 'rifle') { // 등에 비스듬히 멘 총(독립군·광복군·국군)
+    const r = new THREE.Group(); r.name = 'rifle'; r.position.set(0.1, 1.45, -0.42); r.rotation.set(0, 0, 0.5); g.add(r);
+    part(new THREE.BoxGeometry(0.07, 1.25, 0.07), 0x2b2b2b, 0, 0.1, 0, r, 'grain');
+    part(new THREE.BoxGeometry(0.12, 0.45, 0.1), 0x5a3f2a, 0, -0.55, 0, r, 'wood');
   } else if (gear === 'bow') { // 등에 멘 활
     const b = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.035, 4, 12, Math.PI), mat(0x5a3f2a, 'wood', 'object'));
     b.name = 'bow'; b.position.set(0, 1.45, -0.42); b.rotation.set(0, 0, Math.PI / 2 + 0.3); b.castShadow = true; g.add(b);

@@ -19,8 +19,9 @@ function fakeAudioContext() {
   return c;
 }
 
-test('music: every chapter has its own theme on a five-note scale', () => {
-  eq(Object.keys(THEMES), ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6']);
+test('music: every chapter has its own theme on a five-note scale', async () => {
+  const { ALL_CHAPTERS } = await import('../chapters/index.js');
+  eq(Object.keys(THEMES).sort(), ALL_CHAPTERS.map(c => c.id).sort());
   eq(SCALE.length, 5);
   const tempos = new Set(Object.values(THEMES).map(t => t.tempo));
   ok(tempos.size >= 4, 'chapters do not all sound alike');

@@ -168,6 +168,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .sort-bin { min-height: 72px; font-size: 18px; font-weight: 700; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
 .sort-bin.hint { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.5); }
 .sort-bin.wrong { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
+.gauge-bar { position: relative; height: 56px; border-radius: 28px; background: #e6dcc0; border: 2px solid #8f8068; overflow: hidden; }
+.gauge-zone { position: absolute; top: 0; bottom: 0; background: rgba(217,164,65,.55); border-left: 3px solid var(--gold); border-right: 3px solid var(--gold); }
+.gauge-mark { position: absolute; top: 4px; bottom: 4px; width: 10px; margin-left: -5px; border-radius: 5px; background: var(--dan-red); }
+.gauge-mark.hit { background: #2f6b5e; }
+.gauge-mark.miss { background: #6b6152; }
 .choose-figure { display: grid; place-items: center; }
 .choose-figure svg { width: min(100%, 560px); max-height: 40vh; }
 .choose-count, .place-now { font-weight: 700; color: var(--dan-red); }

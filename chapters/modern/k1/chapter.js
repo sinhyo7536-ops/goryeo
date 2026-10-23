@@ -1,0 +1,31 @@
+// 근대편 1장 「흥선 대원군과 강화도 조약」: 강화도 바닷가 마을과 관아, 바다 위의 배.
+import { makeKitChapter } from '../../kit/chapter.js';
+import script from './script.js';
+
+export default makeKitChapter({
+  id: 'k1', mood: 'sea', script,
+  player: { robe: 0xddd2bb, hat: 'topknot', trim: 0x7a4e32, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
+  order: ['elder', 'scholar', 'official'],
+  spot: [0, 2],
+  layout: {
+    ground: 'grass', groundColor: 0x6a8a52, bounds: { x0: -15, x1: 15, z0: -9, z1: 11 }, start: [0, 8],
+    roads: [{ x: 0, z: 2, w: 4, d: 22 }, { x: 0, z: -3, w: 30, d: 4 }],
+    props: [
+      { type: 'water', x: 0, z: -45, w: 260, d: 60 },
+      { type: 'steamship', x: 14, z: -32, ry: 0.3, solid: false },
+      { type: 'wall', x: -9, z: -11, w: 12, h: 2.4, solid: false }, { type: 'wall', x: 9, z: -11, w: 12, h: 2.4, solid: false },
+      { type: 'hanok', x: -3, z: -7, tile: true, scale: 1.3 },
+      { type: 'flagpole', x: 3, z: -6, color: 0xd9a441 },
+      { type: 'hanok', x: -11, z: 4 }, { type: 'hanok', x: 11, z: 3 }, { type: 'hanok', x: -11, z: -3 }, { type: 'hanok', x: 12, z: 9 },
+      { type: 'tree', x: 7, z: 7 }, { type: 'tree', x: -7, z: 9 },
+    ],
+    npcs: [
+      { id: 'elder', look: 'commoner', x: -6, z: 5, ry: Math.PI * 0.8 },
+      { id: 'scholar', look: 'scholar', x: 7, z: 1, ry: -Math.PI * 0.6 },
+      { id: 'official', look: 'joseonOfficial', x: 0, z: -3.5, ry: 0 },
+    ],
+    signs: [{ id: 'signTreaty', title: '강화도 조약', x: -6, z: -1 }, { id: 'signWest', title: '서양과의 조약', x: 6, z: 7 }],
+    scatter: [{ kind: 'grass', count: 60, area: { x0: -15, x1: 15, z0: -8, z1: 12 }, avoid: [{ x: 0, z: 2, r: 3 }], seed: 201 }],
+  },
+  parts: [script.parts.regent, script.parts.treaty],
+});

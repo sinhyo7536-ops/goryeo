@@ -1,0 +1,74 @@
+// 현대편 1장 「8·15 광복」. 사실은 비상 5-2 교과서 134~135쪽(S51).
+export default {
+  speakers: {
+    guide: { name: '안내', mark: '◎', color: '#2f6b5e' },
+    citizen: { name: '서울 시민', mark: '民', color: '#5d7a9a', look: 'citizen' },
+    grandma: { name: '할머니', mark: '老', color: '#6b4a32', look: 'grandma' },
+    kimgu: { name: '김구', mark: '金', color: '#3a3530', look: 'kimgu' },
+  },
+  intro: [
+    { who: 'narr', text: '일본은 제2차 세계 대전에서 미국, 영국 등의 연합국과 전쟁을 벌였어요. 독립운동가들은 일본이 질 것을 예상하고 새로운 나라를 세울 준비를 했어요.', src: ['S51'] },
+    { who: 'narr', text: '1945년 8월 15일, 일본이 연합국에 항복하면서 우리나라는 마침내 광복을 맞이했어요.', src: ['S51'] },
+  ],
+  start: [
+    { who: 'guide', text: '1945년 8월 15일, 서울 거리야. 여기저기서 만세 소리가 들려!' },
+    { who: 'guide', text: '느낌표가 있는 사람에게 차례로 말을 걸어 봐.' },
+  ],
+  goals: ['서울 시민에게 말을 걸어 보자', '할머니의 이야기를 들어 보자', '김구를 만나자', '광복의 기쁨을 나누자', '배운 내용을 확인해 보자'],
+  minigameTitle: '8·15 광복',
+  npc: {
+    citizen: {
+      first: [
+        { who: 'citizen', text: '광복은 연합국의 승리로 얻은 것이기도 하지만, 우리 민족이 끊임없이 독립운동을 벌인 결과이기도 해요.', src: ['S51'] },
+        { who: 'citizen', text: '이 기쁜 소식을 집집마다 전해 주세요!' },
+      ],
+      later: [{ who: 'citizen', text: '대한 독립 만세!' }],
+    },
+    grandma: {
+      tooEarly: [{ who: 'grandma', text: '저기 시민분 이야기부터 들어 보렴.' }],
+      first: [
+        { who: 'grandma', text: '이제 일제가 강제로 바꾸게 한 일본식 이름 대신 우리 성과 이름을 되찾을 수 있단다.', src: ['S51'] },
+        { who: 'grandma', text: '우리말과 우리글을 마음껏 쓰고, 학교에서는 한글 교과서로 우리 역사를 배울 거야.', src: ['S51'] },
+      ],
+      later: [{ who: 'grandma', text: '강제로 문을 닫았던 신문들도 다시 나온단다.' }],
+    },
+    kimgu: {
+      tooEarly: [{ who: 'kimgu', text: '시민들의 이야기를 먼저 들어 보게.' }],
+      first: [
+        { who: 'kimgu', text: '광복 소식에 다른 나라에 머물던 동포들이 고국으로 돌아오고 있소.', src: ['S51'] },
+        { who: 'kimgu', text: '미국에서 독립운동을 한 이승만, 중국에서 임시 정부를 이끈 나 김구 등도 돌아왔소.', src: ['S51'] },
+      ],
+    },
+    signChildren: { always: [
+      { who: 'narr', text: '광복 뒤 어린이날 기념식에서 어린이들은 다시는 나라를 빼앗기지 않겠다고 약속했어요(1946년).', src: ['S51'] },
+    ] },
+    signPaper: { always: [
+      { who: 'narr', text: '광복 뒤 강제로 문을 닫았던 신문들이 다시 발간되면서 사람들은 다양한 소식을 접할 수 있게 되었어요.', src: ['S51'] },
+    ] },
+  },
+  parts: {
+    news: {
+      type: 'collect', title: '광복 소식을 집집마다 전해요', counter: '소식을 전한 집', seconds: 80,
+      fail: '빛나는 곳을 따라 가요. 화살표가 길을 알려 줘요.',
+    },
+    change: {
+      type: 'sort', src: ['S51'],
+      title: '광복 뒤의 모습일까요, 일제 강점기의 모습일까요?',
+      bins: [{ id: 'after', label: '광복 뒤' }, { id: 'before', label: '일제 강점기' }],
+      cards: [
+        { text: '우리말과 우리글을 자유롭게 써요', bin: 'after' },
+        { text: '일본식 성과 이름을 써야 해요', bin: 'before' },
+        { text: '학교에서 한글 교과서로 우리 역사를 배워요', bin: 'after' },
+        { text: '우리 역사 교육이 금지돼요', bin: 'before' },
+        { text: '문을 닫았던 신문이 다시 나와요', bin: 'after' },
+        { text: '신사 참배를 강요해요', bin: 'before' },
+      ],
+      fail: '우리 것을 되찾은 모습은 광복 뒤, 빼앗긴 모습은 일제 강점기예요.',
+    },
+  },
+  result: [{ who: 'narr', text: '광복 뒤 사람들의 일상생활에도 큰 변화가 나타났어요.', src: ['S51'] }],
+  quizzes: [
+    { kind: 'quiz', question: '우리나라가 광복을 맞이한 날은?', options: ['1919년 3월 1일', '1945년 8월 15일', '1950년 6월 25일'], answer: 1, explain: '1945년 8월 15일 일본이 연합국에 항복하면서 광복을 맞이했어요.', src: ['S51'] },
+    { kind: 'quiz', question: '광복은 무엇의 결과일까요?', options: ['연합국의 승리와 우리 민족의 끊임없는 독립운동', '강화도 조약', '신탁 통치'], answer: 0, explain: '광복은 연합국의 승리로 얻은 것이자 우리 민족이 끊임없이 독립운동을 벌인 결과예요.', src: ['S51'] },
+  ],
+};

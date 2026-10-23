@@ -116,6 +116,23 @@ function drawHat(g, hat, cx, cy, R) {
     g.beginPath(); g.ellipse(cx, cy - 0.62 * R, 1.4 * R, 0.15 * R, 0, 0, Math.PI * 2); g.fill();
     g.beginPath(); g.ellipse(cx, cy - 0.66 * R, 0.86 * R, 0.62 * R, 0, Math.PI, 0); g.fill();
     g.fillStyle = '#b8452f'; g.beginPath(); g.arc(cx, cy - 1.36 * R, 0.17 * R, 0, Math.PI * 2); g.fill();
+  } else if (hat === 'fedora') {        // 중절모
+    g.fillStyle = '#3a3530';
+    g.beginPath(); g.ellipse(cx, cy - 0.7 * R, 1.35 * R, 0.16 * R, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.roundRect(cx - 0.72 * R, cy - 1.38 * R, 1.44 * R, 0.7 * R, 0.22 * R); g.fill();
+    g.fillStyle = '#1e1c1a'; g.fillRect(cx - 0.72 * R, cy - 0.86 * R, 1.44 * R, 0.14 * R);
+  } else if (hat === 'cap') {           // 챙 달린 모자(학생·군인)
+    g.fillStyle = '#22262e';
+    g.beginPath(); g.roundRect(cx - 0.9 * R, cy - 1.15 * R, 1.8 * R, 0.55 * R, 0.2 * R); g.fill();
+    g.fillStyle = '#111214'; g.beginPath(); g.ellipse(cx, cy - 0.6 * R, 0.8 * R, 0.13 * R, 0, 0, Math.PI); g.fill();
+  } else if (hat === 'steel') {         // 철모
+    g.fillStyle = '#5a6448';
+    g.beginPath(); g.ellipse(cx, cy - 0.5 * R, 1.08 * R, 0.85 * R, 0, Math.PI, 0); g.fill();
+    g.fillRect(cx - 1.12 * R, cy - 0.55 * R, 2.24 * R, 0.12 * R);
+  } else if (hat === 'bun' || hat === 'braid' || hat === 'short') { // 쪽진 머리·땋은 머리·짧은 머리
+    g.fillStyle = '#1e1c1a';
+    g.beginPath(); g.ellipse(cx, cy - 0.45 * R, 0.98 * R, hat === 'short' ? 0.55 * R : 0.65 * R, 0, Math.PI, 0); g.fill();
+    if (hat !== 'short') { g.beginPath(); g.ellipse(cx - 0.97 * R, cy + 0.1 * R, 0.16 * R, 0.5 * R, 0, 0, Math.PI * 2); g.fill(); g.beginPath(); g.ellipse(cx + 0.97 * R, cy + 0.1 * R, 0.16 * R, 0.5 * R, 0, 0, Math.PI * 2); g.fill(); }
   } else if (hat === 'qing') {          // 청나라 모자: 낮은 원뿔과 붉은 술
     g.fillStyle = '#3a3028';
     g.beginPath(); g.moveTo(cx - 1.12 * R, cy - 0.55 * R); g.lineTo(cx + 1.12 * R, cy - 0.55 * R); g.lineTo(cx, cy - 1.3 * R); g.closePath(); g.fill();
