@@ -81,8 +81,31 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .card input { font: inherit; font-size: 19px; padding: 10px 12px; border: 1px solid #8f8068; border-radius: 4px; background: #fffaf0; color: var(--text-ink); }
 
 .title { background: radial-gradient(ellipse at 50% 30%, rgba(27,31,29,.45), rgba(27,31,29,.92)); }
-.title-inner { width: min(680px, 100%); display: grid; gap: 18px; }
-.title h1 { font-size: clamp(44px, 9vw, 78px); line-height: 1.1; word-break: keep-all; }
+/* 첫 화면: 왼쪽 소개 · 오른쪽 시대 고르기 · 아래 처음부터/이어하기 (좁으면 위아래로) */
+.title-inner { width: min(1160px, 100%); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-areas: "intro courses" "actions actions"; column-gap: 56px; row-gap: 22px; align-items: center; }
+.title-intro { grid-area: intro; display: grid; gap: 16px; align-content: center; }
+.title-courses { grid-area: courses; display: grid; gap: 8px; }
+.title-courses-head { font-size: 14px; letter-spacing: .08em; color: var(--gold); }
+.title-actions { grid-area: actions; display: grid; gap: 10px; justify-items: center; padding-top: 14px; border-top: 1px solid rgba(217,164,65,.3); }
+.title-actions .row { justify-content: center; }
+.title-actions .btn { min-width: 200px; min-height: 56px; font-size: 19px; }
+.title-course { display: grid; grid-template-columns: 7em minmax(0, 1fr) auto; align-items: center; gap: 12px; text-align: left; min-height: 58px; padding: 8px 16px; border-radius: 6px; border: 2px solid rgba(217,164,65,.4); background: rgba(27,31,29,.6); color: var(--hanji); font: inherit; cursor: pointer; touch-action: manipulation; }
+.title-course[aria-pressed="true"] { border-color: var(--gold); background: var(--hanji); color: var(--text-ink); box-shadow: 0 0 0 3px rgba(217,164,65,.35); }
+.title-course-era { font-size: 14px; font-weight: 700; color: var(--gold); white-space: nowrap; }
+.title-course[aria-pressed="true"] .title-course-era { color: var(--dan-red); }
+.title-course-name { font-family: var(--font-display); font-size: 21px; word-break: keep-all; }
+.title-course-progress { font-size: 14px; opacity: .85; white-space: nowrap; }
+@media (max-width: 760px) { .title-inner { grid-template-columns: 1fr; grid-template-areas: "intro" "courses" "actions"; } }
+@media (max-height: 620px) and (min-width: 761px) {
+  .title-inner { row-gap: 12px; }
+  .title h1 { font-size: 46px; }
+  .title .lead { font-size: 16px; line-height: 1.55; }
+  .title-course { min-height: 48px; padding: 4px 14px; }
+  .title-course-name { font-size: 18px; }
+  .title-actions { padding-top: 10px; }
+  .title-actions .btn { min-height: 50px; }
+}
+.title h1 { font-size: clamp(44px, 6.4vw, 76px); line-height: 1.1; word-break: keep-all; }
 .title h1 span { color: var(--dan-red); }
 .title .lead { margin: 0; line-height: 1.7; color: #ddd5c4; max-width: 60ch; font-size: 18px; }
 .confirm { background: var(--ink-2); border: 1px solid var(--gold); border-radius: 4px; padding: 14px; display: grid; gap: 10px; }

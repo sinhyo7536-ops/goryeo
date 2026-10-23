@@ -157,11 +157,15 @@ function boot() {
       return;
     }
     const hasProgress = !!(save.data.name || Object.keys(save.data.chapters).length || save.data.current);
-    const choice = await showTitle(ui, { savedName: save.data.name, hasProgress, storageOk: storage.available });
-    if (choice === 'new') {
+    const cur = save.data.current && courseOfChapter(save.data.current.id).id; // 하다 만 장이 있는 시대
+    world.player.visible = false; // 첫 화면 글 뒤에 사람이 겹쳐 보이지 않게
+    const { action, course } = await showTitle(ui, { savedName: save.data.name, hasProgress, storageOk: storage.available, courses: COURSES, save, course: cur || save.data.course });
+    if (action === 'new') {
       save.reset();
       save.setName(await askName(ui, ''));
-    }
+    } else if (cur && cur !== course) save.abandonCurrent(); // 다른 시대로 넘어가면 하다 만 장만 내려놓는다(마친 장과 별은 그대로)
+    save.setCourse(course);
+    world.player.visible = true;
     await mapLoop();
   }
   main();

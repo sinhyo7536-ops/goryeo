@@ -54,7 +54,7 @@ test('title: shows saved name and confirms reset', async () => {
   btn(el, '처음부터').click();
   btn(el, '지우기').click();
   await sleep(10);
-  eq(result, 'new');
+  eq(result, { action: 'new', course: 'goryeo' });
   el.remove();
 });
 
@@ -62,7 +62,7 @@ test('title: continue button resumes', async () => {
   const el = root();
   const p = showTitle(el, { savedName: '김고려', hasProgress: true, storageOk: true });
   btn(el, '이어하기').click();
-  eq(await p, 'continue');
+  eq(await p, { action: 'continue', course: 'goryeo' });
   el.remove();
 });
 
@@ -71,7 +71,7 @@ test('title: without progress, start needs no confirmation', async () => {
   const p = showTitle(el, { savedName: '', hasProgress: false, storageOk: true });
   ok(!btn(el, '이어하기'), 'no continue button');
   btn(el, '처음부터').click();
-  eq(await p, 'new');
+  eq(await p, { action: 'new', course: 'goryeo' });
   el.remove();
 });
 
@@ -221,3 +221,55 @@ test('map: 다른 시대 버튼과 편 이름 줄', async () => {
   eq(await p, 'courses');
   el.remove();
 });
+
+// 첫 화면: 왼쪽 소개, 오른쪽 시대 고르기, 아래 처음부터/이어하기. 하던 시대가 있어도 다른 시대를 골라 넘어갈 수 있다.
+const titleSave = chapters => { const s = { data: { chapters } }; s.chapterResult = id => s.data.chapters[id] || null; return s; };
+test('title: 오른쪽에 다섯 시대가 진행과 함께 있고, 고른 시대로 이어하기', async () => {
+  const { COURSES } = await import('../chapters/index.js');
+  const el = root();
+  const p = showTitle(el, { savedName: '김고려', hasProgress: true, storageOk: true, courses: COURSES, save: titleSave({ ch1: { stars: 3 }, ch2: { stars: 2 } }), course: 'goryeo' });
+  const cards = [...el.querySelectorAll('.title-course')];
+  eq(cards.map(c => c.dataset.course), ['goryeo', 'joseon', 'modern', 'colonial', 'present']);
+  ok(cards[0].textContent.includes('2/6') && cards[0].textContent.includes('★5'), cards[0].textContent);
+  eq(cards[0].getAttribute('aria-pressed'), 'true', '하던 시대가 처음부터 골라져 있다');
+  cards[1].click();
+  eq(cards[1].getAttribute('aria-pressed'), 'true'); eq(cards[0].getAttribute('aria-pressed'), 'false');
+  btn(el, '이어하기').click();
+  eq(await p, { action: 'continue', course: 'joseon' });
+  el.remove();
+});
+
+test('title: 처음부터도 고른 시대로 시작한다', async () => {
+  const { COURSES } = await import('../chapters/index.js');
+  const el = root();
+  const p = showTitle(el, { savedName: '', hasProgress: false, storageOk: true, courses: COURSES, save: titleSave({}) });
+  el.querySelector('[data-course="present"]').click();
+  btn(el, '처음부터').click();
+  eq(await p, { action: 'new', course: 'present' });
+  el.remove();
+});
+
+test('title: 태블릿 가로 화면에서 소개는 왼쪽, 시대는 오른쪽, 버튼은 아래에 다 보인다', async () => {
+  for (const [w, h] of [[1000, 530], [1280, 800], [1366, 650]]) {
+    const frame = document.createElement('iframe');
+    frame.src = './fit.html?kind=title'; frame.style.cssText = `width:${w}px;height:${h}px;position:fixed;left:-3000px;top:0;border:0`;
+    document.body.appendChild(frame);
+    try {
+      await new Promise(r => frame.addEventListener('load', r));
+      const d = frame.contentDocument;
+      for (let i = 0; i < 100 && !d.querySelector('.title-course'); i++) await sleep(20);
+      await sleep(80);
+      const intro = d.querySelector('.title-intro').getBoundingClientRect(), list = d.querySelector('.title-courses').getBoundingClientRect(), acts = d.querySelector('.title-actions').getBoundingClientRect();
+      ok(intro.right <= list.left + 1, `${w}x${h}: 소개가 시대 목록 왼쪽`);
+      ok(acts.top >= Math.max(intro.bottom, list.bottom) - 1, `${w}x${h}: 버튼이 맨 아래`);
+      for (const b of d.querySelectorAll('button')) {
+        if (b.closest('[hidden]')) continue;
+        const r = b.getBoundingClientRect();
+        ok(r.top >= 0 && r.bottom <= h && r.left >= 0 && r.right <= w, `${w}x${h}: "${b.textContent}" 화면 밖`);
+        ok(r.height >= 44, `${w}x${h}: "${b.textContent}" 너무 작음`);
+        const top = d.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        ok(top && (top === b || b.contains(top)), `${w}x${h}: "${b.textContent}" 가려짐`);
+      }
+    } finally { frame.remove(); }
+  }
+}, { timeout: 30000 });

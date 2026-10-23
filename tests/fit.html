@@ -25,6 +25,12 @@
   else if (kind === 'j4wing') { const [c, s] = await J('j4'); placeOnBoard({ ui }, { title: s.wing.title, ...c.WING_BOARD }); }
   else if (kind === 'j5sort') { const [, s] = await J('j5'); sortCards({ ui }, { title: s.sort.title, bins: s.sort.bins, cards: s.sort.cards }); }
   else if (kind === 'j6pulley') { const [c, s] = await J('j6'); chooseCards({ ui }, { title: s.pulley.title, prompt: s.pulley.prompt, figure: c.pulleySVG(), cards: s.pulley.cards }); }
+  else if (kind === 'title') {
+    const { showTitle } = await import('../core/screens.js');
+    const { COURSES } = await import('../chapters/index.js');
+    const save = { data: { chapters: { ch1: { stars: 3 } } }, chapterResult: id => (id === 'ch1' ? { stars: 3 } : null) };
+    showTitle(ui, { savedName: '5학년 3반 12번', hasProgress: true, storageOk: true, courses: COURSES, save, course: 'goryeo' });
+  }
   // 근대~현대편 카드형 미니게임: kind=kit:h3:0 (장 id: 부분 번호), &fill=1 이면 자리 놓기를 마지막 하나만 남기고 채운다
   else if (kind.startsWith('kit:')) {
     const [, id, n] = kind.split(':');

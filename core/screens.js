@@ -20,25 +20,40 @@ function screen(root, cls, ...kids) {
   return el;
 }
 
-export function showTitle(root, { savedName, hasProgress, storageOk }) {
+// 첫 화면: 왼쪽은 소개, 오른쪽은 시대 고르기(마친 장·별), 맨 아래는 처음부터/이어하기.
+// 하던 시대가 있어도 다른 시대를 골라 바로 넘어갈 수 있다. { action: 'new'|'continue', course }로 끝난다.
+export function showTitle(root, { savedName, hasProgress, storageOk, courses = [], save = null, course = null }) {
   return new Promise(resolve => {
-    const done = v => { el.remove(); resolve(v); };
+    let picked = (courses.find(c => c.id === course) || courses[0] || { id: 'goryeo' }).id;
+    const done = action => { el.remove(); resolve({ action, course: picked }); };
     const confirm = h('div', { class: 'confirm', hidden: true },
       h('p', {}, `${savedName || '앞 친구'}의 기록이 지워져요. 지울까요?`),
       h('div', { class: 'row' },
         h('button', { class: 'btn danger', type: 'button', onclick: () => done('new') }, '지우기'),
         h('button', { class: 'btn', type: 'button', onclick: () => { confirm.hidden = true; } }, '취소')));
+    const cards = courses.map(c => {
+      const results = save ? c.chapters.map(ch => save.chapterResult(ch.id)).filter(Boolean) : [];
+      const stars = results.reduce((a, r) => a + (r.stars || 0), 0);
+      return h('button', { class: 'title-course', type: 'button', 'data-course': c.id, 'aria-pressed': String(c.id === picked),
+        onclick: () => { picked = c.id; cards.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.course === picked))); } },
+        h('span', { class: 'title-course-era' }, `${c.era}편`),
+        h('b', { class: 'title-course-name' }, c.title),
+        h('span', { class: 'title-course-progress' }, results.length ? `마친 장 ${results.length}/${c.chapters.length} · ★${stars}` : '아직 시작 전'));
+    });
     const el = screen(root, 'title',
       h('div', { class: 'title-inner' },
-        h('div', { class: 'eyebrow' }, '초등 5학년 사회 · 3D 역사 탐험'),
-        h('h1', {}, '역사 속으로 ', h('span', {}, '걸어가기')),
-        h('p', { class: 'lead' }, '시대를 골라 그때 사람이 되어 보세요. 직접 걷고, 이야기를 듣고, 역사의 현장을 겪어 봐요.'),
-        h('div', { class: 'row' },
-          hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || "저장된 기록"})`),
-          h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터')),
-        confirm,
-        !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
-        h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼')));
+        h('div', { class: 'title-intro' },
+          h('div', { class: 'eyebrow' }, '초등 5학년 사회 · 3D 역사 탐험'),
+          h('h1', {}, '역사 속으로 ', h('span', {}, '걸어가기')),
+          h('p', { class: 'lead' }, '시대를 골라 그때 사람이 되어 보세요. 직접 걷고, 이야기를 듣고, 역사의 현장을 겪어 봐요.'),
+          !storageOk && h('p', { class: 'warn' }, '이 기기에서는 저장되지 않아요. 끝까지 한 번에 해 주세요.'),
+          h('p', { class: 'controls' }, '키보드: W A S D 또는 방향키로 이동, E 또는 스페이스로 대화 · 터치: 화면 왼쪽을 끌어 이동, 오른쪽 아래 대화 버튼')),
+        cards.length > 0 && h('div', { class: 'title-courses' }, h('div', { class: 'title-courses-head' }, '시대 고르기'), cards),
+        h('div', { class: 'title-actions' },
+          h('div', { class: 'row' },
+            h('button', { class: `btn ${hasProgress ? '' : 'primary'}`, type: 'button', onclick: () => (hasProgress ? (confirm.hidden = false) : done('new')) }, '처음부터'),
+            hasProgress && h('button', { class: 'btn primary', type: 'button', onclick: () => done('continue') }, `이어하기 (${savedName || '저장된 기록'})`)),
+          confirm)));
   });
 }
 
