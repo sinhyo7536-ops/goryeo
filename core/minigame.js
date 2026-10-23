@@ -289,6 +289,50 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
   });
 }
 
+// 때 맞춰 누르기(막대): 표시가 막대 위를 왼쪽에서 오른쪽으로 움직인다. 빛나는 칸(zone, 0~1) 안에서 큰 버튼을 누르면 true.
+// 너무 이르거나 늦으면 false. 시간은 월드 시계로 재서 메뉴를 열면 멈춘다. 처음 0.4초의 누름은 무시한다.
+export function timingBar(ctx, { title, prompt = '', label = '지금!', zone: [lo, hi], seconds = 4, easy = false }) {
+  const pad = easy ? 0.04 : 0;
+  const [a, b] = [Math.max(0, lo - pad), Math.min(1, hi + pad)];
+  const screen = el('section', 'screen gauge');
+  const card = el('div', 'card wide');
+  const bar = el('div', 'gauge-bar');
+  const zoneEl = el('div', 'gauge-zone'); zoneEl.style.left = `${a * 100}%`; zoneEl.style.width = `${(b - a) * 100}%`;
+  const mark = el('div', 'gauge-mark');
+  bar.append(zoneEl, mark);
+  card.append(el('div', 'eyebrow', '때 맞춰 누르기'), el('h2', null, title));
+  if (prompt) card.append(el('p', null, prompt));
+  card.append(bar);
+  screen.append(card); ctx.ui.append(screen);
+  const btn = actionButton(ctx, label);
+  let t = 0, done = false;
+  ctx.testHooks.armed = false;
+  return new Promise(resolve => {
+    const finish = ok => {
+      if (done) return; done = true;
+      off(); btn.remove(); ctx.testHooks.ready = false; ctx.testHooks.armed = undefined;
+      mark.classList.add(ok ? 'hit' : 'miss');
+      setTimeout(() => { screen.remove(); resolve(ok); }, 500);
+    };
+    const press = () => btn.wait().then(() => {
+      if (done) return;
+      if (t < 0.4) return press();
+      const k = t / seconds;
+      finish(k >= a && k <= b);
+    });
+    press();
+    const off = ctx.world.onUpdate(dt => {
+      if (done) return;
+      t += dt;
+      const k = Math.min(1, t / seconds);
+      mark.style.left = `${k * 100}%`;
+      ctx.testHooks.ready = k >= a + 0.02 && k <= b - 0.02;
+      ctx.testHooks.armed = t >= 0.4;
+      if (k >= 1) finish(false);
+    });
+  });
+}
+
 // 카드 나누기: 카드가 한 장씩 나오면 알맞은 바구니(bins)를 누른다. 모두 맞게 나누면 true, 틀리면 false.
 // easy이면 맞는 바구니가 빛난다.
 export function sortCards(ctx, { title, bins, cards, easy = false }) {

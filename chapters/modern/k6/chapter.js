@@ -1,0 +1,31 @@
+// 근대편 6장 「을사늑약과 나라를 지키려는 노력」: 한성 거리의 학교와 신문사, 산 쪽의 의병 진영.
+import { makeKitChapter } from '../../kit/chapter.js';
+import script from './script.js';
+
+export default makeKitChapter({
+  id: 'k6', mood: 'overcast', script,
+  player: { robe: 0x22262e, hat: 'cap', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
+  order: ['student', 'uibyeong', 'ahnchangho'],
+  spot: [0, 4],
+  layout: {
+    ground: 'grass', groundColor: 0x6f8a56, bounds: { x0: -16, x1: 16, z0: -8, z1: 11 }, start: [0, 9],
+    roads: [{ x: 0, z: 3, w: 36, d: 5, color: 0x9a8a72 }, { x: 0, z: 7, w: 4, d: 8 }],
+    props: [
+      { type: 'western', x: 9, z: -8, w: 9, d: 5, h: 5, color: 0x8a4a3a },
+      { type: 'desk', x: 6, z: -3.5 }, { type: 'desk', x: 11, z: -3.5 },
+      { type: 'western', x: -2, z: -9, w: 6, d: 4, h: 4, color: 0x9a7a5a },
+      { type: 'tent', x: -13, z: -5, color: 0xc8c0a8 }, { type: 'tent', x: -9, z: -7, color: 0xc8c0a8 },
+      { type: 'crowd', x: -13, z: 0, n: 6, cols: 3, looks: ['uibyeong', 'peasant', 'uibyeong'], face: Math.PI / 2 },
+      { type: 'hanok', x: -12, z: 9 }, { type: 'hanok', x: 12, z: 9, tile: true },
+      { type: 'tree', x: -5, z: 10.5 }, { type: 'tree', x: 6, z: 10.5 },
+    ],
+    npcs: [
+      { id: 'student', look: 'student', x: 4, z: 7, ry: Math.PI * 0.8 },
+      { id: 'uibyeong', look: 'uibyeong', x: -8, z: -1.5, ry: Math.PI / 2 },
+      { id: 'ahnchangho', look: 'ahnchangho', x: 8.5, z: -1, ry: 0 },
+    ],
+    signs: [{ id: 'signHague', title: '헤이그 특사', x: -4, z: 7 }, { id: 'signPress', title: '신문', x: -2, z: -4 }, { id: 'signAhn', title: '안중근', x: 13.5, z: 3 }],
+    scatter: [{ kind: 'pine', count: 40, area: { x0: -60, x1: -18, z0: -30, z1: 20 }, seed: 261 }],
+  },
+  parts: [script.parts.sort, script.parts.envoys],
+});
