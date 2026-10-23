@@ -51,9 +51,9 @@ export default {
       title: '곳과 일어난 일을 짝지어요',
       items: [{ id: 'river', label: '낙동강' }, { id: 'incheon', label: '인천' }, { id: 'seoul', label: '서울' }],
       slots: [
-        { id: 'sSeoul', label: '전쟁 3일 만에 빼앗겼다가 9월 28일 되찾았어요', xy: [20, 50], answer: 'seoul' },
-        { id: 'sRiver', label: '마지막 방어선으로 끝까지 지켰어요', xy: [50, 50], answer: 'river' },
-        { id: 'sIncheon', label: '1950년 9월 15일 상륙 작전을 펼쳤어요', xy: [80, 50], answer: 'incheon' },
+        { id: 'sSeoul', label: '전쟁 3일 만에 빼앗겼다가 9월 28일 되찾았어요', xy: [19, 28], answer: 'seoul' },
+        { id: 'sRiver', label: '마지막 방어선으로 끝까지 지켰어요', xy: [50, 72], answer: 'river' },
+        { id: 'sIncheon', label: '1950년 9월 15일 상륙 작전을 펼쳤어요', xy: [81, 28], answer: 'incheon' },
       ],
       fail: '국군 병사, 지휘관과 나눈 이야기를 떠올려 보세요.',
     },

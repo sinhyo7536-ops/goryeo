@@ -151,6 +151,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .tap-target { position: fixed; z-index: 12; transform: translate(-50%, -50%); width: 76px; height: 76px; padding: 0; border-radius: 50%; border: 3px solid var(--hanji); background: rgba(184, 69, 47, .92); color: var(--hanji); font-size: 16px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,.4); touch-action: manipulation; }
 .tap-target[hidden] { display: none; }
 .big-action { position: fixed; z-index: 12; left: 50%; transform: translateX(-50%); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); min-height: 68px; min-width: 240px; padding: 0 28px; font-size: 22px; font-weight: 700; border-radius: 6px; border: 3px solid var(--hanji); background: var(--dan-red); color: var(--hanji); box-shadow: 0 6px 16px rgba(0,0,0,.45); touch-action: manipulation; }
+.big-action.in-card { position: static; transform: none; display: block; margin: 18px auto 0; z-index: auto; }
 /* 밀기 버튼: 병사가 올라온 만큼(--p) 테두리가 금색으로 차오른다 */
 .tap-target { border: none; background: radial-gradient(circle, rgba(184, 69, 47, .95) 62%, transparent 63%), conic-gradient(var(--gold) calc(var(--p, 0) * 360deg), rgba(242, 234, 217, .45) 0); }
 /* 대화창 얼굴 그림 */
@@ -163,8 +164,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .order-card { min-height: 56px; padding: 8px 14px; font-size: 17px; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
 .order-card.hint { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.5); }
 .order-card.picked { border-color: #2f6b5e; background: #dcebdf; opacity: 1; }
-.sort-now { font-size: 20px; font-weight: 700; line-height: 1.5; min-height: 2.6em; color: var(--text-ink); word-break: keep-all; }
-.sort-bins { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.order-card.placed { visibility: hidden; }
+.sort-now { font-size: 20px; font-weight: 700; line-height: 1.5; min-height: 3em; /* 두 줄 자리를 늘 비워 두어 카드 글이 길어져도 바구니가 움직이지 않게 */ color: var(--text-ink); word-break: keep-all; }
+.sort-bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .sort-bin { min-height: 72px; font-size: 18px; font-weight: 700; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
 .sort-bin.hint { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.5); }
 .sort-bin.wrong { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
@@ -183,10 +185,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .place-decor { position: absolute; transform: translate(-50%, -50%); font-size: 15px; color: #5d5240; white-space: nowrap; pointer-events: none; }
 .place-decor.water { color: #2f5f75; font-weight: 700; }
 .place-decor.band { width: 100%; text-align: center; background: rgba(79,135,160,.35); padding: 4px 0; }
-.place-slot { position: absolute; transform: translate(-50%, -50%); min-width: 96px; max-width: 31%; word-break: keep-all; min-height: 52px; padding: 6px 12px; border-radius: 6px;
+.place-slot { position: absolute; transform: translate(-50%, -50%); width: max-content; min-width: 96px; max-width: 31%; word-break: keep-all; min-height: 52px; padding: 6px 12px; border-radius: 6px;
   border: 2px dashed #8f8068; background: rgba(255,250,240,.85); color: var(--text-ink); font-size: 16px; font-weight: 700; }
 .place-slot.hint { border: 2px solid var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.5); }
 .place-slot.filled { border: 2px solid #2f6b5e; background: #dcebdf; }
+.place-slot.filled small { display: block; font-size: .76em; font-weight: 400; line-height: 1.25; }
 .place-slot.wrong { border: 2px solid var(--dan-red); background: #f6d6cf; animation: shake .3s; }
 .order-card.wrong { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
@@ -230,6 +233,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   .place-decor { font-size: 12px; }
   .place-item { font-size: 1.3em; }
   .choose-figure svg { max-height: 30vh; }
-  .sort-now { font-size: 16px; min-height: 2.2em; }
+  .sort-now { font-size: 16px; min-height: 3em; }
   .sort-bin { min-height: 52px; font-size: 16px; }
 }

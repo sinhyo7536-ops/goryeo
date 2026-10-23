@@ -57,9 +57,9 @@ export default {
       title: '사람과 한 일을 짝지어요',
       items: [{ id: 'shin', label: '신채호' }, { id: 'hak', label: '조선어 학회' }, { id: 'yuk', label: '이육사' }],
       slots: [
-        { id: 'sPoem', label: '저항 의식을 담은 시를 썼다', xy: [20, 50], answer: 'yuk' },
-        { id: 'sHist', label: '우리 역사를 연구했다', xy: [50, 50], answer: 'shin' },
-        { id: 'sDict', label: '「우리말 큰사전」을 펴내려 했다', xy: [80, 50], answer: 'hak' },
+        { id: 'sPoem', label: '저항 의식을 담은 시를 썼다', xy: [19, 28], answer: 'yuk' },
+        { id: 'sHist', label: '우리 역사를 연구했다', xy: [50, 72], answer: 'shin' },
+        { id: 'sDict', label: '「우리말 큰사전」을 펴내려 했다', xy: [81, 28], answer: 'hak' },
       ],
       fail: '신채호는 역사학자, 이육사는 시인, 조선어 학회는 우리말을 연구했어요.',
     },

@@ -74,11 +74,12 @@ export function createTapTargets(ctx) {
   return api;
 }
 
-// 화면 아래 가운데 큰 버튼. 클릭이나 E·스페이스(행동 키)로 누른다.
-export function actionButton(ctx, label) {
+// 화면 아래 가운데 큰 버튼. 클릭이나 E·스페이스(행동 키)로 누른다. parent를 주면 그 안(카드 아래)에 놓는다.
+export function actionButton(ctx, label, parent = ctx.ui) {
   const btn = el('button', 'big-action', label);
   btn.type = 'button';
-  ctx.ui.append(btn);
+  if (parent !== ctx.ui) btn.classList.add('in-card');
+  parent.append(btn);
   let resolveFn = null;
   const press = () => { if (resolveFn) { const r = resolveFn; resolveFn = null; r(); } };
   btn.addEventListener('click', press);
@@ -97,7 +98,7 @@ export function orderCards(ctx, { title, cards, easy = false }) {
     const card = el('div', 'card wide');
     const slots = el('ol', 'order-slots');
     const pile = el('div', 'order-pile');
-    card.append(el('div', 'eyebrow', '순서 맞추기'), el('h2', null, title), slots, pile);
+    card.append(el('div', 'eyebrow', '순서 맞추기'), el('h2', null, title), pile, slots); // 카드 더미가 위: 놓은 카드 줄이 늘어도 더미가 밀려 내려가지 않는다
     screen.append(card);
     ctx.ui.append(screen);
     const order = shuffledOrder(cards).map(c => ({ c }));
@@ -106,7 +107,7 @@ export function orderCards(ctx, { title, cards, easy = false }) {
       const b = el('button', 'order-card', c); b.type = 'button';
       b.addEventListener('click', () => {
         if (c === cards[next]) {
-          slots.append(el('li', null, `○ ${c}`)); b.remove(); next += 1;
+          slots.append(el('li', null, `○ ${c}`)); b.disabled = true; b.classList.add('placed'); next += 1; // 자리는 남겨 두어 옆 카드가 움직이지 않게
           if (next === cards.length) { setTimeout(() => { screen.remove(); resolve(true); }, 300); return; }
           hint();
         } else {
@@ -304,7 +305,7 @@ export function timingBar(ctx, { title, prompt = '', label = '지금!', zone: [l
   if (prompt) card.append(el('p', null, prompt));
   card.append(bar);
   screen.append(card); ctx.ui.append(screen);
-  const btn = actionButton(ctx, label);
+  const btn = actionButton(ctx, label, card); // 화면 판이 큰 버튼을 덮지 않게 카드 안에 둔다
   let t = 0, done = false;
   ctx.testHooks.armed = false;
   return new Promise(resolve => {
@@ -391,7 +392,8 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
         if (over || b.disabled) return;
         const item = items[i];
         if (s.answer === item.id) {
-          b.disabled = true; b.classList.add("filled"); b.textContent = s.label ? `○ ${item.label} · ${s.label}` : `○ ${item.label}`;
+          b.disabled = true; b.classList.add("filled"); // 놓은 물건 이름을 크게, 칸의 설명은 작게 (칸이 길어져 판 밖으로 나가지 않게)
+          b.replaceChildren(`○ ${item.label}`, ...(s.label ? [el('small', null, s.label)] : []));
           i += 1;
           if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 500); } else ask();
         } else {

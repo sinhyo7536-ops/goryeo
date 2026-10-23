@@ -70,3 +70,41 @@ test('layout: 한산도 바다 — 미끼 배 출발점, 견내량 입구, 기�
     checkView(w, s.seaFit, pts, 'sea');
   } finally { w.dispose(); }
 });
+
+// 근대~현대편 카드형 미니게임: 모든 버튼이 화면 안에 있고, 손가락으로 누를 수 있으며(다른 것에 덮이지 않음), 자리 놓기 판의 칸이 겹치지 않는다
+import { MODERN, COLONIAL, PRESENT } from '../chapters/index.js';
+const KIT_SIZES = [[1000, 530], [1280, 720], [1280, 800], [1366, 650], [740, 360]];
+for (const meta of [...MODERN, ...COLONIAL, ...PRESENT]) {
+  test(`layout: ${meta.id} card minigames fit, can be tapped and do not overlap`, async () => {
+    const parts = Object.values((await meta.load()).default.script.parts);
+    for (const [n, p] of parts.entries()) {
+      if (p.type === 'collect') continue;
+      for (const fill of p.type === 'place' ? ['', '&fill=1'] : ['']) for (const [w, h] of KIT_SIZES) {
+        const tag = `${meta.id}:${n} ${p.type}${fill ? ' filled' : ''} ${w}x${h}`;
+        const frame = document.createElement('iframe');
+        frame.src = `./fit.html?kind=kit:${meta.id}:${n}${fill}`; frame.style.cssText = `width:${w}px;height:${h}px;position:fixed;left:-3000px;top:0;border:0`;
+        document.body.appendChild(frame);
+        try {
+          await new Promise(r => frame.addEventListener('load', r));
+          const d = frame.contentDocument;
+          for (let i = 0; i < 100 && !d.querySelector('#ui button'); i++) await sleep(20);
+          await sleep(80);
+          const buttons = [...d.querySelectorAll('#ui button')].filter(b => !b.hidden && !b.disabled);
+          ok(buttons.length > 0, `${tag}: has buttons`);
+          for (const b of buttons) {
+            const r = b.getBoundingClientRect();
+            ok(r.top >= -1 && r.bottom <= h + 1 && r.left >= -1 && r.right <= w + 1, `${tag}: "${b.textContent}" outside the screen`);
+            ok(r.height >= 40, `${tag}: "${b.textContent}" too small to tap (${Math.round(r.height)}px)`);
+            const top = d.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+            ok(top && (top === b || b.contains(top)), `${tag}: "${b.textContent}" is covered by ${top && top.className}`);
+            ok(b.scrollWidth <= b.clientWidth + 2, `${tag}: "${b.textContent}" text sticks out`);
+          }
+          const marks = [...d.querySelectorAll('.place-slot, .place-decor')].map(e => [e, e.getBoundingClientRect()]);
+          for (let i = 0; i < marks.length; i++) for (let j = i + 1; j < marks.length; j++) ok(!overlap(marks[i][1], marks[j][1]), `${tag}: "${marks[i][0].textContent}" overlaps "${marks[j][0].textContent}"`);
+          const board = d.querySelector('.place-board');
+          if (board) { const br = board.getBoundingClientRect(); for (const [e, r] of marks) ok(r.left >= br.left - 1 && r.right <= br.right + 1 && r.top >= br.top - 1 && r.bottom <= br.bottom + 1, `${tag}: "${e.textContent}" sticks out of the board`); }
+        } finally { frame.remove(); }
+      }
+    }
+  }, { timeout: 120000 });
+}
