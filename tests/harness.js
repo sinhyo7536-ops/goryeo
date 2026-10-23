@@ -18,10 +18,12 @@ export function eq(actual, expected, msg) {
 export async function run() {
   const out = document.getElementById('out');
   const filter = new URLSearchParams(location.search).get('only');
+  const skipF = new URLSearchParams(location.search).get('skip');
   let pass = 0, fail = 0, skipped = 0;
   const lines = [];
   for (const t of tests) {
-    if (filter && !t.name.startsWith(filter)) continue;
+    if (filter && !filter.split('|').some(f => t.name.startsWith(f))) continue; // 여러 묶음은 | 로
+    if (skipF && skipF.split('|').some(f => t.name.startsWith(f))) continue; // ?skip= 으로 뺄 묶음
     out.textContent = `RUNNING ${t.name} (${lines.length} done)`; // 멈추면 어디서 멈췄는지 보이게(짧게: 긴 글이 시험 화면을 덮지 않게)
     try {
       await Promise.race([

@@ -1,5 +1,5 @@
 import { test, eq, ok } from './harness.js';
-import { THEMES, SCALE, barEvents, createMusic } from '../core/music.js';
+import { THEMES, SCALE, SCALES, MAP_THEMES, barEvents, createMusic, noteFreq, playLevel } from '../core/music.js';
 import { runChapter } from '../core/flow.js';
 import { memSave } from './bot.js';
 
@@ -19,10 +19,11 @@ function fakeAudioContext() {
   return c;
 }
 
-test('music: every chapter has its own theme on a five-note scale', async () => {
+test('music: every chapter has its own theme on a known scale', async () => {
   const { ALL_CHAPTERS } = await import('../chapters/index.js');
   eq(Object.keys(THEMES).sort(), ALL_CHAPTERS.map(c => c.id).sort());
   eq(SCALE.length, 5);
+  for (const [id, t] of Object.entries(THEMES)) ok(Object.values(SCALES).includes(t.scale || SCALE), `${id} scale`);
   const tempos = new Set(Object.values(THEMES).map(t => t.tempo));
   ok(tempos.size >= 4, 'chapters do not all sound alike');
   for (const [id, t] of Object.entries(THEMES)) {
@@ -34,7 +35,7 @@ test('music: every chapter has its own theme on a five-note scale', async () => 
 test('music: battle bars are busier and louder than calm bars in every chapter', () => {
   for (const id of Object.keys(THEMES)) {
     const calm = barEvents(THEMES[id], 'calm', 0), battle = barEvents(THEMES[id], 'battle', 0);
-    const hits = evs => evs.filter(e => e.kind === 'drum' || e.kind === 'wood' || e.kind === 'clack').length;
+    const hits = evs => evs.filter(e => ['drum', 'wood', 'clack', 'snare', 'soft'].includes(e.kind)).length;
     ok(hits(battle) > hits(calm), `${id}: ${hits(battle)} vs ${hits(calm)} hits`);
     const peak = evs => Math.max(...evs.map(e => e.vel || 0));
     ok(peak(battle) >= peak(calm), `${id} louder`);
@@ -82,4 +83,44 @@ test('menu: separate music switch', async () => {
   b.click();
   eq(changes, [{ music: false }]);
   await p; el.remove();
+});
+
+// 시대와 상황에 맞는 음악
+test('music: 시대마다 악기와 음계가 다르다', () => {
+  const ids = p => Object.keys(THEMES).filter(id => id.match(p));
+  const insts = p => new Set(ids(p).map(id => THEMES[id].inst || 'daegeum'));
+  eq([...insts(/^(ch|j)\d$/)], ['daegeum'], '고려·조선은 국악(대금)');
+  ok(insts(/^h\d$/).has('piano'), '현대에는 피아노');
+  ok(insts(/^i\d$/).has('organ'), '일제 강점기에는 풍금');
+  ok(insts(/^k\d$/).has('reed'), '근대에는 태평소');
+  ok(ids(/^i\d$/).filter(id => THEMES[id].scale === SCALES.minor).length >= 3, '일제 강점기는 단조가 많다');
+  ok(new Set(Object.values(THEMES).map(t => t.inst || 'daegeum')).size >= 5, '악기가 다섯 가지 이상');
+});
+
+test('music: 미니게임 음악은 장의 상황에 맞다 (전투는 세게, 잔치는 신나게, 슬픈 장면은 잔잔하게)', () => {
+  for (const id of ['ch3', 'j4', 'k3', 'i4', 'h3']) eq(playLevel(THEMES[id], 'battle'), 'battle', id);
+  for (const id of ['k4', 'k5', 'h1', 'h6']) eq(playLevel(THEMES[id], 'battle'), 'lively', id);
+  for (const id of ['ch5', 'j2', 'i1', 'h4', 'h5']) eq(playLevel(THEMES[id], 'battle'), 'gentle', id);
+  for (const id of Object.keys(THEMES)) eq(playLevel(THEMES[id], 'calm'), 'calm', `${id} 탐험은 잔잔하게`);
+  const t = THEMES.h1;
+  ok(!barEvents(t, 'lively', 0).some(e => e.kind === 'pulse'), '신나는 음악에는 전투 맥박이 없다');
+  const peak = evs => Math.max(...evs.map(e => e.vel || 0));
+  ok(peak(barEvents(t, 'gentle', 0)) < peak(barEvents(t, 'battle', 0)), '잔잔한 쪽이 더 작다');
+});
+
+test('music: 일곱 음 음계는 일곱 칸마다 한 옥타브', () => {
+  eq(Math.round(noteFreq(100, 7, SCALES.major)), 200);
+  eq(Math.round(noteFreq(100, 5, SCALE)), 200);
+});
+
+test('music: 시대 지도마다 그 시대 음악이 있고, 새 악기도 소리를 낸다', () => {
+  eq(Object.keys(MAP_THEMES).sort(), ['map:colonial', 'map:goryeo', 'map:joseon', 'map:modern', 'map:present']);
+  const ac = fakeAudioContext();
+  const m = createMusic({ makeContext: () => ac });
+  for (const id of ['map:present', 'h6', 'i2', 'k4', 'h4']) {
+    const before = ac.made;
+    m.play(id); m.setLevel('battle'); ac.currentTime += 3; m.tick();
+    ok(ac.made > before, `${id} 소리 남`);
+  }
+  m.stop();
 });

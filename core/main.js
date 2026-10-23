@@ -133,6 +133,7 @@ function boot() {
       }
       if (!save.data.course) await pickCourse();
       const course = courseById(save.data.course);
+      music.play(`map:${course.id}`); // 시대 지도에서는 그 시대의 잔잔한 음악
       const id = await showMap(ui, course.chapters, save, {
         heading: `${course.era}편 · ${course.title}`, onCourses: true,
         onSessionCard: () => showSessionCard(ui, course.session, save, ALL_CHAPTERS),
