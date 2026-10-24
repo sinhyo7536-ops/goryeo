@@ -65,4 +65,5 @@ export const SOURCES = {
   S60: { title: '한국민족문화대백과사전: 경부고속도로', url: 'https://encykorea.aks.ac.kr/Article/E0002460', note: '1968년 2월 공사 시작, 1970년 7월 서울~부산 개통, 전국이 하루 생활권' },
   S61: { title: '한국민족문화대백과사전: 서울올림픽대회', url: 'https://encykorea.aks.ac.kr/Article/E0028046', note: '1988년 9월 17일~10월 2일 서울에서 열린 제24회 올림픽, 160개국 참가' },
   S62: { title: '한국민족문화대백과사전: 이산가족찾기 특별생방송', url: 'https://encykorea.aks.ac.kr/Contents/Item/E0068362', note: '1983년 6월 30일부터 138일 동안 KBS 생방송, 6·25 전쟁으로 헤어진 가족 10만여 건 신청, 1만여 명이 다시 만남' },
+  S63: { title: '우리역사넷 사료로 본 한국사: 삼전도의 항복', url: 'https://contents.history.go.kr/mobile/hm/view.do?levelId=hm_099_0050', note: '1637년 1월 30일 인조가 소현세자·신하들과 남한산성 서문으로 나와 삼전도로 감, 수항단 아래에서 청 태종에게 세 번 무릎 꿇고 아홉 번 머리를 조아리는 예(삼배구고두례)로 항복 (함께 본 자료: 한국민족문화대백과사전 삼전도 https://encykorea.aks.ac.kr/Article/E0026788, 서울신문 병자호란 다시 읽기 https://m.seoul.co.kr/news/2008/10/22/20081022026001)' },
 };

@@ -1,6 +1,7 @@
 // 조선편 5장 장면: 눈 덮인 남한산성. 산 위의 둥근 성벽(여장과 서문), 북쪽 행궁, 동쪽 창고, 성벽 안쪽의 화톳불 여섯,
 // 성 밖 아래 벌판에 멀리 보이는 청나라 진영.
 import * as THREE from 'three';
+import { makeFire } from '../../../core/fire.js';
 import { curvedHipRoof } from '../../kit/buildings.js';
 import { groundMaterial } from '../../../core/textures.js';
 import { mat, makePerson } from '../../../core/people.js';
@@ -77,12 +78,12 @@ export function buildJ5Scene(world) {
     const g = new THREE.Group(); g.position.set(x, 0, z); L.add(g);
     mk(new THREE.CylinderGeometry(0.5, 0.35, 0.6, 8), 0x3a3028, 0, 0.3, 0, g);
     for (let k = 0; k < 3; k++) mk(new THREE.CylinderGeometry(0.07, 0.07, 0.9, 5), 0x5a3f2a, Math.cos(k * 2.1) * 0.15, 0.6, Math.sin(k * 2.1) * 0.15, g).rotation.z = 0.5;
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.0, 7), new THREE.MeshBasicMaterial({ color: 0xffa040 }));
-    flame.position.set(0, 1.2, 0); flame.visible = false; g.add(flame);
+    const fx = makeFire({ size: 1, detail: world.quality.particles ?? 1 }); // 겹친 불꽃·불빛·불티·연기
+    fx.group.position.set(0, 1.0, 0); g.add(fx.group);
     world.addCollider({ x, z, r: 0.5 });
-    return { x, z, g, flame, lit: false };
+    return { x, z, g, fx, flame: fx.group, lit: false };
   });
-  const setFire = (f, on) => { f.lit = on; f.flame.visible = on; };
+  const setFire = (f, on) => { f.lit = on; f.fx.setLit(on); f.flame.visible = on; };
   // 성벽 위를 지키는 병사들
   for (const a of [0.4, 1.2, 2.0, 4.0, 4.9, 5.7]) {
     const s = makePerson(LOOKS.joseonSoldier);
@@ -116,7 +117,7 @@ export function buildJ5Scene(world) {
   world.addNpc('choemyeonggil', LOOKS.choemyeonggil, 3, -7, 0);
 
   world.onUpdate((dt, t) => {
-    for (const f of fires) if (f.lit) { f.flame.scale.set(1, 0.85 + Math.sin(t * 9 + f.x) * 0.15, 1); }
+    for (const f of fires) f.fx.update(dt, t);
   });
 
   return {
