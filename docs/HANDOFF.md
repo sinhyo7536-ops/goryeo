@@ -9,7 +9,7 @@
 | 저장소 | https://github.com/ssamgame/history (조직 `ssamgame`, 브랜치 `main`) |
 | 학생 주소 | https://ssamgame.github.io/history/ (GitHub Pages, main에서 바로 배포) |
 | 마지막 커밋 | `73e0454` 선생님 의견 반영 (+ 이 문서를 넣은 커밋) |
-| 캐시 판 | `goryeo-v37` (`core/precache.js`) |
+| 캐시 판 | `goryeo-v38` (`core/precache.js`) |
 | 테스트 | 375개 모두 통과(2026-10-24, 클라우드 리눅스에서 Playwright 크로미움으로) |
 | 내용 | 5개 편(고려·조선·근대·일제 강점기·현대) × 6장 = 30장 모두 완성 |
 | PC 폴더 | `C:\Users\장신효\Desktop\goryeo-game` (옆의 `wedding` 폴더는 다른 프로젝트, 건드리지 않는다) |
@@ -81,7 +81,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 > /tmp/full.t
 
 ## 6. 남은 일과 보류한 것
 
-- **보류(선생님 허락 필요)**: "업데이트 바로 보이기"(서비스 워커를 network-first로). 선생님이 중간에 멈추게 해서 적용하지 않았다. 변경 내용은 `docs/handoff/network-first.patch`(옛 판 기준이라 `CACHE` 줄은 손으로 맞춘다). 지금은 새 판이 학생 기기에 한 번 더 열어야 보인다. 적용하기 전에 꼭 묻는다.
+- **적용함(2026-10-24, 선생님 허락)**: "업데이트 바로 보이기". 서비스 워커가 인터넷이 되면 언제나 새 파일을 받고(`core/precache.js`의 `networkFirst`), 끊겼거나 4초 안에 오지 않으면 저장본을 쓴다. 이제 올린 판이 학생 기기에서 다음에 열 때 바로 보인다. `docs/handoff/network-first.patch`는 기록으로만 남긴다.
 - 직접 눈으로 못 본 것: 3장 귀주 전투 장면, 5장 그림 카드(자동 테스트만 통과). 선생님께 해 보시고 의견 달라고 했다.
 - 실제 갤럭시 탭(S6 Lite)에서 프레임·장별 시간 재기, 배경음악 직접 들어 보기는 아직이다.
 - `CLAUDE.md` "아직 남은 일"의 작은 미완 항목들.
@@ -95,5 +95,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 > /tmp/full.t
 
 ## 8. 클라우드(리눅스) 세션에서 이어받을 때 (2026-10-24 추가)
 
-- PowerShell·Edge가 없으므로 `tools/test.ps1` 대신 Node + Playwright로 같은 일을 한다: 정적 서버를 띄우고 크로미움(`--use-angle=swiftshader`)으로 `tests/index.html?only=…`를 열어 `#out`의 `RESULT` 줄을 기다린다. 묶음 나누기(`kit: `·`layout: `·`play: `·나머지)도 같다. 전체 약 6분.
-- 이번에 고친 것: 2장 구출이 끝나면 화면을 잠깐 어둡게 하고 들판의 포로·거란 병사를 치운다(퀴즈 내내 멈춰 서 있던 문제). 이어하기 테스트 ch4·ch5 추가. 캐시 `goryeo-v37`.
+- PowerShell·Edge가 없으므로 `tools/test.ps1` 대신 `NODE_PATH=$(npm root -g) node tools/test-node.cjs [only]`(Node + Playwright)를 쓴다: 정적 서버를 띄우고 크로미움(`--use-angle=swiftshader`)으로 `tests/index.html?only=…`를 열어 `#out`의 `RESULT` 줄을 기다린다. 묶음 나누기(`kit: `·`layout: `·`play: `·나머지)도 같다. 전체 약 6분.
+- 이번에 고친 것: 2장 구출이 끝나면 화면을 잠깐 어둡게 하고 들판의 포로·거란 병사를 치운다(퀴즈 내내 멈춰 서 있던 문제). 이어하기 테스트 ch4·ch5 추가. 캐시 `goryeo-v37`. 이어서 업데이트 바로 보이기 적용(`goryeo-v38`).

@@ -1,5 +1,5 @@
 // 서비스 워커가 처음 설치될 때 기기에 저장해 둘 파일 목록. 장을 추가하면 여기에도 넣는다.
-export const CACHE = 'goryeo-v37'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
+export const CACHE = 'goryeo-v38'; // 배포할 때마다 올린다 (학생 기기에 새 판이 반영되도록)
 
 export const PRECACHE = [
   'index.html', 'styles.css', 'vendor/three.module.min.js', 'content/sources.js',
@@ -52,4 +52,15 @@ export function cacheKeyFor(url, mode, swUrl) {
 // 설치할 때는 브라우저 HTTP 캐시를 거치지 않고 서버에서 새로 받는다 (옛 파일이 새 판에 섞이지 않게)
 export function precacheRequests() {
   return PRECACHE.map(u => new Request(u, { cache: 'reload' }));
+}
+
+// 파일 받기: 인터넷이 되면 언제나 새 파일을 쓰고(고친 내용이 바로 보이게) 저장본도 바꾼다.
+// 끊겼거나 timeoutMs 안에 오지 않으면 저장본을 쓴다(교실 와이파이가 느릴 때). 저장본이 없으면 새 파일을 끝까지 기다린다.
+export function networkFirst({ fetch, match, put, timeoutMs = 4000 }) {
+  const fresh = Promise.resolve().then(fetch).then(r => { if (r && r.ok) put(r.clone()); return r; });
+  return match().then(hit => {
+    if (!hit) return fresh;
+    const late = new Promise(ok => setTimeout(() => ok(hit), timeoutMs));
+    return Promise.race([fresh.catch(() => hit), late]);
+  });
 }
