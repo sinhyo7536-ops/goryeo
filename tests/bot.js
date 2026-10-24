@@ -130,7 +130,7 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       if (dialogue.isChoosing()) {
         const buttons = [...ui.querySelectorAll('.dlg-choices button')];
         const texts = buttons.map(b => b.querySelector('.txt').textContent);
-        let i = texts.findIndex(t => answers.has(t));
+        let i = ctx.testHooks.choice != null ? ctx.testHooks.choice : texts.findIndex(t => answers.has(t)); // 놀이가 알려 준 답(맞다/아니다 고르기)
         const key = texts.join('|');
         if (!seenAt.has(key)) seenAt.set(key, performance.now());
         if (performance.now() - seenAt.get(key) < 300) return; // 열린 직후의 탭은 대화창이 무시한다

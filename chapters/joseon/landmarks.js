@@ -149,3 +149,19 @@ export function hwaseongGate() {
   }
   return g;
 }
+
+// 사직단: 낮은 담으로 두른 마당에 흙을 쌓은 네모난 제단 둘(동쪽 사단·서쪽 직단), 앞의 홍살문
+export function sajikdan() {
+  const g = new THREE.Group();
+  add(g, box(12, 0.15, 9), 0x9a8a6e, 0, 0.08, 0, 'stone');
+  for (const [w, d, x, z] of [[12, 0.4, 0, -4.4], [12, 0.4, 0, 4.4], [0.4, 9, -5.9, 0], [0.4, 9, 5.9, 0]]) add(g, box(w, 0.9, d), 0xb3ab99, x, 0.45, z, 'stone');
+  for (const x of [-2.4, 2.4]) {
+    add(g, box(3.2, 0.5, 3.2), 0xc2baa8, x, 0.4, -0.5, 'stone');
+    add(g, box(2.6, 0.35, 2.6), 0x8a6a48, x, 0.82, -0.5, 'earth');
+    for (const [sx, sz] of [[0, 1.75], [0, -1.75], [1.75, 0], [-1.75, 0]]) add(g, box(sx ? 0.1 : 0.9, 0.3, sx ? 0.9 : 0.1), 0xd8d0bc, x + sx, 0.3, -0.5 + sz, 'stone');
+  }
+  for (const x of [-1.2, 1.2]) add(g, new THREE.CylinderGeometry(0.1, 0.1, 3, 8), 0xa8392b, x, 1.5, 4.4);
+  add(g, box(2.8, 0.14, 0.14), 0xa8392b, 0, 2.9, 4.4);
+  for (let i = 0; i < 7; i++) add(g, box(0.05, 0.9, 0.05), 0xa8392b, -1.05 + i * 0.35, 2.4, 4.4);
+  return g;
+}

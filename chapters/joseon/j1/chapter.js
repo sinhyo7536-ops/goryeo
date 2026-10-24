@@ -2,7 +2,11 @@
 import { buildJ1Scene } from './scene.js';
 import { roam } from '../../../core/flow.js';
 import { showHowTo, runWithRetries } from '../../../core/minigame.js';
-import { PLAY } from '../../kit/play.js';
+import { PLAY, buildArena, mapSpot, labelSprite } from '../../kit/play.js';
+import { makePerson } from '../../../core/people.js';
+import { LOOKS } from '../../../content/characters.js';
+import { geunjeongjeon, jongmyo, sajikdan } from '../landmarks.js';
+import * as THREE from 'three';
 import script from './script.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
@@ -15,18 +19,17 @@ export const CAMP = {
     { type: 'crowd', x: -3, z: -7, n: 4, cols: 4, looks: ['soldier'], face: Math.PI },
   ],
 };
+// 진영 곳곳에서 이성계의 말을 전해 주는 병사들(자리)
 export const REASON_SPOTS = [{ x: -11, z: -2 }, { x: -6, z: 7 }, { x: 0, z: -1 }, { x: 11, z: -2 }, { x: 6, z: 7 }, { x: -12, z: 8 }];
-// 맞는 까닭을 찾으면 그 말을 한 사람이 다시 말해 준다(카드 차례와 같은 자리)
-const REASON_TALK = [
-  [{ who: 'yiseonggye', text: '작은 나라가 큰 나라를 거스르는 것은 옳지 않소.' }], null,
-  [{ who: 'soldier', text: '한창 농사철인 여름에 군사를 일으키면 백성이 힘들어요.' }],
-  [{ who: 'archer', text: '우리가 북쪽으로 간 틈에 남쪽 바다로 왜구가 쳐들어올 거예요.' }], null,
-  [{ who: 'archer', text: '장맛비에 활이 풀어지고, 병사들이 병에 걸리고 있어요.' }],
-];
-// 2) 새 도읍 한양 터: 북쪽에 백악(산), 동서남북 네 터에 궁궐·종묘·사직단을 가져다 놓는다
-const HANYANG_SITE = {
+// 2) 큰 지도 위의 위화도 회군: 위화도 → 개경(고려의 도읍) → 조선 건국 → 한양
+const MAP = { x: 0, z: 0, w: 40, line38: false };
+const MAP_ARENA = { origin: [400, 260], ground: 'earth', groundColor: 0x7d7158, bounds: { x0: -24, x1: 24, z0: -30, z1: 30 }, map: MAP };
+const MP = mapSpot(MAP);
+export const MARCH = { wihwa: MP(15, 18), mid: MP(27, 31), gaegyeong: MP(37, 46), hanyang: MP(43, 51) };
+// 3) 새 도읍 한양 터: 북쪽에 백악(산). 학생은 남쪽에서 들어온다(카메라와 학생 사이를 가리는 것이 없게 남쪽 담은 두지 않는다)
+export const HANYANG_SITE = {
   origin: [400, 0], ground: 'grass', groundColor: 0x6a8a4c, bounds: { x0: -20, x1: 20, z0: -18, z1: 16 },
-  props: [{ type: 'island', x: 0, z: -30, r: 12, color: 0x4f6a3e, sand: 0x6a7a4c }, { type: 'wall', x: 0, z: 15, w: 40, h: 1.2 }],
+  props: [{ type: 'island', x: 0, z: -30, r: 12, color: 0x4f6a3e, sand: 0x6a7a4c }],
 };
 const SITES = [{ id: 'north', label: '북쪽 터', x: 0, z: -11 }, { id: 'east', label: '동쪽 터', x: 12, z: -1 }, { id: 'west', label: '서쪽 터', x: -12, z: -1 }, { id: 'south', label: '남쪽 터', x: 0, z: 9 }];
 
@@ -62,6 +65,77 @@ export const HANYANG = {
     { label: '서쪽 ←', xy: [9, 92] }, { label: '→ 동쪽', xy: [91, 92] }, { label: '↓ 남쪽', xy: [50, 95] },
   ],
 };
+
+const scaled = (o, k) => { o.scale.setScalar(k); return o; };
+
+// 위화도 회군을 큰 지도 위에서: 군대(맨 앞에 '나')가 위화도에서 개경으로 내려오고, 고려라는 이름이 물러나 조선이 선 뒤 도읍이 한양으로 옮겨진다
+async function marchOnMap(ctx) {
+  const { world, dialogue } = ctx;
+  const T = script.turnback;
+  await ctx.fade(true);
+  const arena = buildArena(world, MAP_ARENA);
+  const g = arena.group, at = p => arena.at(p.x, p.z);
+  const was = world.player.visible; world.player.visible = false;
+  const pts = [MARCH.wihwa, MARCH.gaegyeong, MARCH.hanyang].map(p => { const w = at(p); return [w.x, 1, w.z]; });
+  world.fitFixedCamera([at(MARCH.mid).x, 0, (at(MARCH.wihwa).z + at(MARCH.hanyang).z) / 2], [0, 1.5, 1], pts, 0.7);
+  const tag = (text, p, size = 1.2, opt) => { const s = labelSprite(text, { size, ...opt }); s.position.set(p.x, 2.6, p.z); g.add(s); return s; };
+  tag('위화도', MARCH.wihwa);
+  const goryeo = tag('고려 (도읍 개경)', MARCH.gaegyeong, 1.4, { color: '#5a2a20' });
+  // 군대: 맨 앞은 '나'(학생 생김새), 뒤로 군사들과 깃발
+  const army = new THREE.Group(); army.scale.setScalar(0.55); g.add(army);
+  const me = world.player.clone(true); me.visible = true; me.scale.setScalar(1); me.position.set(0, 0, 1.5); army.add(me);
+  const meTag = labelSprite('나', { size: 1.2, bg: 'rgba(217,164,65,0.95)' }); meTag.position.set(0, 4.2, 1.5); army.add(meTag);
+  for (let i = 0; i < 8; i++) { const p = makePerson(i % 3 ? LOOKS.soldier : LOOKS.archer); p.position.set((i % 4 - 1.5) * 1.1, 0, -Math.floor(i / 4) * 1.3); p.userData.noWalk = true; army.add(p); }
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 4, 6), new THREE.MeshLambertMaterial({ color: 0x5a3f2a })); pole.position.set(1.2, 2, 0.5); army.add(pole);
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6).translate(0.6, 0, 0), new THREE.MeshLambertMaterial({ color: 0xb8452f, side: THREE.DoubleSide })); flag.position.set(1.2, 3.4, 0.5); army.add(flag);
+  army.position.set(MARCH.wihwa.x, 0, MARCH.wihwa.z);
+  ctx.testHooks.march = { done: false, joseon: false };
+  await ctx.fade(false);
+  ctx.audio.play('whoosh');
+  // 길을 따라 걷는다: path의 점들을 seconds 동안
+  const walk = (path, seconds) => new Promise(resolve => {
+    const lens = path.slice(1).map((p, i) => Math.hypot(p.x - path[i].x, p.z - path[i].z)), total = lens.reduce((x, y) => x + y, 0);
+    let t = 0;
+    const off = world.onUpdate(dt => {
+      t = Math.min(1, t + dt / seconds);
+      let d = t * total, k = 0;
+      while (k < lens.length - 1 && d > lens[k]) { d -= lens[k]; k += 1; }
+      const a = path[k], b = path[k + 1], f = Math.min(1, d / lens[k]);
+      army.position.set(a.x + (b.x - a.x) * f, 0, a.z + (b.z - a.z) * f);
+      army.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
+      if (t >= 1) { off(); resolve(); }
+    });
+  });
+  await dialogue.say(T[0]);
+  dialogue.close();
+  await walk([MARCH.wihwa, MARCH.mid, MARCH.gaegyeong], 6);
+  await dialogue.say(T[1]);
+  dialogue.close();
+  // 고려라는 이름이 흐려지고 그 자리에 조선이 선다
+  await new Promise(resolve => {
+    let t = 0;
+    const joseon = tag('조선 건국 (1392)', MARCH.gaegyeong, 1.6, { color: '#2f4a6b' }); joseon.material.opacity = 0;
+    const off = world.onUpdate(dt => {
+      t = Math.min(1, t + dt / 2.2);
+      goryeo.material.opacity = 1 - t; joseon.material.opacity = t; joseon.position.y = 2.6 + t * 0.8;
+      if (t >= 1) { off(); goryeo.visible = false; ctx.testHooks.march.joseon = true; resolve(); }
+    });
+  });
+  ctx.audio.play('correct');
+  await dialogue.say(T[2]);
+  dialogue.close();
+  tag('한양 (1394)', MARCH.hanyang, 1.3, { color: '#2f4a6b' });
+  await walk([MARCH.gaegyeong, MARCH.hanyang], 2.5);
+  await dialogue.say(T[3]);
+  dialogue.close();
+  ctx.testHooks.march.done = true;
+  await ctx.fade(true);
+  arena.dispose();
+  world.player.visible = was;
+  placePlayer(world, [-3, 1.5]);
+  scene.setTurn(1); // 진영의 군대는 이미 떠났다
+  await ctx.fade(false);
+}
 
 export default {
   id: 'j1',
@@ -105,50 +179,42 @@ export default {
     input.enabled = false;
     setStep(ctx, 3);
     world.setGoal(null);
-    // 1) 네 가지 까닭 고르기
+    // 1) 병사들이 전해 주는 이성계의 말을 듣고, 이성계가 든 까닭인지 고르기
     let tries = 0, firstTryCorrect = 0;
     await showHowTo(ctx.ui, {
       title: '이성계가 반대한 까닭',
-      steps: ['비 내리는 진영의 팻말 여섯 개 중에서 이성계와 군사들이 말한 까닭을 찾아가요.', '맞는 팻말 네 개에 가서 대화 버튼을 누르면 성공이에요.', '틀린 팻말을 고르면 해설을 듣고 이어서 찾아요.'],
-      keyboard: 'W A S D 또는 방향키로 걷고, E로 골라요', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 골라요',
+      steps: ['비 내리는 진영의 병사 여섯 명에게 차례로 가서 대화 버튼을 눌러요.', '병사가 전해 주는 말을 듣고, 이성계가 요동 정벌에 반대하며 든 까닭인지 골라요.', '틀리게 고르면 해설을 듣고 다시 골라요.'],
+      keyboard: 'W A S D 또는 방향키로 걷고, E로 말을 걸어요', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 말을 걸어요',
     });
+    const R = script.reasons;
     const a = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], fail: script.reasons.fail, counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, look: i % 2 ? 'archer' : 'soldier', talk: REASON_TALK[i], ...REASON_SPOTS[i] })) }, easy);
+      const ok = await PLAY.judge(ctx, { arena: CAMP, from: [0, 12], fail: R.fail, question: R.question, options: R.options, counter: '들은 이야기', items: R.people.map((p, i) => ({ ...p, ...REASON_SPOTS[i], ry: Math.PI * 0.1 * (i % 3 - 1) })) }, easy);
       if (ok === true && tries === 1) firstTryCorrect += 1; // 틀렸다가 고쳐 끝낸 것('missed')은 첫 시도 성공이 아니다
       return ok;
-    }, { failHint: script.reasons.fail });
-    await sayAll(dialogue, script.reasons.done);
+    }, { failHint: R.fail });
+    await sayAll(dialogue, R.done);
     dialogue.close();
 
-    // 2) 회군: 군사들이 돌아서서 남쪽 물길을 건넌다
-    await ctx.fade(true);
-    placePlayer(world, [-3, 1.5]); // 군사들이 지나갈 동쪽 길에서 비켜 선다
-    world.setFixedCamera(scene.turnCam.pos, scene.turnCam.target);
-    scene.setTurn(0.05);
-    await ctx.fade(false);
-    ctx.audio.play('whoosh');
-    await new Promise(resolve => {
-      let t = 0.05;
-      const off = world.onUpdate(dt => {
-        t = Math.min(1, t + dt * 0.12);
-        scene.setTurn(t);
-        if (t >= 1) { off(); resolve(); }
-      });
-    });
-    await sayAll(dialogue, script.turnback);
-    dialogue.close();
+    // 2) 위화도 회군: 큰 지도 위에서 이성계의 군대가 위화도에서 개경으로 돌아오고, 고려가 물러나 조선이 선다
+    await marchOnMap(ctx);
 
-    // 3) 새 도읍 한양 꾸미기
+    // 3) 새 도읍 한양 짓기: 알맞은 터에서 버튼을 누르면 그 자리에 지어진다
     setStep(ctx, 4);
     world.setGoal(null);
     await sayAll(dialogue, script.hanyang.howto);
     dialogue.close();
     tries = 0;
+    ctx.testHooks.built = [];
+    const BUILDS = [
+      { id: 'palace', text: '경복궁(궁궐)', site: 'north', make: () => scaled(geunjeongjeon(), 0.32) },
+      { id: 'jongmyo', text: '종묘', site: 'east', make: () => scaled(jongmyo(9), 0.3) },
+      { id: 'sajik', text: '사직단', site: 'west', make: () => scaled(sajikdan(), 0.42) },
+    ];
     const b = await runWithRetries(ctx, async easy => {
-      tries += 1;
-      const ok = await PLAY.deliver(ctx, { arena: HANYANG_SITE, from: [0, 13], fail: script.hanyang.fail, counter: '놓은 곳', bins: SITES, cards: HANYANG.items.map(it => ({ text: it.label, bin: HANYANG.slots.find(s => s.answer === it.id).id })) }, easy);
-      if (ok === true && tries === 1) firstTryCorrect += 1; // 틀렸다가 고쳐 끝낸 것('missed')은 첫 시도 성공이 아니다
+      tries += 1; ctx.testHooks.built = [];
+      const ok = await PLAY.build(ctx, { arena: HANYANG_SITE, from: [0, 13], fail: script.hanyang.fail, sites: SITES, builds: BUILDS.map(x => ({ ...x, make: () => { ctx.testHooks.built.push(x.id); return x.make(); } })) }, easy);
+      if (ok === true && tries === 1) firstTryCorrect += 1;
       return ok;
     }, { failHint: script.hanyang.fail });
     await sayAll(dialogue, script.hanyang.done);

@@ -161,7 +161,7 @@ function boot() {
     const dm = /^(ch\d|[jkih]\d)-(scene|explore|minigame|quiz)$/.exec(debug || '');
     const meta = dm && ALL_CHAPTERS.find(c => c.id === dm[1] && c.load);
     if (meta) {
-      window.__world = world; // 개발용(?debug=…)에서만: 콘솔로 장면을 살펴본다
+      window.__world = world; window.__ctx = ctx; // 개발용(?debug=…)에서만: 콘솔로 장면과 진행을 살펴본다
       if (dm[2] !== 'scene') { await playChapter(meta, dm[2]); return mapLoop(); }
       const mod = (await meta.load()).default;
       world.setMood(mod.mood); world.setPlayerLook(roleLook(meta.id, mod.player), ROLES[meta.id]?.scale ?? 1); const sc = mod.buildScene(world, ctx);

@@ -3,21 +3,20 @@ import { SOURCES } from '../content/sources.js';
 import { validateScript } from '../core/content.js';
 import j1Script from '../chapters/joseon/j1/script.js';
 import { buildJ1Scene } from '../chapters/joseon/j1/scene.js';
-import j1, { REASON_SPOTS, CAMP } from '../chapters/joseon/j1/chapter.js';
+import j1, { HANYANG_SITE } from '../chapters/joseon/j1/chapter.js';
 import { runChapter } from '../core/flow.js';
 import { JOSEON, isUnlocked } from '../chapters/index.js';
 import { testWorld, touchSetup, touchBot, memSave } from './bot.js';
 
 const answers = new Set(j1Script.quizzes.map(q => q.options[q.answer]));
-const cardPicks = new Set(j1Script.reasons.cards.filter(c => c.correct).map(c => c.text));
-const places = { '경복궁': 'north', '종묘': 'east', '사직단': 'west' };
 
 test('j1: script passes validation', () => eq(validateScript(j1Script, SOURCES), []));
 
 test('j1: quiz answers and the four reasons match the spec', () => {
   eq(j1Script.quizzes.map(q => q.options[q.answer]), ['위화도', '한양']);
-  eq(cardPicks.size, 4);
-  eq(j1Script.reasons.cards.length, 6);
+  eq(j1Script.reasons.people.length, 6);
+  eq(j1Script.reasons.people.filter(p => p.correct).length, 4, 'four reasons (4불가론)');
+  ok(j1Script.reasons.people.filter(p => p.correct).every(p => p.talk.some(l => l.src && l.src.includes('S23'))), 'relayed reasons cite S23');
   ok(j1Script.intro.every(l => l.src.includes('S23')));
 });
 
@@ -42,7 +41,7 @@ test('j1: scene builds the camp with three people and a turning army', () => {
 
 test('j1: completes with touch-only actions', async () => {
   const s = touchSetup(j1Script.speakers);
-  const bot = touchBot(s, { answers, cardPicks, places });
+  const bot = touchBot(s, { answers });
   try {
     const r = await runChapter(JOSEON[0], j1, s.ctx, memSave());
     eq(r.quizCorrect, 2);
@@ -51,31 +50,32 @@ test('j1: completes with touch-only actions', async () => {
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
 
-test('j1: a wrong sign shows the hint, then the student carries on', async () => {
+test('j1: soldiers relay what 이성계 said; a wrong judgement gets the explanation, then the student carries on', async () => {
   const s = touchSetup(j1Script.speakers);
   const said = [];
   const say = s.dialogue.say;
   s.dialogue.say = l => { said.push(l.text); return say(l); };
-  const picks = new Set([...cardPicks, '명나라 군사가 고려보다 적다']);
+  const choose = s.dialogue.choose;
   let wrongOnce = true;
-  const bot = touchBot(s, { answers, cardPicks: picks, places });
-  // 처음 한 번만 틀린 카드를 고르게 하고, 그다음에는 맞는 카드만
-  // 처음 한 번만 틀린 팻말('명나라 군사가 고려보다 적다')로 걸어가 고르게 한다
-  const wrong = REASON_SPOTS[j1Script.reasons.cards.findIndex(c => c.text === '명나라 군사가 고려보다 적다')];
-  const off = s.w.onUpdate(() => {
-    if (!wrongOnce) return;
-    if (said.some(t => t.includes(j1Script.reasons.fail))) { wrongOnce = false; return; }
-    if (s.ctx.testHooks.walkTo) s.ctx.testHooks.walkTo = { x: CAMP.origin[0] + wrong.x, z: CAMP.origin[1] + wrong.z };
-  });
+  s.dialogue.choose = (p, o, x) => { if (wrongOnce && s.ctx.testHooks.choice != null) { wrongOnce = false; const c = s.ctx.testHooks.choice; s.ctx.testHooks.choice = 1 - c; } return choose(p, o, x); };
+  const bot = touchBot(s, { answers });
   try {
     j1.buildScene(s.w, s.ctx);
     j1.enterStage(s.ctx, 'minigame');
     const r = await j1.minigame(s.ctx);
-    ok(said.some(t => t.includes(j1Script.reasons.fail)), 'hint shown');
-    eq(r.firstTryCorrect, 1, 'signs failed the first time, Hanyang right the first time');
+    ok(said.some(t => t.startsWith('× 다시 생각해 봐요.')), 'explanation after the wrong judgement');
+    eq(r.firstTryCorrect, 1, 'judging missed once, Hanyang right the first time');
     eq(r.easyModeUsed, false);
-  } finally { off(); bot.stop(); s.done(); }
+    ok(s.ctx.testHooks.march && s.ctx.testHooks.march.done, 'march on the map played');
+    eq(s.ctx.testHooks.march.joseon, true, '고려 gives way to 조선 on the map');
+    eq(s.ctx.testHooks.built, ['palace', 'jongmyo', 'sajik'], 'three buildings rose at their sites');
+  } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('j1: nothing stands between the camera and the player at the Hanyang site', () => {
+  const from = 13; // 학생이 서는 곳(남쪽)
+  ok(!HANYANG_SITE.props.some(p => p.z > from - 1 && (p.type === 'wall' || p.type === 'hanok' || p.type === 'western')), 'no wall south of the player');
+});
 
 test('j1: resume at quiz shows the army already gone south', () => {
   const s = touchSetup(j1Script.speakers);

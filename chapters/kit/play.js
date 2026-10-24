@@ -190,6 +190,14 @@ function session(ctx, part, easy) {
     get busy() { return busy; },
     cleanup(f) { cleanups.push(f); },
     update(fn) { fns.push(fn); },
+    // 대화·고르기처럼 기다려야 하는 일: 끝날 때까지 시간과 움직임을 멈춘다
+    async run(fn) {
+      busy = true;
+      const wasInput = ctx.input.enabled;
+      ctx.input.enabled = false; ctx.input.releaseJoystick?.();
+      hud.setTalkEnabled?.(false); hud.setPrompt?.(null);
+      try { await fn(); } finally { if (ctx.dialogue) ctx.dialogue.close(); busy = false; if (!done) ctx.input.enabled = wasInput; }
+    },
     // 이야기 장면: 대화가 끝날 때까지 시간과 움직임을 멈춘다. then이 있으면 대화 뒤에 부른다.
     say(lines, then) {
       if (!lines || !lines.length || !ctx.dialogue) { if (then) then(); return; }
@@ -604,4 +612,92 @@ export function sneak(ctx, part, easy) {
   return s.promise;
 }
 
-export const PLAY = { drive, stops, deliver, find, ambush, sneak };
+// ── judge ─────────────────────────────────────────────
+// 사람들에게 다가가 이야기를 듣고(talk), 그 말이 맞는지 고른다(options[0] = 맞다, options[1] = 아니다).
+// 틀리면 해설(why, 없으면 fail)을 듣고 다시 고른다. 모두 고르면 끝.
+// { arena?, from, question, options: [맞다, 아니다], items: [{ x, z, look, talk: [대사], correct, why?, after?: [대사] }], counter? }
+export function judge(ctx, part, easy) {
+  const { world, audio, dialogue } = ctx;
+  const s = session(ctx, part, easy);
+  const g = s.arena.group;
+  const items = part.items.map(it => {
+    const post = new THREE.Group(); post.position.set(it.x, 0, it.z); g.add(post);
+    const p = standPerson(post, it.look || 'soldier', 0, 0); p.rotation.y = it.ry ?? 0;
+    const m = ring(0xd9a441, 0.9, 1.15); m.position.set(0, 0.09, 0); post.add(m);
+    const lab = labelSprite('?', { size: 0.9 }); lab.position.set(0, 3.2, 0); post.add(lab);
+    return { ...it, post, m, lab, pos: s.at(it.x, it.z + 1.2), done: false };
+  });
+  let got = 0;
+  const show = () => {
+    ctx.hud.setCounter(`${part.counter || '들은 이야기'} ${got}/${items.length}`);
+    const p = world.player.position;
+    const left = items.filter(x => !x.done).sort((a, b) => Math.hypot(a.pos.x - p.x, a.pos.z - p.z) - Math.hypot(b.pos.x - p.x, b.pos.z - p.z));
+    ctx.testHooks.walkTo = left[0] ? left[0].pos : null;
+    world.setGoal(easy && left[0] ? left[0].pos : null);
+  };
+  show();
+  pickWithButton(ctx, s, () => items.filter(x => !x.done), it => s.run(async () => {
+    for (const l of it.talk || []) await dialogue.say(l);
+    for (;;) {
+      ctx.testHooks.choice = it.correct ? 0 : 1; // 테스트 봇이 고를 답
+      const i = await dialogue.choose({ who: 'guide', text: part.question }, part.options);
+      ctx.testHooks.choice = null;
+      if ((i === 0) === !!it.correct) break;
+      s.missed = true; audio.play('wrong');
+      await dialogue.say({ who: 'guide', text: `× 다시 생각해 봐요. ${it.why || (typeof part.fail === 'string' ? part.fail : ctx.partHint) || ''}` });
+    }
+    audio.play('correct'); it.done = true; got += 1;
+    it.m.material.color.set(0x2f6b5e); it.lab.visible = false;
+    toast(ctx, `○ ${it.correct ? part.options[0] : part.options[1]}`, 'good');
+    for (const l of it.after || []) await dialogue.say(l);
+    show();
+    if (got === items.length) setTimeout(() => s.finish(true), 300);
+  }), 2.2);
+  return s.promise;
+}
+
+// ── build ─────────────────────────────────────────────
+// 지을 것을 하나씩 정해 주면, 알맞은 터로 걸어가 대화 버튼을 눌러 짓는다. 맞는 터면 건물이 땅에서 솟아오른다.
+// 틀린 터면 해설을 듣고(화살표가 맞는 터를 알려 준다) 다시 고른다.
+// { arena?, from, sites: [{ id, label, x, z }], builds: [{ text, site, make: () => Object3D, talk?: [대사], ry? }] }
+export function build(ctx, part, easy) {
+  const { world, audio } = ctx;
+  const s = session(ctx, part, easy);
+  const g = s.arena.group;
+  const sites = part.sites.map(st => {
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(2.4, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.3 }));
+    disc.position.set(st.x, 0.07, st.z); g.add(disc);
+    const lab = labelSprite(st.label, { size: 1.1 }); lab.position.set(st.x, 3.2, st.z); g.add(lab);
+    return { ...st, disc, lab, pos: s.at(st.x, st.z), built: null };
+  });
+  let i = 0, missedNow = false;
+  const show = () => {
+    const b = part.builds[i];
+    ctx.hud.setCounter(b ? `지을 것: ${b.text} (${i + 1}/${part.builds.length})` : `다 지었어요 ${part.builds.length}/${part.builds.length}`);
+    const t = b && sites.find(x => x.id === b.site);
+    ctx.testHooks.walkTo = t ? t.pos : null;
+    world.setGoal((easy || missedNow) && t ? t.pos : null);
+  };
+  show();
+  toast(ctx, `${part.builds[0].text}을(를) 지을 터를 찾아 대화 버튼을 눌러요.`);
+  pickWithButton(ctx, s, () => sites.filter(x => !x.built), st => {
+    const b = part.builds[i];
+    if (st.id !== b.site) {
+      missedNow = true; show();
+      s.wrong(`「${st.label}」은(는) ${b.text}을(를) 지을 곳이 아니에요. 이제 화살표가 맞는 터를 알려 줄게요.`);
+      return;
+    }
+    audio.play('correct'); missedNow = false;
+    const obj = b.make(); obj.position.set(st.x, -6, st.z); obj.rotation.y = b.ry || 0; g.add(obj); st.built = obj;
+    st.disc.visible = false; st.lab.visible = false;
+    let k = 0; // 땅에서 솟아오른다(1.6초)
+    s.update(dt => { if (k < 1) { k = Math.min(1, k + dt / 1.6); obj.position.y = -6 * (1 - k) * (1 - k); } });
+    toast(ctx, `○ ${st.label}에 ${b.text}을(를) 지었어요`, 'good');
+    i += 1; show();
+    if (part.builds[i]) setTimeout(() => toast(ctx, `이번에는 ${part.builds[i].text}을(를) 지을 터를 찾아요.`), 1800);
+    s.say(b.talk, () => { if (i === part.builds.length) setTimeout(() => s.finish(true), 1800); });
+  }, 2.6);
+  return s.promise;
+}
+
+export const PLAY = { drive, stops, deliver, find, ambush, sneak, judge, build };
