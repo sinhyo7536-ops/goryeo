@@ -1,13 +1,14 @@
 // 장면 부품 상자: 근대·일제 강점기·현대편 장들이 '배치표(layout)'만 써서 장면을 만든다.
 // layout = { ground, area, bounds, start, props: [{ type, x, z, ry, ... }], npcs: [{ id, look, x, z, ry }], signs: [{ id, title, x, z }], scatter: [...] }
 import * as THREE from 'three';
-import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
 import { scatter } from '../../core/props.js';
 import { makeSign } from '../../core/signs.js';
 import { LOOKS } from '../../content/characters.js';
 import { createWeather } from '../../core/weather.js';
 import * as LM from '../joseon/landmarks.js';
+import * as BLD from './buildings.js';
+import { terrainField, terrainMesh, mountainRing } from './terrain.js';
 const { hipRoof, gableRoof } = LM;
 
 const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
@@ -54,26 +55,9 @@ function flagMesh(w = 1.2, h = 0.8, color = null) {
 // 부품마다 만드는 법. 모두 (0,0,0) 기준, 앞은 +z.
 export const BUILD = {
   // 초가집 / 기와집
-  hanok(g, p) {
-    add(g, box(4, 2.2, 3.2), 0xe6dcc3, 0, 1.1, 0);
-    add(g, box(0.9, 1.6, 0.08), 0x5d4330, 0.7, 0.8, 1.62, 'wood');
-    if (p.tile) hipRoof(g, 5.6, 4.6, 1.5, 0x3d4846, 0, 2.2, 0);
-    else { const r = add(g, new THREE.SphereGeometry(2.7, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), 0xc8a476, 0, 2.1, 0); r.scale.set(1, 0.5, 0.82); }
-    return { rect: [4.4, 3.6] };
-  },
+  hanok(g, p) { BLD.hanok(g, p); return { rect: [4.4, 3.6] }; },
   // 벽돌로 지은 서양식 건물 (근대 건물·학교·관청). tower: 뾰족탑, dome: 둥근 지붕
-  western(g, p) {
-    const w = p.w || 8, d = p.d || 5, h = p.h || 5, color = p.color || 0x9a4a32;
-    add(g, box(w, h, d), color, 0, h / 2, 0, 'stone');
-    for (let i = 0; i < Math.floor(w / 1.6); i++) for (let f = 0; f < Math.max(1, Math.floor(h / 2.4)); f++) {
-      add(g, box(0.7, 1.1, 0.06), 0x2f4a5e, -w / 2 + 1 + i * 1.6, 1.4 + f * 2.2, d / 2 + 0.03, null, false);
-    }
-    add(g, box(1.3, 2, 0.08), 0x3a2c20, 0, 1, d / 2 + 0.05, 'wood');
-    add(g, box(w + 0.3, 0.3, d + 0.3), 0xd8d0bc, 0, h, 0, 'stone');
-    if (p.tower) { add(g, box(1.8, 3, 1.8), color, 0, h + 1.5, 0, 'stone'); add(g, new THREE.ConeGeometry(1.3, 3.4, 4), 0x3d4846, 0, h + 4.7, 0).rotation.y = Math.PI / 4; }
-    if (p.dome) { add(g, new THREE.CylinderGeometry(1.8, 1.8, 1.4, 14), 0xd8d0bc, 0, h + 0.7, 0, 'stone'); add(g, new THREE.SphereGeometry(1.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x6f8a86, 0, h + 1.4, 0); }
-    return { rect: [w, d] };
-  },
+  western(g, p) { BLD.western(g, p); return { rect: [p.w || 8, p.d || 5] }; },
   // 돌로 쌓은 무지개 문 (독립문 등). label: 앞에 새긴 글
   arch(g, p) {
     add(g, box(5, 6, 3), 0xd6d0c4, 0, 3, 0, 'stone');
@@ -143,7 +127,7 @@ export const BUILD = {
     return 1.6;
   },
   // 돌담·벽 (w 길이)
-  wall(g, p) { add(g, box(p.w || 10, p.h || 2, 0.8), p.color || 0x8c8577, 0, (p.h || 2) / 2, 0, 'stone'); return 0; },
+  wall(g, p) { BLD.wall(g, p); return 0; },
   // 쌀가마 더미
   rice(g, p) {
     for (let i = 0; i < (p.n || 9); i++) { const s = add(g, new THREE.CylinderGeometry(0.4, 0.4, 0.9, 10), 0xd8c08a, (i % 3) * 0.85 - 0.85, 0.4 + Math.floor(i / 9) * 0.8, Math.floor((i % 9) / 3) * 0.85 - 0.85); s.rotation.z = Math.PI / 2; }
@@ -178,11 +162,7 @@ export const BUILD = {
   // 부두(배를 대는 곳)
   pier(g, p) { add(g, box(p.w || 8, 0.5, p.d || 3), 0x7a5a3c, 0, 0.3, 0, 'wood'); return 0; },
   // 큰 나무
-  tree(g, p) {
-    add(g, new THREE.CylinderGeometry(0.22, 0.32, 2.2, 6), 0x6b4a32, 0, 1.1, 0, 'wood');
-    const c = new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 0), mat(p.color || 0x4f7344, 'grain')); c.position.y = 3; c.castShadow = true; g.add(c);
-    return 0.6;
-  },
+  tree(g, p) { BLD.tree(g, p); return 0.6; },
   // 책상과 책 (학교·연구실)
   desk(g) {
     add(g, box(1.6, 0.75, 0.9), 0x7a5a3c, 0, 0.38, 0, 'wood');
@@ -190,12 +170,13 @@ export const BUILD = {
     return 0.9;
   },
   // 판잣집 (전쟁 뒤 피란민)
-  shack(g) {
-    add(g, box(3.2, 2, 2.6), 0x8a7a62, 0, 1, 0, 'wood');
-    const r = add(g, box(3.6, 0.1, 3), 0x6b6862, 0, 2.15, 0); r.rotation.z = 0.12;
-    add(g, box(0.8, 1.4, 0.06), 0x3a2c20, 0.6, 0.7, 1.32);
-    return { rect: [3.4, 2.8] };
-  },
+  shack(g) { BLD.shack(g); return { rect: [3.4, 2.8] }; },
+  // 장독대·수레·짚더미·장작더미·가로등
+  jars(g, p) { BLD.jars(g, p); return 1.1; },
+  cart(g, p) { BLD.cart(g, p); return 1.2; },
+  straw(g) { BLD.straw(g); return 1; },
+  woodpile(g) { BLD.woodpile(g); return 0.8; },
+  lamp(g) { BLD.lamp(g); return 0.25; },
   // 군용 트럭
   truck(g, p) {
     add(g, box(2.2, 1.2, 5), p.color || 0x55603f, 0, 1.1, 0);
@@ -251,17 +232,36 @@ export function addFootprint(world, p, r) {
   }
 }
 
+// 집 둘레 살림살이: 기와집 뒤에는 장독대, 초가 뒤에는 장작더미와 짚더미(집 뒤쪽이라 앞마당과 길을 막지 않는다)
+function dressHouse(world, L, p, layout) {
+  const k = p.scale || 1, c = Math.cos(p.ry || 0), sn = Math.sin(p.ry || 0);
+  const put = (type, lx, lz, r, extra = {}) => {
+    const x = p.x + (lx * c + lz * sn) * k, z = p.z + (-lx * sn + lz * c) * k;
+    // 안내판·인물·다른 건물 가까이면 놓지 않는다(다가가 읽고 말 거는 자리를 막지 않게)
+    const busy = [...(layout.signs || []), ...(layout.npcs || [])].some(o => Math.hypot(o.x - x, o.z - z) < 3)
+      || (layout.props || []).some(o => o !== p && o.type !== 'water' && Math.hypot(o.x - x, o.z - z) < (o.type === 'western' ? Math.max(o.w || 8, o.d || 5) / 2 + 1.5 : 3) * (o.scale || 1));
+    if (busy) return;
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = p.ry || 0; g.scale.setScalar(Math.min(k, 1.2)); L.add(g);
+    BUILD[type](g, { x, z, ...extra });
+    world.addCollider({ x, z, r: r * Math.min(k, 1.2) });
+  };
+  if (p.tile) put('jars', 1.0, -2.9, 1.0, { n: 5 });
+  else { put('woodpile', -1.2, -2.6, 0.8); put('straw', 1.6, -2.9, 1.0); }
+}
+
 export function buildTown(world, layout) {
   const L = world.level;
   world.bounds = layout.bounds;
-  // 땅
-  {
-    const g = new THREE.PlaneGeometry(220, 220, 30, 30); g.rotateX(-Math.PI / 2);
-    const col = new THREE.Color(layout.groundColor ?? 0x5f7a4c), cols = [];
-    for (let i = 0; i < g.attributes.position.count; i++) cols.push(col.r, col.g, col.b);
-    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const t = new THREE.Mesh(g, groundMaterial(layout.ground || 'grass')); t.receiveShadow = true; L.add(t);
+  // 땅: 걷는 곳은 평평하고 바깥은 언덕, 멀리 산줄기
+  const field = terrainField({ bounds: layout.bounds, props: layout.props || [], hill: layout.hill ?? 1 });
+  const color = layout.groundColor ?? 0x5f7a4c;
+  const kind = layout.ground || 'grass';
+  if (kind === 'stone') { // 돌을 깐 도시: 걷는 곳만 포장하고 바깥 언덕은 흙
+    const f = field.flat, pave = new THREE.Mesh(box(f.x1 - f.x0, 0.04, f.z1 - f.z0), mat(color, 'stone'));
+    pave.position.set((f.x0 + f.x1) / 2, 0.01, (f.z0 + f.z1) / 2); pave.receiveShadow = true; L.add(pave);
   }
+  L.add(terrainMesh(field, { color: kind === 'stone' ? 0x7d7158 : color, kind: kind === 'stone' ? 'earth' : kind, roads: layout.roads || [] }));
+  if (layout.mountains !== false) { const mr = mountainRing(field, { color: kind === 'stone' ? 0x6a7a58 : color, center: [(layout.bounds.x0 + layout.bounds.x1) / 2, (layout.bounds.z0 + layout.bounds.z1) / 2] }); if (mr) L.add(mr); }
   for (const r of layout.roads || []) { const m = new THREE.Mesh(box(r.w, 0.05, r.d), mat(r.color || 0x8f7556, r.kind || 'earth')); m.position.set(r.x, 0.025, r.z); m.receiveShadow = true; L.add(m); }
   const named = {};
   for (const p of layout.props || []) {
@@ -269,8 +269,9 @@ export function buildTown(world, layout) {
     const r = BUILD[p.type](g, p);
     if (r && p.solid !== false) addFootprint(world, p, r);
     if (p.name) named[p.name] = g;
+    if (p.type === 'hanok' && layout.dress !== false) dressHouse(world, L, p, layout);
   }
-  for (const s of layout.scatter || []) scatter(world, s);
+  for (const s of layout.scatter || []) scatter(world, { ground: field.heightAt, ...s });
   for (const n of layout.npcs || []) world.addNpc(n.id, typeof n.look === 'string' ? LOOKS[n.look] : n.look, n.x, n.z, n.ry || 0);
   for (const s of layout.signs || []) world.addSpot(s.id, makeSign(s.title), s.x, s.z, 0);
   const weather = layout.weather ? createWeather(world, layout.weather, { count: 700 }) : null;

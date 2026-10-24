@@ -1,6 +1,7 @@
 // 조선편 3장 장면: 여름날 한양. 남쪽 길가의 앙부일구(해시계), 동쪽 보루각의 자격루(물시계), 북서쪽 서운관 마당의 측우기와 관천대.
 import * as THREE from 'three';
-import { groundMaterial } from '../../../core/textures.js';
+import { curvedHipRoof } from '../../kit/buildings.js';
+import { sceneGround } from '../../kit/terrain.js';
 import { mat } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
@@ -14,19 +15,13 @@ export function buildJ3Scene(world) {
     const m = new THREE.Mesh(geo, mat(color));
     m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
   };
-  const hipRoof = (w, d, h, color, x, y, z, parent = L) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z, parent); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z, parent = L) => curvedHipRoof(parent, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   world.bounds = { x0: -25, x1: 15, z0: -12, z1: 11 };
 
   // 땅: 흙길(남쪽)과 박석 마당(북쪽)
+  let hillH = () => 0;
   {
-    const g = new THREE.PlaneGeometry(160, 160, 40, 40); g.rotateX(-Math.PI / 2);
-    const cols = [], c = new THREE.Color();
-    for (let i = 0; i < g.attributes.position.count; i++) { c.setRGB(0.36, 0.48, 0.3); cols.push(c.r, c.g, c.b); }
-    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const t = new THREE.Mesh(g, groundMaterial('grass')); t.receiveShadow = true; L.add(t);
+    hillH = sceneGround(L, { bounds: world.bounds, margin: 9, color: 0x5c7a4d, size: 180 }); // 바깥은 언덕과 먼 산
     mk(new THREE.BoxGeometry(34, 0.06, 16), 0xa59c8a, 0, 0.03, -8, L, false);
     mk(new THREE.BoxGeometry(50, 0.05, 5), 0x8f7556, -5, 0.025, 5, L, false); // 동서로 난 흙길(앙부일구가 선 길가)
     mk(new THREE.BoxGeometry(5, 0.05, 12), 0x8f7556, 0, 0.025, 6, L, false);
@@ -63,13 +58,13 @@ export function buildJ3Scene(world) {
     const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 0), mat(0x4f7344, 'grain')); crown.position.set(x, 2.8, z); crown.castShadow = true; L.add(crown);
     world.addCollider({ x, z, r: 0.5 });
   }
-  scatter(world, { kind: 'pine', count: 40, area: { x0: -60, x1: 60, z0: -50, z1: -18 }, seed: 71, scale: [1.1, 1.7] });
+  scatter(world, { kind: 'pine', count: 40, area: { x0: -60, x1: 60, z0: -50, z1: -18 }, seed: 71, ground: hillH, scale: [1.1, 1.7] });
   scatter(world, { kind: 'grass', count: 80, area: { x0: -15, x1: 15, z0: 0, z1: 12 }, avoid: [{ x: -8, z: 5, r: 2 }, { x: 0, z: 6, r: 3 }, { x: 0, z: 5, r: 2.6 }, { x: -12, z: 9, r: 1.2 }, { x: 9, z: 10, r: 1.2 }], seed: 72, color: 0x7a9450 });
 
   // 4) 종묘 정전: 북서쪽에 남쪽을 바라보고 옆으로 길게 선 사당
   const shrine = jongmyo(13); shrine.position.set(-34, 0, -10.5); L.add(shrine);
   for (let x = -25; x <= -17; x += 2) world.addCollider({ x, z: -2, r: 1.2 });
-  scatter(world, { kind: 'pine', count: 30, area: { x0: -80, x1: -50, z0: -40, z1: 40 }, seed: 73, scale: [1.1, 1.7] });
+  scatter(world, { kind: 'pine', count: 30, area: { x0: -80, x1: -50, z0: -40, z1: 40 }, seed: 73, ground: hillH, scale: [1.1, 1.7] });
 
   // 안내판(볼거리)
   addSigns(world, [

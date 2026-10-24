@@ -22,8 +22,8 @@
 //        좌표는 모두 무대 기준. arena가 없으면 장 마을에서 한다.
 import * as THREE from 'three';
 import { BUILD, addFootprint } from './town.js';
+import { terrainField, terrainMesh } from './terrain.js';
 import { mat, makePerson } from '../../core/people.js';
-import { groundMaterial } from '../../core/textures.js';
 import { createTapTargets } from '../../core/minigame.js';
 import { MAP_OUTLINE } from '../../core/screens.js';
 import { LOOKS } from '../../content/characters.js';
@@ -68,13 +68,17 @@ export function buildArena(world, arena) {
   const colStart = world.colliders.length, oldBounds = world.bounds;
   world.level.add(g); // 무대가 없으면 마을 자리(0,0)에 표시물만 둔다
   if (arena) {
-    const gg = new THREE.PlaneGeometry(160, 160, 8, 8).rotateX(-Math.PI / 2); // 땅 재질은 꼭짓점 색을 쓴다(마을 땅과 같게)
-    const gc = new THREE.Color(arena.groundColor ?? 0x8a7a62), cols = [];
-    for (let i = 0; i < gg.attributes.position.count; i++) cols.push(gc.r, gc.g, gc.b);
-    gg.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const ground = new THREE.Mesh(gg, groundMaterial(arena.ground || 'earth'));
-    ground.position.y = 0.01; ground.receiveShadow = true; g.add(ground);
-    if (arena.sea) { ground.material = new THREE.MeshPhongMaterial({ color: arena.sea === true ? 0x3f7d9a : arena.sea, shininess: 70 }); }
+    const color = arena.groundColor ?? 0x8a7a62, kind = arena.ground || 'earth';
+    if (arena.sea) {
+      const gg = new THREE.PlaneGeometry(160, 160, 8, 8).rotateX(-Math.PI / 2);
+      const ground = new THREE.Mesh(gg, new THREE.MeshPhongMaterial({ color: arena.sea === true ? 0x3f7d9a : arena.sea, shininess: 70 }));
+      ground.position.y = 0.01; ground.receiveShadow = true; g.add(ground);
+    } else { // 걷는 곳은 평평하게, 바깥은 언덕(마을 땅과 같은 방식)
+      const field = terrainField({ bounds: arena.bounds, props: arena.props || [], margin: 4, hill: arena.hill ?? 0.8 });
+      if (kind === 'stone') { const f = field.flat, pave = new THREE.Mesh(box(f.x1 - f.x0, 0.04, f.z1 - f.z0), mat(color, 'stone')); pave.position.set((f.x0 + f.x1) / 2, 0.02, (f.z0 + f.z1) / 2); pave.receiveShadow = true; g.add(pave); }
+      const ground = terrainMesh(field, { color: kind === 'stone' ? 0x7d7158 : color, kind: kind === 'stone' ? 'earth' : kind, roads: arena.roads || [], size: 160, seg: 64 });
+      ground.position.y = 0.01; g.add(ground);
+    }
     if (arena.map) g.add(mapFloor(arena.map));
     for (const r of arena.roads || []) { const m = new THREE.Mesh(box(r.w, 0.05, r.d), mat(r.color || 0x8f7556, r.kind || 'earth')); m.position.set(r.x, r.y ?? 0.04, r.z); m.rotation.y = r.ry || 0; m.receiveShadow = true; g.add(m); }
     for (const p of arena.props || []) {

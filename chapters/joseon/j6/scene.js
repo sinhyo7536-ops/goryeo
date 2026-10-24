@@ -1,7 +1,8 @@
 // 조선편 6장 장면: 가을의 수원 화성 공사장. 북쪽에 쌓는 중인 성벽(빈자리 셋)과 서쪽 성문, 성벽 위를 가로지르는 거중기,
 // 돌 더미와 수레, 정조가 머무는 차일.
 import * as THREE from 'three';
-import { groundMaterial } from '../../../core/textures.js';
+import { curvedHipRoof } from '../../kit/buildings.js';
+import { sceneGround } from '../../kit/terrain.js';
 import { mat, makePerson } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
@@ -18,19 +19,13 @@ export function buildJ6Scene(world) {
     const m = new THREE.Mesh(geo, mat(color));
     m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
   };
-  const hipRoof = (w, d, h, color, x, y, z, parent = L) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z, parent); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z, parent = L) => curvedHipRoof(parent, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   world.bounds = { x0: -15, x1: 15, z0: -6.5, z1: 11 };
 
   // 땅: 풀밭과 다져진 공사장 흙
+  let hillH = () => 0;
   {
-    const g = new THREE.PlaneGeometry(200, 200, 40, 40); g.rotateX(-Math.PI / 2);
-    const cols = [], c = new THREE.Color();
-    for (let i = 0; i < g.attributes.position.count; i++) { c.setRGB(0.5, 0.52, 0.3); cols.push(c.r, c.g, c.b); }
-    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const t = new THREE.Mesh(g, groundMaterial('grass')); t.receiveShadow = true; L.add(t);
+    hillH = sceneGround(L, { bounds: world.bounds, margin: 9, color: 0x80854d }); // 바깥은 가을 언덕과 먼 산
     mk(new THREE.BoxGeometry(36, 0.05, 22), 0x8f7556, 0, 0.025, 1, L, false);
   }
   // 쌓는 중인 성벽: 빈자리 셋을 남기고 돌을 쌓았다. 빈자리를 채울 돌은 처음엔 숨김.
@@ -80,7 +75,7 @@ export function buildJ6Scene(world) {
   mk(new THREE.BoxGeometry(2.2, 0.2, 1.6), 0xa8392b, 0, 0.1, 0, tent, false); // 깔개
   // 일하는 사람들(배경)
   for (const [x, z, ry] of [[7, -2, Math.PI], [11, 0, -Math.PI / 2], [-6, 6, 0.5], [13, 6, Math.PI * 0.8]]) { const p = makePerson(LOOKS.worker); p.position.set(x, 0, z); p.rotation.y = ry; L.add(p); }
-  scatter(world, { kind: 'pine', count: 40, area: { x0: -80, x1: 80, z0: -60, z1: -16 }, seed: 101, scale: [1.1, 1.7], color: 0x4f6b3a });
+  scatter(world, { kind: 'pine', count: 40, area: { x0: -80, x1: 80, z0: -60, z1: -16 }, seed: 101, ground: hillH, scale: [1.1, 1.7], color: 0x4f6b3a });
   scatter(world, { kind: 'bush', count: 20, area: { x0: -30, x1: 30, z0: 13, z1: 30 }, seed: 102, color: 0xb0743a });
   scatter(world, { kind: 'grass', count: 60, area: { x0: -18, x1: 18, z0: 9, z1: 14 }, seed: 103, color: 0xa89a5a });
 

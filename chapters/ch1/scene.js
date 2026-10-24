@@ -1,6 +1,7 @@
 // 1장 장면: 노을 진 고려 진영, 강, 강 건너 거란 진영, 강동 6주 빛기둥.
 import { makeSign } from '../../core/signs.js';
 import * as THREE from 'three';
+import { curvedHipRoof } from '../kit/buildings.js';
 import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson, labelSprite } from '../../core/people.js';
 import { scatter } from '../../core/props.js';
@@ -78,10 +79,7 @@ export function buildCh1Scene(world) {
   }
 
   const flags = [];
-  const hipRoof = (w, d, h, color, x, y, z) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z) => curvedHipRoof(L, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   const flag = (x, z, color, parent = L, h = 4.2) => {
     mk(new THREE.CylinderGeometry(0.07, 0.07, h, 5), 0x5a3f2a, x, h / 2, z, parent);
     const g = new THREE.PlaneGeometry(1.3, 1.9); g.translate(0.65, 0, 0);

@@ -2,6 +2,7 @@
 // 모두 (0,0,0)에 놓인 묶음(Group)을 돌려준다. 앞면은 +z.
 import * as THREE from 'three';
 import { mat } from '../../core/people.js';
+import { curvedHipRoof } from '../kit/buildings.js';
 
 const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
 function add(g, geo, color, x, y, z, kind = null, cast = true) {
@@ -9,10 +10,7 @@ function add(g, geo, color, x, y, z, kind = null, cast = true) {
   m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; g.add(m); return m;
 }
 // 우진각(사방으로 내려오는) 지붕
-export function hipRoof(g, w, d, h, color, x, y, z) {
-  const geo = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); geo.rotateY(Math.PI / 4);
-  const r = add(g, geo, color, x, y + h / 2, z); r.scale.set(w, h, d); return r;
-}
+export function hipRoof(g, w, d, h, color, x, y, z) { return curvedHipRoof(g, w, d, h, color, x, y, z); }
 // 맞배(앞뒤 두 면) 지붕: 세모 기둥을 옆으로 눕힌 모양
 export function gableRoof(g, len, d, h, color, x, y, z) {
   const geo = new THREE.CylinderGeometry(1, 1, 1, 3); geo.rotateZ(Math.PI / 2); geo.rotateX(-Math.PI / 2); // 꼭짓점이 위로

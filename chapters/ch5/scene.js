@@ -1,5 +1,6 @@
 // 5장 장면: 아침 산사의 경판 작업장 — 바닷물 통, 솥, 그늘 말림 선반, 판각대, 옻칠 작업대, 경판 더미.
 import * as THREE from 'three';
+import { curvedHipRoof } from '../kit/buildings.js';
 import { groundMaterial } from '../../core/textures.js';
 import { mat } from '../../core/people.js';
 import { scatter } from '../../core/props.js';
@@ -13,10 +14,7 @@ export function buildCh5Scene(world) {
     const m = new THREE.Mesh(geo, mat(color));
     m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
   };
-  const hipRoof = (w, d, h, color, x, y, z) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z) => curvedHipRoof(L, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   world.bounds = { x0: -14, x1: 14, z0: -7, z1: 11 };
 
   // 산과 마당

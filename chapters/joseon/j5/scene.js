@@ -1,6 +1,7 @@
 // 조선편 5장 장면: 눈 덮인 남한산성. 산 위의 둥근 성벽(여장과 서문), 북쪽 행궁, 동쪽 창고, 성벽 안쪽의 화톳불 여섯,
 // 성 밖 아래 벌판에 멀리 보이는 청나라 진영.
 import * as THREE from 'three';
+import { curvedHipRoof } from '../../kit/buildings.js';
 import { groundMaterial } from '../../../core/textures.js';
 import { mat, makePerson } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
@@ -25,10 +26,7 @@ export function buildJ5Scene(world) {
     const m = new THREE.Mesh(geo, mat(color));
     m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
   };
-  const hipRoof = (w, d, h, color, x, y, z, parent = L) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z, parent); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z, parent = L) => curvedHipRoof(parent, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   world.bounds = { x0: -15, x1: 15, z0: -11, z1: 11.5 };
 
   // 눈 덮인 산과 벌판

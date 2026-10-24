@@ -1,6 +1,7 @@
 // 조선편 2장 장면: 봄날의 궁궐. 박석 마당, 북쪽의 큰 전각(돌 기단·붉은 기둥·기와지붕), 동쪽의 집현전, 남쪽 궁궐 문과 담장.
 import * as THREE from 'three';
-import { groundMaterial } from '../../../core/textures.js';
+import { curvedHipRoof } from '../../kit/buildings.js';
+import { sceneGround } from '../../kit/terrain.js';
 import { mat } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
@@ -13,10 +14,7 @@ export function buildJ2Scene(world) {
     const m = new THREE.Mesh(geo, mat(color));
     m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m;
   };
-  const hipRoof = (w, d, h, color, x, y, z, parent = L) => {
-    const g = new THREE.ConeGeometry(Math.SQRT2 / 2, 1, 4); g.rotateY(Math.PI / 4);
-    const r = mk(g, color, x, y + h / 2, z, parent); r.scale.set(w, h, d); return r;
-  };
+  const hipRoof = (w, d, h, color, x, y, z, parent = L) => curvedHipRoof(parent, w, d, h, color, x, y, z); // 처마가 들린 곡선 기와지붕
   // 전각 하나: 돌 기단, 붉은 기둥, 초록 창방, 기와지붕. 앞(+z)에 돌계단.
   const hall = (w, d, x, z, ry = 0, tall = 3.4) => {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; L.add(g);
@@ -31,12 +29,9 @@ export function buildJ2Scene(world) {
   world.bounds = { x0: -15, x1: 15, z0: -7.5, z1: 10 };
 
   // 땅: 궁궐 밖 풀밭과 박석을 깐 마당
+  let hillH = () => 0;
   {
-    const g = new THREE.PlaneGeometry(160, 160, 40, 40); g.rotateX(-Math.PI / 2);
-    const cols = [], c = new THREE.Color();
-    for (let i = 0; i < g.attributes.position.count; i++) { c.setRGB(0.36, 0.5, 0.3); cols.push(c.r, c.g, c.b); }
-    g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const t = new THREE.Mesh(g, groundMaterial('grass')); t.receiveShadow = true; L.add(t);
+    hillH = sceneGround(L, { bounds: world.bounds, margin: 11, color: 0x5c804d, size: 180 }); // 궁궐 밖은 언덕과 먼 산
     mk(new THREE.BoxGeometry(34, 0.06, 36), 0xa59c8a, 0, 0.03, 2, L, false);
     mk(new THREE.BoxGeometry(3, 0.08, 20), 0xb3ab99, 0, 0.05, 4, L, false); // 가운데 어도(높은 길)
   }
@@ -72,8 +67,8 @@ export function buildJ2Scene(world) {
     crown.position.set(x, 2.5, z); crown.castShadow = true; L.add(crown);
     world.addCollider({ x, z, r: 0.5 });
   }
-  scatter(world, { kind: 'pine', count: 40, area: { x0: -60, x1: 60, z0: -50, z1: -18 }, seed: 61, scale: [1.1, 1.7] });
-  scatter(world, { kind: 'pine', count: 20, area: { x0: -60, x1: 60, z0: 20, z1: 50 }, seed: 62, scale: [1, 1.5] });
+  scatter(world, { kind: 'pine', count: 40, area: { x0: -60, x1: 60, z0: -50, z1: -18 }, seed: 61, ground: hillH, scale: [1.1, 1.7] });
+  scatter(world, { kind: 'pine', count: 20, area: { x0: -60, x1: 60, z0: 20, z1: 50 }, seed: 62, ground: hillH, scale: [1, 1.5] });
   scatter(world, { kind: 'flower', count: 40, area: { x0: -14, x1: 14, z0: 15, z1: 18 }, avoid: [{ x: 0, z: 17, r: 3 }], seed: 63 });
 
   addSigns(world, [

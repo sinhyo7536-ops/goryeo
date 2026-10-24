@@ -2,7 +2,7 @@
 // 무늬는 밝기만 담는다(흰색 근처). 재질 색과 곱해져 같은 색에 결이 생긴다.
 import * as THREE from 'three';
 
-export const KINDS = ['grain', 'stone', 'wood', 'tile', 'grass', 'cloth', 'earth'];
+export const KINDS = ['grain', 'stone', 'wood', 'tile', 'grass', 'cloth', 'earth', 'thatch'];
 const SIZE = 128;
 const cache = new Map();
 
@@ -73,6 +73,16 @@ const DRAW = {
       x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(0, row * h + h - 2, SIZE, 2);
     }
   },
+  thatch(x, r) { // 초가지붕: 볏짚 결과 지붕을 묶은 새끼줄 그물
+    mottle(x, r, 0.78, 1, 16);
+    for (let i = 0; i < 420; i++) {
+      const px = r() * SIZE, py = r() * SIZE, l = 4 + r() * 8;
+      x.strokeStyle = r() < 0.6 ? `rgba(60,40,10,${0.1 + r() * 0.15})` : `rgba(255,240,200,${0.1 + r() * 0.12})`;
+      x.beginPath(); x.moveTo(px, py); x.lineTo(px + (r() - 0.5) * 3, py + l); x.stroke();
+    }
+    x.fillStyle = 'rgba(50,32,12,.35)';
+    for (let k = 0; k < 4; k++) { x.fillRect(k * SIZE / 4, 0, 3, SIZE); x.fillRect(0, k * SIZE / 4, SIZE, 3); }
+  },
   grass(x, r) { // 풀밭: 얼룩 + 잔풀 획
     mottle(x, r, 0.8, 1, 16);
     for (let i = 0; i < 260; i++) {
@@ -97,7 +107,7 @@ export function getTexture(kind) {
 }
 
 // 무늬 한 장이 덮는 실제 크기(미터)의 역수. 벽이 크든 작든 같은 촘촘함으로 보인다.
-export const TRI_SCALE = { grain: 0.35, earth: 0.12, cloth: 1.6, stone: 0.28, wood: 0.5, tile: 0.45, grass: 0.18 };
+export const TRI_SCALE = { grain: 0.35, earth: 0.12, cloth: 1.6, stone: 0.28, wood: 0.5, tile: 0.45, grass: 0.18, thatch: 0.45 };
 
 // 위치로 무늬 좌표를 정하는 재질 수정(삼면 투영의 간단한 형태): 면이 향한 축에 따라 xz·zy·xy 평면에 무늬를 편다.
 // space: 'world'(건물·땅: 크기와 상관없이 같은 촘촘함) 또는 'object'(사람처럼 움직이는 것: 무늬가 몸에 붙어 다닌다)

@@ -29,6 +29,8 @@
   - `core/quality.js` 화질 3단계와 자동 하향, `core/save.js` 저장(기기 안 localStorage만)
   - `chapters/chN/` 장별 `script.js`(대사·퀴즈·출처) `scene.js`(장면) `chapter.js`(진행)
   - `chapters/index.js` 편 목록(`COURSES`), 장 목록, 열림·완료 규칙(같은 편 안에서만 센다)
+  - `chapters/kit/buildings.js` 건물·소품 모양(한옥: 기단·기둥·툇마루·창살·처마가 들린 곡선 기와지붕/초가, 서양 건물, 나무, 돌담, 장독대·수레·짚더미·장작·가로등). 한 건물의 조각을 재질별로 합쳐 그리기 횟수를 줄인다. `curvedHipRoof`는 고려·조선편 장면의 기와지붕도 맡는다.
+  - `chapters/kit/terrain.js` 땅: 걷는 곳(bounds+여유)은 높이 0으로 평평하게 두고(이동·충돌·미니게임이 그대로) 바깥은 언덕, 멀리 산줄기. 마을·미니게임 무대와 조선 2·3·6장(`sceneGround`)이 쓴다.
   - `core/signs.js` 안내판(볼거리) 모양, `world.addSpot`으로 세우면 인물처럼 다가가 읽는다(파란 i 표시). 대사는 `script.npc[id].always`. 읽지 않아도 장이 끝난다(어려워지지 않게).
   - `chapters/joseon/landmarks.js` 유물·유적 모형(앙부일구, 자격루, 측우기, 종묘 정전, 근정전, 장안문)
   - `chapters/joseon/common.js` 조선편 진행 도구(차례대로 말 걸기 `talkInOrder`, 다시 하기 `tryPart`, 때 맞춰 누르기 `timingPress`)
