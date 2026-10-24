@@ -1,18 +1,10 @@
 // 현대편 2장 「대한민국 정부 수립」: 둥근 지붕의 큰 청사 앞 광장, 투표소, 줄 선 사람들.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../../modern/pictures.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
-const STREET = { // 역사 거리: 이름표가 차례와 다르게 흩어져 있다
-  origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -22, x1: 22, z0: -22, z1: 22 },
-  roads: [{ x: 0, z: 0, w: 36, d: 6, color: 0x7a746a }, { x: 0, z: 0, w: 6, d: 36, color: 0x7a746a }],
-  props: [
-    { type: 'western', x: -14, z: -14, w: 8, d: 6, h: 6, color: 0xb8b0a0 }, { type: 'western', x: 14, z: -14, w: 8, d: 6, h: 8, color: 0x9a948a },
-    { type: 'western', x: -14, z: 14, w: 8, d: 6, h: 5, color: 0xa86a52 }, { type: 'hanok', x: 14, z: 14, tile: true },
-    { type: 'flagpole', x: 3, z: -6 }, { type: 'tree', x: -5, z: 6 }, { type: 'tree', x: 6, z: 6 },
-  ],
-};
 const POLL = { // 투표소: 줄 서는 곳, 명부 책상, 가림막 기표소, 투표함
   origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -16, x1: 16, z0: -16, z1: 16 },
   props: [
@@ -53,8 +45,7 @@ export default makeKitChapter({
     signs: [{ id: 'signElection', title: '5·10 총선거', x: -5, z: -2 }, { id: 'signJeju', title: '제주 4·3 사건', x: 12, z: 6 }, { id: 'signConstitution', title: '제헌 헌법', x: 8, z: -3 }],
   },
   parts: [
-    { ...script.parts.flow, arena: STREET, from: [0, 19],
-      spots: xy(script.parts.flow.spots, [{ x: -8, z: 8 }, { x: 9, z: -3 }, { x: -9, z: -8 }, { x: 8, z: 9 }, { x: 0, z: -12 }]) },
+    { ...script.parts.flow, pages: script.parts.flow.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
     { ...script.parts.views, arena: YARD, from: [0, 12],
       bins: xy(script.parts.views.bins, [{ x: -9, z: -6.5 }, { x: 9, z: -6.5 }]) },
     { ...script.parts.vote, arena: POLL, from: [0, 13], route: xy(script.parts.vote.route, [{ x: -5, z: 6 }, { x: -6, z: 1 }, { x: 8, z: -3 }, { x: -1, z: -9 }]) },

@@ -5,6 +5,9 @@ export default {
     student: { name: '학생', mark: '學', color: '#22262e', look: 'student' },
     uibyeong: { name: '의병', mark: '義', color: '#6b4a32', look: 'uibyeong' },
     ahnchangho: { name: '안창호', mark: '安', color: '#3a3a44', look: 'ahnchangho' },
+    yijun: { name: '이준', mark: '李', color: '#3a3530', look: 'scholarModern' },
+    yisangseol: { name: '이상설', mark: '李', color: '#3a3530', look: 'gentleman' },
+    yiwijong: { name: '이위종', mark: '李', color: '#3a3530', look: 'gentleman' },
   },
   intro: [
     { who: 'narr', text: '만주와 한반도를 둘러싸고 러시아와 벌인 전쟁에서 이긴 일제는 대한 제국을 노렸어요.', src: ['S51'] },
@@ -81,18 +84,19 @@ export default {
       fail: '빛나는 고갯길에 들어왔을 때 눌러야 해요. 다시 해 봐요.',
       done: [{ who: 'uibyeong', text: '우리는 만주와 연해주로 가서도 계속 싸울 것이네.' }],
     },
+    // 헤이그 특사: 다섯 사람 가운데 찾기 대신 이정표를 따라 걸으며 세 특사를 차례로 만난다(선생님 의견, 근대 2장과 같은 방식)
     envoys: {
-      type: 'find', src: ['S51'], title: '헤이그 만국 평화 회의장 앞에서 특사 세 사람을 찾아가요', counter: '찾은 특사',
-      howto: '다섯 사람 가운데 헤이그에 간 특사에게 가서 대화 버튼을 눌러요. 틀린 사람을 고르면 해설을 듣고 이어서 찾아요.',
-      intro: [{ who: 'student', text: '고종 황제께서 을사늑약이 부당하다는 것을 알리려고 헤이그에 특사 세 명을 보내셨어요. 누구였을까요?' }],
-      items: [
-        { text: '이준', correct: true, talk: [{ who: 'student', text: '일제의 방해로 회의장에 들어가지도 못했대요.' }] },
-        { text: '김옥균', correct: false },
-        { text: '이상설', correct: true },
-        { text: '전봉준', correct: false },
-        { text: '이위종', correct: true, talk: [{ who: 'student', text: '그래서 회의장 밖에서 연설을 하며 대한 제국의 상황을 알렸어요.' }] },
+      type: 'drive', src: ['S51'], title: '헤이그 만국 평화 회의장 앞: 특사 세 사람을 차례로 만나요', counter: '지난 이정표', showAll: true,
+      howto: '길 위에 차례대로 선 이정표를 따라 걸어가요. 이정표에 닿으면 그곳 사람이 이야기를 들려줘요.',
+      intro: [{ who: 'student', text: '고종 황제께서는 을사늑약이 부당하다는 것을 알리려고 헤이그 국제회의에 특사 세 명을 보내셨대요.', src: ['S51'] }],
+      route: [
+        { label: '1 이준', look: 'scholarModern', post: true, talk: [{ who: 'yijun', text: '을사늑약은 황제께서 허락하신 것이 아니오. 이 사실을 세계에 알리러 왔소.' }] },
+        { label: '2 이상설', look: 'gentleman', post: true, talk: [{ who: 'yisangseol', text: '황제 폐하의 뜻을 받들어 먼 길을 왔소.' }] },
+        { label: '3 이위종', look: 'gentleman', post: true, talk: [{ who: 'yiwijong', text: '우리 사정을 여러 나라 사람들에게 알리겠습니다.' }] },
+        { label: '4 회의장 문 앞', post: true, talk: [{ who: 'student', text: '일제의 방해로 회의장에 들어가지도 못했대요.' }, { who: 'student', text: '그래서 회의장 밖에서 연설을 하며 대한 제국의 상황을 알렸어요.', src: ['S51'] }] },
       ],
-      fail: '학생이 말한 헤이그 특사를 떠올려 보세요. 안내판에도 적혀 있어요.',
+      fail: '빛나는 이정표를 차례대로 따라 걸어가요.',
+      done: [{ who: 'narr', text: '헤이그 특사 이준, 이상설, 이위종은 회의장 밖에서 연설을 하며 대한 제국의 상황을 알렸어요.', src: ['S51'] }],
     },
   },
   result: [

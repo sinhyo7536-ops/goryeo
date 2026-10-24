@@ -89,3 +89,11 @@ test('kit: 역사책 쪽마다 그림이 있고, 근대 5장은 찾기 대신 �
   ok(k5.parts.goods.type === 'book' && k5.parts.goods.pages.length >= 6);
   ok(k5.parts.tram.route.some(r => r.alight && r.board), '정류장에서 손님이 타고 내린다');
 });
+
+test('kit: 근대 5장부터 현대편까지는 찾기·차례 맞히기 대신 역사책·문서·이정표 걷기로 본다 (선생님 의견)', async () => {
+  const from = KIT.findIndex(m => m.id === 'k5');
+  for (const meta of KIT.slice(from)) {
+    const { script } = (await meta.load()).default;
+    for (const [k, p] of Object.entries(script.parts || {})) ok(p.type !== 'find' && p.type !== 'stops', `${meta.id} ${k}: ${p.type}`);
+  }
+});

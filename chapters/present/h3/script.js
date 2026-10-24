@@ -81,18 +81,19 @@ export default {
       fail: '시간 안에 인천에 닿지 못했어요. 기뢰와 적의 배를 피해 다시 가 봐요.',
       done: [{ who: 'narr', text: '1950년 9월 15일 인천 상륙 작전이 성공했고, 9월 28일 서울을 되찾았어요.', src: ['S57'] }],
     },
+    // 전쟁의 흐름: 이름표를 차례대로 맞히기 대신 지도 위 이정표를 따라 걸으며 본다(선생님 의견, 근대 2장과 같은 방식)
     flow: {
-      type: 'stops', title: '땅 위 지도에서 전쟁의 흐름대로 찾아가요', counter: '찾아간 곳',
-      howto: '바닥에 그린 지도 위의 이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요. 그곳 사람이 이야기를 들려줘요.',
+      type: 'drive', src: ['S57'], title: '땅 위 지도에서 전쟁의 흐름을 따라 걸어요', counter: '지난 이정표', showAll: true,
+      howto: '바닥 지도 위에 차례대로 선 이정표를 따라 걸어가요. 이정표에 닿으면 그곳 사람이 무슨 일이 있었는지 들려줘요.',
       intro: [{ who: 'guide', text: '지도 위를 걸으며 전쟁이 어떻게 흘러갔는지 되짚어 보자. 그곳에 있던 사람들이 이야기를 들려줄 거야.' }],
-      spots: [
-        { label: '북한군의 남침', look: 'rokSoldier', talk: [{ who: 'soldier', text: '1950년 6월 25일 새벽, 북한군이 38도선을 넘어 쳐내려왔어.' }] },
-        { label: '서울을 빼앗김', look: 'citizen', talk: [{ who: 'soldier', text: '전쟁 3일 만에 서울을 빼앗기고 말았어.' }] },
-        { label: '낙동강 방어선', look: 'rokSoldier', talk: [{ who: 'officer', text: '낙동강을 마지막 방어선으로 삼아 끝까지 지켜 냈다.' }] },
-        { label: '인천 상륙 작전', look: 'unSoldier', talk: [{ who: 'unSoldier', text: '1950년 9월 15일, 인천에 상륙했지!' }] },
-        { label: '서울을 되찾음', look: 'citizen', talk: [{ who: 'officer', text: '9월 28일, 드디어 서울을 되찾았다!' }] },
+      route: [
+        { label: '1 북한군의 남침', look: 'rokSoldier', post: true, talk: [{ who: 'soldier', text: '1950년 6월 25일 새벽, 북한군이 38도선을 넘어 쳐내려왔어.', src: ['S57'] }] },
+        { label: '2 서울을 빼앗김', look: 'citizen', post: true, talk: [{ who: 'soldier', text: '전쟁 3일 만에 서울을 빼앗기고 말았어.', src: ['S57'] }] },
+        { label: '3 낙동강 방어선', look: 'rokSoldier', post: true, talk: [{ who: 'officer', text: '낙동강을 마지막 방어선으로 삼아 끝까지 지켜 냈다.', src: ['S57'] }] },
+        { label: '4 인천 상륙 작전', look: 'unSoldier', post: true, talk: [{ who: 'unSoldier', text: '1950년 9월 15일, 인천에 상륙했지!', src: ['S57'] }] },
+        { label: '5 서울을 되찾음', look: 'citizen', post: true, talk: [{ who: 'officer', text: '9월 28일, 드디어 서울을 되찾았다!', src: ['S57'] }] },
       ],
-      fail: '처음엔 밀려 내려갔다가, 인천 상륙 작전으로 다시 서울을 되찾았어요.',
+      fail: '빛나는 이정표를 차례대로 따라 걸어가요.',
     },
   },
   result: [{ who: 'narr', text: '국군과 유엔군은 서울을 되찾은 뒤 북쪽으로 나아갔어요.', src: ['S51', 'S57'] }],

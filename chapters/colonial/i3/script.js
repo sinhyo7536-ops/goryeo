@@ -28,7 +28,7 @@ export default {
       tooEarly: [{ who: 'ahnchangho', text: '연락원부터 만나 보시오.' }],
       first: [
         { who: 'ahnchangho', text: '대한민국 임시 정부는 모든 국민이 평등하고 국민에게 주권이 있는 민주주의 정치 체계를 갖추었소.', src: ['S51'] },
-        { who: 'ahnchangho', text: '임시 헌법의 첫 조항은 \'대한민국은 민주 공화제로 한다\'라오.', src: ['S51'] },
+        { who: 'ahnchangho', text: '임시 정부의 헌법에는 \'대한민국은 민주 공화제로 한다\'라는 내용을 담았소.', src: ['S51'] },
       ],
       later: [{ who: 'ahnchangho', text: '국민이 주인인 나라를 만들 것이오.' }],
     },
@@ -47,21 +47,16 @@ export default {
     ] },
   },
   parts: {
+    // 임시 정부의 헌법: 팻말 찾기 대신 문서로 바로 본다(선생님 의견, 근대 3장 농민군의 요구와 같은 방식)
     charter: {
-      type: 'find', src: ['S51'], title: '임시 정부 청사에서 대한민국 임시 헌법(1919년 9월)의 내용을 찾아요', counter: '찾은 조항',
-      howto: '청사 곳곳의 팻말 가운데 임시 헌법의 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
-      intro: [
-        { who: 'ahnchangho', text: '우리는 왕이 다스리는 나라가 아니라, 국민이 주인인 나라를 세우려 하오.' },
-        { who: 'ahnchangho', text: '임시 헌법에 담긴 조항을 찾아보시오.' },
-      ],
+      type: 'doc', src: ['S51'], title: '임시 정부가 꿈꾼 나라', heading: '대한민국 임시 정부의 헌법 (1919년)',
+      docIntro: '임시 정부가 만든 헌법에 담긴 내용이에요. 하나씩 읽어 보아요.',
+      intro: [{ who: 'ahnchangho', text: '우리는 왕이 다스리는 나라가 아니라, 국민이 주인인 나라를 세우려 하오. 헌법에 담은 내용을 읽어 보시오.' }],
       items: [
-        { text: '대한민국은 민주 공화제로 한다', correct: true, look: 'ahnchangho', talk: [{ who: 'ahnchangho', text: '그렇소. 이것이 임시 헌법의 첫 조항이오.' }] },
-        { text: '왕이 모든 권력을 가진다', correct: false },
-        { text: '대한민국의 주권은 대한 인민 전체에 있다', correct: true, look: 'kimgu' },
-        { text: '신분에 따라 권리가 다르다', correct: false },
-        { text: '대한민국의 인민은 일체 평등하다', correct: true, look: 'citizen', talk: [{ who: 'kimgu', text: '모든 국민이 평등한 나라, 그것이 우리가 꿈꾸는 나라요.' }] },
+        { text: '대한민국은 민주 공화제로 한다', note: '왕이 아니라 국민이 뽑은 사람들이 나라를 다스린다는 뜻이에요.' },
+        { text: '대한민국의 주권은 대한 인민 전체에 있다', note: '나라의 주인은 국민 모두라는 뜻이에요.' },
+        { text: '대한민국의 인민은 일체 평등하다', note: '신분이나 남녀, 재산에 따라 차별하지 않는다는 뜻이에요.' },
       ],
-      fail: '임시 정부는 국민이 주인이고 모두가 평등한 나라를 꿈꾸었어요.',
     },
     letters: {
       type: 'sneak', title: '일본 경찰의 눈을 피해 비밀 편지를 전해요', counter: '지난 숨을 곳', seconds: 150,
@@ -99,6 +94,6 @@ export default {
   result: [{ who: 'narr', text: '대한민국 임시 정부는 독립운동을 이끌며 우리 민족의 희망이 되었어요.', src: ['S51'] }],
   quizzes: [
     { kind: 'quiz', year: 1919, question: '1919년 대한민국 임시 정부가 세워진 도시는?', options: ['상하이', '충칭', '하얼빈'], answer: 0, explain: '1919년 9월 상하이에서 통합된 임시 정부가 세워졌어요.', src: ['S51'] },
-    { kind: 'quiz', year: 1919, question: '임시 헌법에 쓴 대한민국의 정치 체제는?', options: ['왕이 다스리는 나라', '민주 공화제', '귀족 정치'], answer: 1, explain: '대한민국은 민주 공화제로 한다고 정했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1919, question: '임시 정부가 헌법에 쓴 대한민국의 정치 체제는?', options: ['왕이 다스리는 나라', '민주 공화제', '귀족 정치'], answer: 1, explain: '대한민국은 민주 공화제로 한다고 정했어요.', src: ['S51'] },
   ],
 };

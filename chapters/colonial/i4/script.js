@@ -76,17 +76,18 @@ export default {
       fail: '골짜기 한가운데 들어왔을 때 신호를 보내야 해요. 다시 해 봐요.',
       done: [{ who: 'narr', text: '김좌진과 홍범도가 이끄는 독립군 부대는 청산리의 지형을 이용한 전술로 일본군에 큰 승리를 거두었어요(청산리 대첩, 1920년).', src: ['S51'] }],
     },
+    // 승리를 이끈 장군: 네 사람 가운데 찾기 대신 이정표를 따라 걸으며 차례로 만난다(선생님 의견, 근대 2장과 같은 방식)
     leaders: {
-      type: 'find', src: ['S51'], title: '청산리 대첩을 이끈 독립군 지도자 두 사람을 찾아가요', counter: '찾은 지도자',
-      howto: '네 사람 가운데 청산리 대첩을 이끈 두 사람에게 가서 대화 버튼을 눌러요.',
-      intro: [{ who: 'soldier', text: '승리를 이끈 장군님들께 인사드리러 가요. 누구셨는지 기억나요?' }],
-      items: [
-        { text: '김좌진', correct: true, talk: [{ who: 'kimjwajin', text: '모두가 힘을 합친 덕분이다.' }] },
-        { text: '김옥균', correct: false },
-        { text: '홍범도', correct: true, talk: [{ who: 'hongbeomdo', text: '나라를 되찾는 날까지 싸움은 계속되네.' }] },
-        { text: '전봉준', correct: false },
+      type: 'drive', src: ['S51'], title: '청산리 대첩을 이끈 두 장군을 차례로 만나요', counter: '지난 이정표', showAll: true,
+      howto: '길 위에 차례대로 선 이정표를 따라 걸어가요. 이정표에 닿으면 그곳 사람이 이야기를 들려줘요.',
+      intro: [{ who: 'soldier', text: '승리를 이끈 장군님들께 인사드리러 가요. 이정표를 따라가요.' }],
+      route: [
+        { label: '1 홍범도', look: 'hongbeomdo', post: true, talk: [{ who: 'hongbeomdo', text: '봉오동에서 우리는 일본군을 공격해 크게 무찔렀네.', src: ['S51'] }, { who: 'hongbeomdo', text: '나라를 되찾는 날까지 싸움은 계속되네.' }] },
+        { label: '2 김좌진', look: 'kimjwajin', post: true, talk: [{ who: 'kimjwajin', text: '청산리 골짜기의 지형을 이용해 일본군과 맞섰다.', src: ['S51'] }, { who: 'kimjwajin', text: '모두가 힘을 합친 덕분이다.' }] },
+        { label: '3 독립군 진영', look: 'independenceArmy', post: true, talk: [{ who: 'soldier', text: '두 장군님의 부대가 힘을 합쳐 크게 이겼어요!' }] },
       ],
-      fail: '오늘 만난 두 장군을 떠올려 보세요.',
+      fail: '빛나는 이정표를 차례대로 따라 걸어가요.',
+      done: [{ who: 'narr', text: '독립군의 승리는 나라를 빼앗긴 우리 민족에게 큰 용기를 주었어요.', src: ['S51'] }],
     },
   },
   result: [{ who: 'narr', text: '독립군의 승리는 나라를 빼앗긴 우리 민족에게 큰 용기를 주었어요.', src: ['S51'] }],

@@ -64,19 +64,17 @@ export default {
       ],
       fail: '시간 안에 물을 다 나르지 못했어요. 화살표를 따라 다시 해 봐요.',
     },
+    // 전쟁 뒤의 생활: 차례대로 찾아가기·찾기 대신 역사책을 넘기며 본다(선생님 의견, 근대 4·5장과 같은 방식)
     life: {
-      type: 'find', src: ['S51'], title: '피란민 마을에서 6·25 전쟁 뒤의 생활 모습을 찾아요', counter: '찾은 모습',
-      howto: '마을 곳곳의 팻말 가운데 전쟁 뒤의 생활 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
-      intro: [{ who: 'student', text: '우리 마을 사람들이 어떻게 살고 있는지 둘러보세요. 맞는 이야기만 골라야 해요.' }],
-      items: [
-        { text: '판잣집 같은 어려운 환경에서 살았다', correct: true, look: 'grandma' },
-        { text: '전쟁 뒤 곧바로 남북이 통일되었다', correct: false },
-        { text: '많은 여성이 공장에 다니거나 행상을 하며 가족을 돌보았다', correct: true, look: 'woman', talk: [{ who: 'mother', text: '저도 행상을 하며 아이들을 키워요.' }] },
-        { text: '도시로 오는 사람이 줄어들었다', correct: false },
-        { text: '교실이 부서져 운동장에서 수업을 받았다', correct: true, look: 'student' },
-        { text: '구호물품 밀가루로 밀면을 만들었다', correct: true, look: 'grandma', talk: [{ who: 'grandma', text: '그래, 그게 바로 부산 밀면이란다.' }] },
+      type: 'book', title: '역사책으로 보는 전쟁 뒤의 생활',
+      intro: [{ who: 'student', text: '우리 마을 사람들이 어떻게 살고 있는지 역사책으로 넘겨 보세요.' }],
+      pages: [
+        { title: '판잣집', pic: 'shanty', lines: [{ who: 'narr', text: '도시로 몰려든 사람들은 판잣집 같은 어려운 환경에서 살았어요.', src: ['S51'] }] },
+        { title: '가족을 돌본 여성들', pic: 'peddler', lines: [{ who: 'narr', text: '전쟁으로 많은 남성이 죽거나 다쳐서, 여성들이 공장에 다니거나 행상을 하며 가족의 생계를 책임지는 경우가 많아졌어요.', src: ['S51'] }] },
+        { title: '부산 밀면', pic: 'milmyeon', lines: [{ who: 'narr', text: '메밀을 구하기 어려워서 구호물품으로 받은 밀가루로 냉면을 만들었어요. 이것이 부산 밀면의 시작이에요.', src: ['S51'] }] },
+        { title: '운동장 교실', pic: 'outdoor', lines: [{ who: 'narr', text: '교실이 부서져서 학생들은 운동장에서 수업을 받았어요.', src: ['S51'] }] },
+        { title: '이산가족 찾기', year: '1983년', pic: 'reunion', lines: [{ who: 'narr', text: '전쟁으로 헤어진 가족을 찾으려고 1983년 텔레비전 생방송이 138일 동안 이어졌고, 1만여 명이 다시 만났어요.', src: ['S62'] }] },
       ],
-      fail: '마을 사람들이 들려준 이야기를 떠올려 보세요.',
     },
   },
   result: [{ who: 'narr', text: '사람들은 어려움 속에서도 서로 도우며 다시 일어섰어요.', src: ['S51'] }],

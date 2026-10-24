@@ -1,6 +1,7 @@
 // 일제 강점기편 2장 「3·1 운동」: 탑골 공원 팔각정, 태극기를 든 사람들, 태화관.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../../modern/pictures.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
@@ -13,10 +14,6 @@ const JONGNO = { // 탑골 공원 문에서 종로 거리, 시장, 큰길로
     { type: 'rice', x: -8, z: -4, n: 6 }, { type: 'tent', x: 8, z: -6 },
     { type: 'western', x: -14, z: -22, w: 8, d: 5, h: 5, color: 0x8a4a3a }, { type: 'western', x: 14, z: -22, w: 8, d: 5, h: 6, color: 0x9a948a },
   ],
-};
-const MEMORY = {
-  origin: [400, 0], ground: 'stone', groundColor: 0xa8a49a, bounds: { x0: -18, x1: 18, z0: -16, z1: 18 },
-  props: [{ type: 'pavilion', x: 0, z: -13, solid: false }, { type: 'tree', x: -14, z: -10 }, { type: 'tree', x: 14, z: -10 }],
 };
 
 export default makeKitChapter({
@@ -48,6 +45,6 @@ export default makeKitChapter({
     { ...script.parts.march, arena: JONGNO, from: [0, 21], followers: { looks: ['student', 'schoolgirl', 'citizen', 'woman', 'peasant', 'yugwansun'], per: 2, flags: true },
       route: xy(script.parts.march.route, [{ x: 0, z: 18 }, { x: 2, z: 6 }, { x: -2, z: -6 }, { x: 0, z: -18 }]),
       hazards: [{ x: -14, z: 0, to: [14, 0], kind: 'crowd', r: 1.6, speed: 0.4 }, { x: 14, z: -12, to: [-14, -12], kind: 'crowd', r: 1.6, speed: 0.45 }] },
-    { ...script.parts.flow, arena: MEMORY, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: 9, z: 0 }, { x: -9, z: 5 }, { x: 0, z: -6 }, { x: -8, z: -7 }]) },
+    { ...script.parts.flow, pages: script.parts.flow.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
   ],
 });

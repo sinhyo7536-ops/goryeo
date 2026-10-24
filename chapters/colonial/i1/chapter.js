@@ -1,6 +1,7 @@
 // 일제 강점기편 1장 「일제의 식민 통치」: 흐린 날의 항구 마을, 쌀가마를 실은 기차와 배, 큰 관청 건물.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../../modern/pictures.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
@@ -16,14 +17,6 @@ const ALLEY = { // 마을 골목: 헌병이 순찰하고, 쌀가마·짐 더미 
   props: [
     { type: 'hanok', x: -13, z: 12, tile: true }, { type: 'hanok', x: 13, z: 2 }, { type: 'wall', x: -8, z: -2, w: 8 },
     { type: 'well', x: 9, z: -9 }, { type: 'hanok', x: 0, z: -22, tile: true, scale: 1.2 }, { type: 'tree', x: -14, z: -14 },
-  ],
-};
-const STATION = { // 기차역: 쌀가마를 실은 기차와 항구로 가는 선로
-  origin: [400, 0], ground: 'earth', groundColor: 0x8a7a62, bounds: { x0: -20, x1: 20, z0: -14, z1: 16 },
-  props: [
-    { type: 'train', x: 0, z: -9, ry: Math.PI / 2, track: 70, cars: 3 },
-    { type: 'western', x: -14, z: 10, w: 7, d: 4, h: 4, color: 0x8a4a3a }, { type: 'rice', x: 12, z: -3, n: 9 },
-    { type: 'water', x: 0, z: -40, w: 200, d: 30 }, { type: 'steamship', x: 14, z: -26, ry: Math.PI / 2, solid: false },
   ],
 };
 
@@ -57,6 +50,6 @@ export default makeKitChapter({
       waypoints: xy(script.parts.book.waypoints, [{ x: -8, z: 9 }, { x: -9, z: 0 }, { x: 6, z: -8 }, { x: 0, z: -17 }]),
       hides: [{ x: -6, z: 13, r: 1.8 }, { x: -12, z: 4, r: 1.8 }, { x: 0, z: -4, r: 1.8 }, { x: 4, z: -13, r: 1.8 }],
       guards: [{ path: [[4, 14], [4, 2]], speed: 0.6, range: 5.5 }, { path: [[-14, -6], [10, -6]], speed: 0.5, range: 5.5 }, { path: [[-6, -14], [10, -14]], speed: 0.55, range: 5 }] },
-    { ...script.parts.rail, arena: STATION, from: [0, 13], items: xy(script.parts.rail.items, [{ x: 8, z: -2 }, { x: -9, z: 6 }, { x: -6, z: -2 }, { x: 7, z: 8 }]) },
+    { ...script.parts.rail, pages: script.parts.rail.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
   ],
 });

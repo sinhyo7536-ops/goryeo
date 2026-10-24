@@ -20,8 +20,6 @@ const VALLEY = { // 청산리 골짜기: 양쪽 산비탈의 숲, 가운데 골�
 const GENERALS = {
   origin: [400, 0], ground: 'grass', groundColor: 0x5f7a4c, bounds: { x0: -18, x1: 18, z0: -12, z1: 14 },
   props: [
-    { type: 'crowd', x: -12, z: -6, n: 1, looks: ['kimjwajin'] }, { type: 'crowd', x: -4, z: -6, n: 1, looks: ['kimokgyun'] },
-    { type: 'crowd', x: 4, z: -6, n: 1, looks: ['hongbeomdo'] }, { type: 'crowd', x: 12, z: -6, n: 1, looks: ['jeonbongjun'] },
     { type: 'tent', x: 0, z: -11, color: 0x6b6a4a },
   ],
 };
@@ -57,7 +55,6 @@ export default makeKitChapter({
       pickups: xy(script.parts.gather.pickups, [{ x: 16, z: 14 }, { x: -17, z: -6 }, { x: 14, z: -16 }]) },
     { ...script.parts.ambush, arena: VALLEY, camera: { pos: [-16, 16, 18], target: [0, 0, -2] },
       path: [[0, -32], [0, 30]], zone: { x: 0, z: 0, r: 7 }, look: 'gendarme' },
-    { ...script.parts.leaders, arena: GENERALS, from: [0, 11],
-      items: xy(script.parts.leaders.items, [{ x: -12, z: -3.5 }, { x: -4, z: -3.5 }, { x: 4, z: -3.5 }, { x: 12, z: -3.5 }]) },
+    { ...script.parts.leaders, arena: GENERALS, from: [0, 12], route: xy(script.parts.leaders.route, [{ x: -6, z: 5 }, { x: 6, z: 0 }, { x: 0, z: -6 }]) },
   ],
 });

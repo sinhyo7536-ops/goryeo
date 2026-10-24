@@ -1,6 +1,7 @@
 // 현대편 5장 「전쟁 뒤의 삶」: 부산 피란민 마을의 판잣집, 시장, 항구.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../../modern/pictures.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400): 판잣집이 늘어선 비탈 마을, 장터, 운동장 교실, 밀면 가게
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
@@ -42,7 +43,6 @@ export default makeKitChapter({
   parts: [
     { ...script.parts.help, arena: SHANTY, from: [0, 19],
       route: xy(script.parts.help.route, [{ x: 0, z: 9 }, { x: -14, z: 11 }, { x: 0, z: 9 }, { x: 14, z: 10 }, { x: 0, z: 9 }, { x: -2, z: -7 }]) },
-    { ...script.parts.life, arena: SHANTY, from: [0, 19],
-      items: xy(script.parts.life.items, [{ x: -15, z: -8 }, { x: -6, z: 9 }, { x: 13, z: -7 }, { x: 18, z: 4 }, { x: 0, z: -6.5 }, { x: 8, z: 10 }]) },
+    { ...script.parts.life, pages: script.parts.life.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
   ],
 });

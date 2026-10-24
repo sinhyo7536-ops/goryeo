@@ -51,18 +51,17 @@ export default {
     ] },
   },
   parts: {
+    // 정부가 세워지기까지: 차례대로 찾아가기·찾기 대신 역사책을 넘기며 본다(선생님 의견, 근대 4·5장과 같은 방식)
     flow: {
-      type: 'stops', src: ['S51'], title: '역사 거리에서 정부가 세워진 차례대로 찾아가요', counter: '찾아간 곳',
-      howto: '거리의 이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요. 그곳 사람이 이야기를 들려줘요.',
-      intro: [{ who: 'citizen', text: '광복 뒤 정부가 세워지기까지 일이 참 많았지요. 거리를 걸으며 차례대로 짚어 봐요.' }],
-      spots: [
-        { label: '8·15 광복', look: 'grandma', talk: [{ who: 'citizen', text: '1945년 8월 15일, 우리나라가 광복을 맞았어요.' }] },
-        { label: '모스크바 3국 외상 회의', look: 'gentleman', talk: [{ who: 'citizen', text: '1945년 12월, 한반도에 임시 정부를 세우고 신탁 통치를 하기로 했대요. 사람들 사이에 다툼이 일어났지요.' }] },
-        { label: '국제 연합에 넘김', look: 'citizen', talk: [{ who: 'citizen', text: '미국과 소련이 합의하지 못해서 한반도 문제를 국제 연합에 넘겼어요.' }] },
-        { label: '5·10 총선거', look: 'woman', talk: [{ who: 'citizen', text: '1948년 5월 10일, 우리나라 첫 총선거가 열렸어요.' }] },
-        { label: '대한민국 정부 수립', look: 'student', talk: [{ who: 'syngmanrhee', text: '1948년 8월 15일, 대한민국 정부가 세워졌소.' }] },
+      type: 'book', title: '역사책으로 보는 대한민국 정부 수립',
+      intro: [{ who: 'citizen', text: '광복 뒤 정부가 세워지기까지 일이 참 많았지요. 역사책으로 차례차례 넘겨 봐요.' }],
+      pages: [
+        { title: '광복', year: '1945년 8월 15일', pic: 'liberation', lines: [{ who: 'narr', text: '광복 뒤 미국과 소련은 일본군의 무장 해제를 이유로 한반도에 들어왔어요. 38도선을 기준으로 남쪽에는 미군이, 북쪽에는 소련군이 머물렀어요.', src: ['S51'] }] },
+        { title: '모스크바 3국 외상 회의', year: '1945년 12월', pic: 'moscow', lines: [{ who: 'narr', text: '1945년 12월 모스크바 3국 외상 회의에서 한반도에 임시 정부를 세우고, 최대 5년 동안 신탁 통치를 하기로 정했어요.', src: ['S51'] }] },
+        { title: '국제 연합으로', pic: 'un', lines: [{ who: 'narr', text: '미국과 소련이 두 차례 회의를 열었지만 합의하지 못해서, 한반도 문제를 국제 연합(UN)에 넘겼어요.', src: ['S51'] }] },
+        { title: '5·10 총선거', year: '1948년 5월 10일', pic: 'election', lines: [{ who: 'narr', text: '1948년 5월 10일 남한에서 국회 의원을 뽑는 선거가 열렸어요(5·10 총선거). 21세 이상 모든 국민이 투표한 우리나라 최초의 민주 선거예요.', src: ['S51'] }] },
+        { title: '대한민국 정부 수립', year: '1948년 8월 15일', pic: 'government', lines: [{ who: 'narr', text: '국회 의원들은 이승만을 대통령으로 뽑았고, 1948년 8월 15일 대한민국 정부 수립을 선포했어요.', src: ['S51'] }] },
       ],
-      fail: '회의에서 합의하지 못하자 국제 연합에 넘겼고, 선거를 치른 뒤 정부를 세웠어요.',
     },
     views: {
       type: 'deliver', src: ['S51'], title: '이 말은 누구의 생각일까요? 그 사람에게 가져가요', counter: '전한 말',

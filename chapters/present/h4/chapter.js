@@ -1,6 +1,7 @@
 // 현대편 4장 「1·4 후퇴와 정전 협정」: 눈 내리는 피란길, 짐을 진 사람들, 군용 트럭, 철조망.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../../modern/pictures.js';
 import { mapSpot } from '../../kit/play.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
@@ -15,15 +16,6 @@ const SNOWROAD = { // 눈 덮인 피란길: 얼어붙은 강, 고갯길, 쉼터(
     { type: 'crowd', x: 10, z: -15, n: 6, cols: 2, looks: ['woman', 'grandma', 'commoner', 'citizen'], face: Math.PI },
     { type: 'tent', x: -6, z: -24, color: 0x8a8a7a }, { type: 'tent', x: 6, z: -24, color: 0x8a8a7a },
     { type: 'tree', x: -16, z: -12, color: 0x6a7a6a }, { type: 'tree', x: 17, z: -6, color: 0x6a7a6a }, { type: 'tree', x: 16, z: 14, color: 0x6a7a6a },
-  ],
-};
-const PANMUN = { // 판문점: 가운데 휴전선(철조망)과 파란 회담 건물
-  origin: [400, 0], ground: 'earth', groundColor: 0xe6e8ec, bounds: { x0: -20, x1: 20, z0: -6, z1: 18 },
-  props: [
-    { type: 'fence', x: 0, z: -9, w: 60, solid: false },
-    { type: 'western', x: -5, z: -9, w: 4, d: 6, h: 3, color: 0x5b8fc8, solid: false }, { type: 'western', x: 5, z: -9, w: 4, d: 6, h: 3, color: 0x5b8fc8, solid: false },
-    { type: 'flagpole', x: -12, z: -4 }, { type: 'flagpole', x: 12, z: -4, color: 0x5b92e5 },
-    { type: 'tree', x: -17, z: 12, color: 0x6a7a6a }, { type: 'tree', x: 17, z: 10, color: 0x6a7a6a },
   ],
 };
 
@@ -56,9 +48,7 @@ export default makeKitChapter({
       route: xy(script.parts.help.route, [{ x: 0, z: 20 }, { x: 0, z: 8 }, { x: 2, z: -8 }, { x: 0, z: -18 }]),
       pickups: xy(script.parts.help.pickups, [{ x: -14, z: 16 }, { x: 13, z: 2 }, { x: -12, z: -14 }]),
       hazards: [{ x: -18, z: 14, to: [18, 14], kind: 'car', r: 1.5, speed: 0.45 }, { x: 18, z: -2, to: [-18, -2], kind: 'car', r: 1.5, speed: 0.5 }] },
-    { ...script.parts.flow, arena: MAP, from: [0, 30],
-      spots: xy(script.parts.flow.spots, [M(42, 14), M(28, 24), M(41, 52), M(50, 47), M(36, 44)]) },
-    { ...script.parts.truce, arena: PANMUN, from: [0, 15],
-      items: xy(script.parts.truce.items, [{ x: -9, z: 2 }, { x: 0, z: 6 }, { x: 9, z: 2 }, { x: 0, z: -2 }]) },
+    { ...script.parts.flow, arena: MAP, from: [0, 30], route: xy(script.parts.flow.route, [M(42, 14), M(28, 24), M(41, 52), M(50, 47), M(36, 44)]) },
+    { ...script.parts.truce, pages: script.parts.truce.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
   ],
 });

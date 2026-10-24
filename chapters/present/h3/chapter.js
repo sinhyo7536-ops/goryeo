@@ -64,7 +64,6 @@ export default makeKitChapter({
         { x: -6, z: 12, kind: 'mine', r: 1 }, { x: -17, z: 10, kind: 'mine', r: 1 }, { x: 4, z: 5, kind: 'mine', r: 1 },
         { x: -20, z: -14.5, to: [16, -14.5], kind: 'ship', r: 1.8, speed: 0.5 }, { x: 18, z: 2, to: [-20, 2], kind: 'ship', r: 1.8, speed: 0.4 },
       ] },
-    { ...script.parts.flow, arena: MAP, from: [0, 30],
-      spots: xy(script.parts.flow.spots, [M(58, 41), M(40, 50), M(72, 76), M(31, 54), M(49, 46)]) },
+    { ...script.parts.flow, arena: MAP, from: [0, 30], route: xy(script.parts.flow.route, [M(58, 41), M(40, 50), M(72, 76), M(31, 54), M(49, 46)]) },
   ],
 });

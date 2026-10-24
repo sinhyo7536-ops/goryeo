@@ -25,9 +25,6 @@ const HAGUE = { // 헤이그 회의장 앞
   origin: [400, 0], ground: 'stone', groundColor: 0xb0a890, bounds: { x0: -20, x1: 20, z0: -12, z1: 14 },
   props: [
     { type: 'western', x: 0, z: -14, w: 18, d: 5, h: 8, dome: true, color: 0xc8b8a0 },
-    { type: 'crowd', x: -14, z: -6, n: 1, looks: ['scholarModern'] }, { type: 'crowd', x: -7, z: -6, n: 1, looks: ['kimokgyun'] },
-    { type: 'crowd', x: 0, z: -6, n: 1, looks: ['ahnchangho'] }, { type: 'crowd', x: 7, z: -6, n: 1, looks: ['jeonbongjun'] },
-    { type: 'crowd', x: 14, z: -6, n: 1, looks: ['gentleman'] },
   ],
 };
 
@@ -59,6 +56,6 @@ export default makeKitChapter({
   parts: [
     { ...script.parts.sort, arena: TWO, from: [0, 11], bins: xy(script.parts.sort.bins, [{ x: -13, z: -3 }, { x: 13, z: -3 }]) },
     { ...script.parts.hills, arena: PASS, camera: { pos: [-14, 15, 18], target: [0, 0, -2] }, path: [[0, -32], [0, 30]], zone: { x: 0, z: 0, r: 7 }, look: 'gendarme' },
-    { ...script.parts.envoys, arena: HAGUE, from: [0, 11], items: xy(script.parts.envoys.items, [{ x: -14, z: -3.5 }, { x: -7, z: -3.5 }, { x: 0, z: -3.5 }, { x: 7, z: -3.5 }, { x: 14, z: -3.5 }]) },
+    { ...script.parts.envoys, arena: HAGUE, from: [0, 12], route: xy(script.parts.envoys.route, [{ x: -6, z: 7 }, { x: 6, z: 3 }, { x: -6, z: -1 }, { x: 0, z: -7 }]) },
   ],
 });
