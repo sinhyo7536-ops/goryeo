@@ -144,3 +144,34 @@ test('play: 숨을 곳(덤불) 안에 있으면 감시원이 보지 못한다', 
     await p;
   } finally { s.done(); }
 });
+
+test('play: 정류장에서 기다리면 남은 시간이 가운데 크게 보이고, 손님이 전차에서 내려 걸어 나간다', async () => {
+  const s = touchSetup(script.speakers);
+  try {
+    const p = PLAY.drive(s.ctx, { arena, from: [0, 10], seconds: 60, vehicle: 'tram', route: [{ x: 0, z: 0, hold: 2, holdLabel: '손님이 내리는 중', alight: 2, board: 1 }] }, false);
+    s.w.player.position.set(300, 0, 0);
+    for (let i = 0; i < 10; i++) s.w.step(1 / 20, { x: 0, z: 0 }); // 0.5초
+    const wait = s.ui.querySelector('.hud-bigwait');
+    ok(wait && !wait.hidden, '기다리는 동안 가운데에 보인다');
+    ok(/손님이 내리는 중/.test(wait.textContent) && /2초/.test(wait.textContent), wait && wait.textContent);
+    const riders = []; s.w.scene.traverse(o => { if (o.userData.rider) riders.push(o); });
+    eq(riders.filter(o => o.userData.rider === 'off').length, 2, '내리는 손님 둘');
+    eq(riders.filter(o => o.userData.rider === 'on').length, 1, '타는 손님 하나');
+    const off = riders.find(o => o.userData.rider === 'off'), x0 = Math.abs(off.position.x - 300);
+    for (let i = 0; i < 20; i++) s.w.step(1 / 20, { x: 0, z: 0 });
+    ok(Math.abs(off.position.x - 300) > x0 + 1, '내린 손님은 전차에서 멀어진다');
+    for (let i = 0; i < 12; i++) s.w.step(1 / 20, { x: 0, z: 0 }); // 2초를 채운다
+    eq(await p, true);
+    ok(wait.hidden, '끝나면 숨는다');
+  } finally { s.done(); }
+});
+
+test('play: 성문(gate)은 가운데 문길로 전차가 지나가고 양쪽 돌 몸채만 막는다', () => {
+  const w = testWorld();
+  const a = buildArena(w, { origin: [300, 0], ground: 'stone', bounds: { x0: -10, x1: 10, z0: -10, z1: 10 }, props: [{ type: 'gate', x: 0, z: 0, label: '흥인지문' }] });
+  try {
+    const hit = (x, z) => w.colliders.some(c => Math.hypot(c.x - x, c.z - z) < c.r);
+    for (const x of [-1.6, -0.8, 0, 0.8, 1.6]) ok(!hit(300 + x, 0), `문길 ${x}은 열려 있다`);
+    ok(hit(300 - 4, 0) && hit(300 + 4, 0), '양쪽 몸채는 막힌다');
+  } finally { a.dispose(); w.dispose?.(); }
+});

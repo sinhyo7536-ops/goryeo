@@ -1,6 +1,7 @@
 // 근대편 5장 「근대 문물과 달라진 생활」: 전차가 다니는 한성 거리, 전봇대, 성당과 학교.
 import { makeKitChapter } from '../../kit/chapter.js';
 import script from './script.js';
+import { PIC } from '../pictures.js';
 
 // 미니게임 무대(마을에서 떨어진 x 400)
 const xy = (list, pts) => list.map((it, i) => ({ ...it, ...pts[i] }));
@@ -16,15 +17,8 @@ const LINE = { // 서대문(남쪽)에서 청량리(북쪽)로 뻗은 선로
   roads: [{ x: 0, z: 0, w: 1.6, d: 80, color: 0x6b6862, y: 0.05 }],
   props: [
     { type: 'western', x: -9, z: 25, w: 5, d: 5, h: 4, color: 0x8a4a3a }, { type: 'hanok', x: 9, z: 12, tile: true }, { type: 'hanok', x: -9, z: -2 },
-    { type: 'arch', x: 0, z: -14, solid: false }, { type: 'western', x: 9, z: -26, w: 5, d: 5, h: 5, color: 0x9a948a },
-    { type: 'poles', x: 3, z: -38, n: 13, gap: 6.4, ry: -Math.PI / 2 },
-  ],
-};
-const STREET = {
-  origin: [400, 0], ground: 'stone', groundColor: 0x9a948a, bounds: { x0: -20, x1: 20, z0: -14, z1: 16 },
-  props: [
-    { type: 'tram', x: 0, z: -11, ry: Math.PI / 2, track: 40 }, { type: 'hanok', x: -15, z: 11 }, { type: 'western', x: 15, z: 11, w: 6, d: 4, h: 5, color: 0x8a4a3a },
-    { type: 'crowd', x: 8, z: 2, n: 2, cols: 2, looks: ['gentleman', 'peasant'], face: Math.PI },
+    { type: 'gate', x: 0, z: -20, label: '興仁之門', wing: 8 }, { type: 'western', x: 10, z: -30, w: 5, d: 5, h: 5, color: 0x9a948a },
+    { type: 'poles', x: 6.6, z: -38, n: 13, gap: 6.4, ry: -Math.PI / 2 },
   ],
 };
 
@@ -56,7 +50,7 @@ export default makeKitChapter({
     { ...script.parts.tram, arena: LINE, from: [0, 37],
       route: xy(script.parts.tram.route, [{ x: 0, z: 30 }, { x: 0, z: 8 }, { x: 0, z: -14 }, { x: 0, z: -35 }]),
       hazards: [{ x: -7, z: 19, to: [7, 19], kind: 'car', r: 1.4, speed: 0.6 }, { x: 7, z: -3, to: [-7, -3], kind: 'car', r: 1.4, speed: 0.7 }, { x: -7, z: -25, to: [7, -25], kind: 'car', r: 1.4, speed: 0.65 }] },
-    { ...script.parts.then, arena: STREET, from: [0, 13], items: xy(script.parts.then.items, [{ x: -6, z: -6 }, { x: -12, z: 4 }, { x: 13, z: -5 }, { x: -12, z: -6 }, { x: 0, z: 6 }, { x: 8, z: -1 }]) },
+    { ...script.parts.goods, pages: script.parts.goods.pages.map(p => ({ ...p, figure: PIC[p.pic] })) },
   ],
   // 전차가 선로 위를 천천히 오간다
   decorate(world, built) {

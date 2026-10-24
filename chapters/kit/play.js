@@ -307,6 +307,23 @@ export function drive(ctx, part, easy) {
     });
     s.cleanup(off);
   };
+  // 정류장 손님(alight: 내리는 사람 수, board: 타는 사람 수). 학생(전차)의 오른쪽 길가로 오간다
+  const riders = [];
+  s.cleanup(() => ctx.hud.setWait?.(null));
+  const spawnRiders = r => {
+    const p = world.player.position, ry = world.player.rotation.y, side = r.side || 1;
+    const rx = Math.cos(ry) * side, rz = -Math.sin(ry) * side, fx = Math.sin(ry), fz = Math.cos(ry);
+    const looks = r.riderLooks || ['gentleman', 'woman', 'student', 'citizen'];
+    const local = (a, b) => g.worldToLocal(new THREE.Vector3(p.x + rx * a + fx * b, 0, p.z + rz * a + fz * b));
+    for (let i = 0; i < (r.alight || 0); i++) {
+      const person = standPerson(g, looks[i % looks.length], 0, 0); person.position.copy(local(1.4, (i - 0.5) * 1.2));
+      person.userData.rider = 'off'; riders.push({ p: person, to: local(6 + i * 0.6, (i - 0.5) * 2.6), ph: i });
+    }
+    for (let i = 0; i < (r.board || 0); i++) {
+      const person = standPerson(g, looks[(i + 2) % looks.length], 0, 0); person.position.copy(local(4.6, 1.6 + i));
+      person.userData.rider = 'on'; riders.push({ p: person, to: local(1.2, 0.4), ph: i + 3 });
+    }
+  };
   const reach = r => {
     audio.play('correct');
     if (r.give) giveBundle(r);
@@ -354,11 +371,22 @@ export function drive(ctx, part, easy) {
       if (inside && r.needPickups && left().length) { if (!r.warned) { r.warned = true; toast(ctx, r.needSay || `아직 ${part.pickupCounter || '모을 것'}이(가) 남았어요.`, 'bad'); } }
       else if (inside && r.hold) { // 기다리기: 빛나는 곳 안에서 hold초를 버틴다(벗어나면 처음부터)
         if (!held && r.holdSay) toast(ctx, r.holdSay);
+        if (!held && !r.ridden && (r.alight || r.board)) { r.ridden = true; spawnRiders(r); }
         held += dt; show();
-        if (held >= r.hold) reach(r);
+        ctx.hud.setWait?.(`${r.holdLabel || '기다리는 중'} ${Math.max(1, Math.ceil(r.hold - held))}초`); // 남은 초를 가운데 크게
+        if (held >= r.hold) { ctx.hud.setWait?.(null); reach(r); }
       } else if (inside) reach(r);
-      else if (held) { held = 0; toast(ctx, r.holdLeave || '빛나는 곳을 벗어나면 처음부터 다시 기다려요.', 'bad'); show(); }
+      else if (held) { held = 0; ctx.hud.setWait?.(null); toast(ctx, r.holdLeave || '빛나는 곳을 벗어나면 처음부터 다시 기다려요.', 'bad'); show(); }
       if (!inside) r.warned = false;
+    }
+    // 정류장 손님: 내리는 사람은 전차 옆에서 길가로 걸어 나가고, 타는 사람은 길가에서 걸어와 전차에 오른다
+    for (const rd of riders) {
+      if (!rd.p.visible) continue;
+      const dx = rd.to.x - rd.p.position.x, dz = rd.to.z - rd.p.position.z, d = Math.hypot(dx, dz);
+      if (d < 0.05) { if (rd.p.userData.rider === 'on') rd.p.visible = false; continue; }
+      const k = Math.min(d, dt * 2.2);
+      rd.p.position.x += (dx / d) * k; rd.p.position.z += (dz / d) * k; rd.p.rotation.y = Math.atan2(dx, dz);
+      rd.p.position.y = Math.abs(Math.sin(el * 9 + rd.ph)) * 0.08; // 걸음에 맞춰 살짝 들썩
     }
     // 따라오는 사람들: 앞사람을 줄지어 따라 걷는다
     let lead = world.player.position;

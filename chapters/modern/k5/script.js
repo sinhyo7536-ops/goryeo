@@ -66,26 +66,31 @@ export default {
     },
     tram: {
       type: 'drive', src: ['S51'], title: '전차를 몰아 서대문에서 청량리까지 가요', vehicle: 'tram', counter: '지난 정류장', seconds: 110, speed: 1.3,
-      howto: '선로를 따라 전차를 몰아요. 정류장(빛나는 곳)에서는 손님이 타고 내릴 때까지 멈춰 기다리고, 길을 건너는 수레를 조심해요.',
+      howto: '선로를 따라 전차를 몰아요. 정류장(빛나는 곳)에서는 손님이 다 타고 내릴 때까지 멈춰 기다리고(남은 초가 화면 위 가운데에 보여요), 동대문 문길로 지나가요. 길을 건너는 수레를 조심해요.',
       intro: [{ who: 'woman', text: '1899년부터 서대문에서 청량리까지 전차가 다니기 시작했단다. 운전 한번 해 보련?' }],
       route: [
         { label: '서대문', say: '1899년, 서대문에서 청량리까지 전차가 다니기 시작했어요.' },
-        { label: '종로', hold: 3, holdLabel: '손님이 타는 중', holdSay: '종로 정류장! 손님이 타고 내려요.', talk: [{ who: 'woman', text: '전차를 다니게 하려고 길을 넓히고 전봇대도 세웠지.' }] },
-        { label: '동대문', hold: 3, holdLabel: '손님이 타는 중', holdSay: '동대문 정류장! 손님이 타고 내려요.', talk: [{ who: 'woman', text: '가운데에는 요금이 비싼 특별석도 있단다.' }] },
+        { label: '종로', hold: 3, holdLabel: '손님이 타고 내리는 중', alight: 2, board: 1, holdSay: '종로 정류장! 손님이 타고 내려요.', talk: [{ who: 'woman', text: '전차를 다니게 하려고 길을 넓히고 전봇대도 세웠지.' }] },
+        { label: '동대문', hold: 3, holdLabel: '손님이 타고 내리는 중', alight: 1, board: 2, holdSay: '동대문 정류장! 손님이 타고 내려요.', talk: [{ who: 'woman', text: '가운데에는 요금이 비싼 특별석도 있단다.' }] },
         { label: '청량리', talk: [{ who: 'woman', text: '청량리에 닿았구나! 걸어서 반나절 걸리던 길을 금세 왔어.' }] },
       ],
       bump: '길을 건너던 수레와 부딪힐 뻔했어요! 앞 정류장에서 다시 가요.',
       fail: '시간 안에 청량리에 닿지 못했어요. 수레가 지나간 뒤에 가 봐요.',
     },
-    then: {
-      type: 'find', src: ['S51'], title: '거리에서 개항 뒤 새로 들어온 근대 문물을 찾아요', counter: '찾은 문물',
-      howto: '거리의 팻말 가운데 새로 들어온 근대 문물을 찾아 대화 버튼을 눌러요. 그 전부터 있던 것을 고르면 해설을 듣고 이어서 찾아요.',
-      intro: [{ who: 'student', text: '거리 구경을 해 볼까요? 개항 뒤 새로 들어온 것만 찾아보세요.' }],
-      items: [
-        { text: '전차', correct: true }, { text: '갓', correct: false }, { text: '전화기', correct: true, look: 'gentleman' },
-        { text: '초가집', correct: false }, { text: '앙부일구', correct: false }, { text: '양복과 구두', correct: true, look: 'gentleman', talk: [{ who: 'gentleman', text: '나는 양복과 구두를 즐겨 입는다오.' }] },
+    // 근대 문물 확인하기: 거리에서 찾기 대신 역사책을 넘기며 무엇이 들어왔는지 본다(선생님 의견)
+    goods: {
+      type: 'book', title: '역사책으로 보는 근대 문물',
+      intro: [{ who: 'student', text: '개항 뒤 새로 들어온 것들을 역사책으로 한 쪽씩 넘겨 봐요.' }],
+      pages: [
+        { title: '전신', pic: 'telegraph', lines: [{ who: 'narr', text: '전신은 글자나 숫자를 전기 신호로 바꾸어 보내는 통신이에요.', src: ['S51'] }, { who: 'narr', text: '한성과 인천 사이에 전신을 놓은 뒤, 일본과 중국까지 이어지는 통신망이 생겼어요.', src: ['S51'] }] },
+        { title: '전화기', pic: 'telephone', lines: [{ who: 'narr', text: '전화기를 들여와서 소식을 빠르게 주고받을 수 있게 되었어요.', src: ['S51'] }] },
+        { title: '전차', year: '1899년', pic: 'tram', lines: [{ who: 'narr', text: '1899년부터 서대문에서 청량리까지 전차가 다니기 시작했어요.', src: ['S51'] }, { who: 'narr', text: '전차를 다니게 하려고 길을 넓히고 전봇대도 세웠어요.', src: ['S51'] }] },
+        { title: '전등과 가로등', pic: 'lamp', lines: [{ who: 'narr', text: '전등과 가로등이 생겨서 밤에도 다닐 수 있게 되었어요.', src: ['S51'] }] },
+        { title: '서양식 건물', pic: 'church', lines: [{ who: 'narr', text: '전깃불과 유리 창문이 있는 근대식 건물이 세워지고, 교회·성당·학교 등을 서양식으로 지었어요.', src: ['S51'] }] },
+        { title: '학교와 신문', pic: 'school', lines: [{ who: 'narr', text: '여러 학교가 세워져 근대식 교육을 받을 수 있었고, 신문이 나와 나라 안팎의 소식을 알 수 있었어요.', src: ['S51'] }] },
+        { title: '옷과 음식', pic: 'clothes', lines: [{ who: 'narr', text: '양복, 구두 같은 서양식 옷이 들어오고 외국 음식과 식료품도 들어왔어요. 왕실과 관리를 중심으로 퍼져 나갔어요.', src: ['S51'] }] },
       ],
-      fail: '전기를 쓰거나 서양에서 들어온 것은 근대 문물이에요.',
+      done: [{ who: 'narr', text: '근대 문물이 들어오면서 사람들의 생활 모습이 크게 달라졌어요.', src: ['S51'] }],
     },
   },
   result: [{ who: 'narr', text: '근대 문물이 들어오면서 사람들의 생활 모습이 크게 달라졌어요.', src: ['S51'] }],

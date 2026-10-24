@@ -456,3 +456,34 @@ export function arch(g, p = {}) {
   }
   return g;
 }
+
+// 도성 문(흥인지문 같은 큰 성문): 돌로 쌓은 몸채 가운데 넓은 무지개 문길(전차·수레가 지나간다), 위에 여장과 2층 나무 문루.
+// 크기: 너비 W, 문길 반지름 R(문길 너비 2R). 부딪힘은 town.js가 양쪽 몸채에만 둔다.
+export const GATE = { W: 11, D: 4.4, R: 2.2, SPRING: 2.6 };
+export function cityGate(g, p = {}) {
+  const P = parts(), { W, D, R, SPRING } = GATE, H = SPRING + R + 1.0;
+  const face = new THREE.Shape([new THREE.Vector2(-W / 2, 0), new THREE.Vector2(W / 2, 0), new THREE.Vector2(W / 2 - 0.3, H), new THREE.Vector2(-W / 2 + 0.3, H)]);
+  const hole = new THREE.Path(); hole.moveTo(-R, 0); hole.lineTo(-R, SPRING); hole.absarc(0, SPRING, R, Math.PI, 0, true); hole.lineTo(R, 0); hole.lineTo(-R, 0);
+  face.holes.push(hole);
+  const body = new THREE.ExtrudeGeometry(face, { depth: D, bevelEnabled: false, curveSegments: 18 }); body.translate(0, 0, -D / 2);
+  P.add(body, 0xc9c2b4, 'stone', [0, 0, 0]);
+  for (const sz of [-1, 1]) P.box(0.6, 0.5, 0.14, 0xb3ab99, 'stone', [0, SPRING + R + 0.05, sz * (D / 2 + 0.05)]); // 홍예 머리돌
+  for (let x = -W / 2 + 0.5; x <= W / 2 - 0.4; x += 1.0) for (const sz of [-1, 1]) P.box(0.7, 0.55, 0.35, 0x9c958a, 'stone', [x, H + 0.28, sz * (D / 2 - 0.2)]); // 여장
+  // 문루: 기둥 줄, 아래층 벽, 아래 지붕, 위층, 위 지붕
+  const LW = W - 2.4, LD = D - 0.8;
+  P.box(LW, 0.3, LD, 0x8a8478, 'stone', [0, H + 0.15, 0]);
+  for (let i = 0; i < 6; i++) for (const sz of [-1, 1]) P.cyl(0.14, 0.15, 2.0, 8, 0xa8392b, 'grain', [-LW / 2 + 0.4 + i * (LW - 0.8) / 5, H + 1.3, sz * (LD / 2 - 0.3)]);
+  P.box(LW - 0.8, 1.2, LD - 0.9, 0xe6dcc3, 'grain', [0, H + 1.3, 0]);
+  P.box(LW - 1.6, 1.3, LD - 1.3, 0xa8392b, 'grain', [0, H + 3.3, 0]);
+  P.into(g);
+  curvedHipRoof(g, LW + 1.6, LD + 1.6, 1.1, 0x3d4846, 0, H + 2.35, 0);
+  curvedHipRoof(g, LW + 0.6, LD + 0.8, 1.6, 0x3d4846, 0, H + 3.95, 0);
+  if (p.label) {
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 72;
+    const c = cv.getContext('2d'); c.fillStyle = '#2b241c'; c.fillRect(0, 0, 256, 72); c.strokeStyle = '#d9a441'; c.lineWidth = 5; c.strokeRect(3, 3, 250, 66); c.fillStyle = '#f2e6b0';
+    c.font = 'bold 42px "Nanum Myeongjo", Batang, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(p.label, 128, 38, 236);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+    for (const sz of [-1, 1]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.5), new THREE.MeshLambertMaterial({ map: t })); m.position.set(0, H + 3.3, sz * ((LD - 1.3) / 2 + 0.02)); if (sz < 0) m.rotation.y = Math.PI; g.add(m); }
+  }
+  return g;
+}

@@ -60,6 +60,17 @@ export const BUILD = {
   western(g, p) { BLD.western(g, p); return { rect: [p.w || 8, p.d || 5] }; },
   // 돌로 쌓은 무지개 문 (독립문 등). label: 앞에 새긴 글
   arch(g, p) { BLD.arch(g, p); return { rect: [5.2, 3.2] }; },
+  // 도성 문(흥인지문 등): 가운데 넓은 문길은 열어 두고 양쪽 돌 몸채만 막는다. label: 현판 글
+  gate(g, p) {
+    BLD.cityGate(g, p);
+    const { W, D, R } = BLD.GATE, pw = W / 2 - R - 0.2, wing = p.wing || 0;
+    const parts = [-1, 1].map(sx => ({ dx: sx * (R + 0.2 + pw / 2), rect: [pw, D] }));
+    if (wing) for (const sx of [-1, 1]) { // 양옆으로 이어진 성벽(돌아서 지나가지 못하게)
+      const w = new THREE.Group(); w.position.x = sx * (W / 2 + wing / 2 - 0.2); BLD.wall(w, { w: wing, h: 4.2, color: 0xb3ab99 }); g.add(w);
+      parts.push({ dx: w.position.x, rect: [wing, 1.2] });
+    }
+    return { parts };
+  },
   // 깃대와 깃발 (color 없으면 태극기)
   flagpole(g, p) {
     add(g, new THREE.CylinderGeometry(0.06, 0.06, 4.4, 6), 0x5a3f2a, 0, 2.2, 0, 'wood');
@@ -192,6 +203,11 @@ export const BUILD = {
 export function addFootprint(world, p, r) {
   const s = p.scale || 1;
   if (typeof r === 'number') { world.addCollider({ x: p.x, z: p.z, r: r * s }); return; }
+  if (r.parts) { // 여러 조각(성문의 양쪽 몸채 등): 조각마다 제자리에서 따로 막는다
+    const c = Math.cos(p.ry || 0), sn = Math.sin(p.ry || 0);
+    for (const q of r.parts) addFootprint(world, { ...p, x: p.x + q.dx * s * c, z: p.z - q.dx * s * sn }, { rect: q.rect });
+    return;
+  }
   let [w, d] = r.rect; w *= s; d *= s;
   const along = w >= d, len = along ? w : d, rad = (along ? d : w) / 2;
   const n = Math.max(1, Math.ceil(len / (rad * 1.4)));
