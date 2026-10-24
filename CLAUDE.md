@@ -1,5 +1,7 @@
 # 역사 속으로 걸어가기 — 작업 안내
 
+> 다른 계정에서 이어받았다면 먼저 `docs/HANDOFF.md`(인수인계, 사용자 규칙·최근 변경·남은 일)를 읽는다.
+
 초등 5학년 사회의 한국사를 3D로 걸어 다니며 배우는 브라우저 게임이다(사이트 이름 「역사 속으로 걸어가기」). 첫 화면 → 편 고르기 → 그 편의 1~6장. 편마다 6장을 한 흐름으로 이어서 한다(장마다 약 10분).
 
 - 고려편 「고려를 지켜라」(외세의 침입과 고려의 노력): 장 id `ch1`~`ch6`, 폴더 `chapters/ch1`~`ch6`, 결과 카드 `SESSIONS[1]`.
@@ -35,7 +37,7 @@
 
 ## 실행과 테스트
 
-- 개발 서버: `.claude/launch.json`의 `goryeo-game`(포트 8130). 장면 확인은 `?debug=ch3-scene`, 미니게임부터는 `?debug=ch3-minigame`(조선편은 `?debug=j3-scene`, 근대·일제 강점기·현대편은 `k3`·`i3`·`h3`).
+- 개발 서버: `.claude/launch.json`의 `goryeo-game`(포트 8130). 장면 확인은 `?debug=ch3-scene`, 탐험부터는 `?debug=ch3-explore`, 미니게임부터는 `?debug=ch3-minigame`, 퀴즈부터는 `?debug=ch3-quiz`(조선편은 `?debug=j3-scene`, 근대·일제 강점기·현대편은 `k3`·`i3`·`h3`).
 - 개발용: `?debug=h3-minigame&part=1` 처럼 미니게임의 몇 번째 부분부터 볼 수 있다. 근대~현대편 카드형 미니게임은 `tools/minigame-gallery.html?part=h3:0`(&fill=1이면 자리 놓기를 채운 모습)으로 장면 없이 띄워 본다. `tests/layout.test.js`가 모든 화면 크기에서 버튼이 화면 안에 있고 손가락으로 누를 수 있는지(다른 판에 덮이지 않는지) 검사하고, 테스트 봇(`tests/bot.js`)도 누르기 전에 같은 검사를 한다.
 - 테스트: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 -Port 8141` (헤드리스 Edge, 자체 하네스 `tests/harness.js`). 포트 8123은 막혀 있어 8141을 쓴다. 출력이 길면 파일로 받아 `FAIL|RESULT` 줄만 본다.
 - 새 기능과 버그 수정은 테스트를 먼저 쓰고 실패를 본 뒤 고친다. 새 테스트 파일은 `tests/index.html`의 목록에 넣는다.

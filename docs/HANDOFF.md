@@ -1,0 +1,94 @@
+# 인수인계: 「역사 속으로 걸어가기」 (2026-10-24)
+
+다른 계정의 Claude가 이 게임 작업을 그대로 이어받기 위한 문서다. 먼저 이 문서를, 그다음 저장소 맨 위의 `CLAUDE.md`(구조·원칙·올리는 순서)를 읽는다. 이전 계정의 기억(memory)은 넘어오지 않으므로, 사용자에 대해 알아야 할 것은 아래 2절에 모두 적었다.
+
+## 1. 지금 상태
+
+| 항목 | 값 |
+|---|---|
+| 저장소 | https://github.com/ssamgame/history (조직 `ssamgame`, 브랜치 `main`) |
+| 학생 주소 | https://ssamgame.github.io/history/ (GitHub Pages, main에서 바로 배포) |
+| 마지막 커밋 | `73e0454` 선생님 의견 반영 (+ 이 문서를 넣은 커밋) |
+| 캐시 판 | `goryeo-v36` (`core/precache.js`) |
+| 테스트 | 370개 중 369개 통과, 1개(현대편 퀴즈 차례 검사)는 테스트 서버의 파일 받기 실패였고 단독으로 다시 돌려 통과 |
+| 내용 | 5개 편(고려·조선·근대·일제 강점기·현대) × 6장 = 30장 모두 완성 |
+| PC 폴더 | `C:\Users\장신효\Desktop\goryeo-game` (옆의 `wedding` 폴더는 다른 프로젝트, 건드리지 않는다) |
+
+## 2. 사용자(선생님)에 대해 — 꼭 지킬 것
+
+- 초등학교 교사이고 개발자가 아니다. **모든 답과 진행 안내를 한국어로, 쉬운 말로** 한다(중간 진행 설명이 영어로 바뀌면 바로 지적한다).
+- 이 게임의 계획된 작업은 **묻지 말고 스스로 판단해 끝까지** 하고 결과를 보고한다. 결정은 문서·커밋에 남긴다. 다만 되돌리기 어렵거나 바깥으로 나가는 일(공개 저장소 이름 바꾸기 등)은 먼저 묻는다.
+- 의견은 장별 번호 목록으로 한꺼번에 준다. 하나도 빠뜨리지 말고, 끝나면 번호마다 무엇을 했는지 짧게 보고한다. 직접 확인 못 한 것은 그렇다고 말한다.
+- **역사 사실**: 틀리면 매우 위험하다. 여러 믿을 만한 자료(한국민족문화대백과사전, 우리역사넷, 국가유산청, 큰 신문사 등)에서 확인되면 그대로 쓰고 하나를 출처로 단다. 학설이 갈리는 것(측우기 발명자 등)은 쓰지 않는다. 해설 문장에는 출처(`src`)가 꼭 있어야 한다(검사기가 막는다).
+- 교과서는 **비상 2022 개정 5학년 사회**(근대~현대는 5-2 교과서 98~145쪽, 출처 S51).
+- **모든 인물 표정은 근엄하게**(눈 `stern`, 눈썹 `stern`, 입 `flat`). 테스트가 지킨다.
+- **차례**: 퀴즈·장·놀이는 일어난 차례대로. 퀴즈마다 `year`를 달고, 장 안에서 해 순서로 둔다. 조선편은 j1 → j3(과학 기구 1434~) → j2(훈민정음 1443~).
+- **틀렸을 때**: 처음부터 다시 하게 하지 않는다. 해설을 보여 주고 맞는 답을 고르게 한다(아래 4절).
+- 획 수 같은 아주 세세한 고증은 고치자고 하지 않는다(藏 17획 그대로).
+- 표현: "서희 장군" ✗ → "서희". "사귀다" ✗ → "친하게 지내다". 4장 저고여 사건은 "누가 죽였는지는 밝혀지지 않았어요"를 유지한다.
+- 저작권 표시 이름은 **Jang ssam** (첫 화면 맨 아래 "© 2026 Jang ssam. All rights reserved.").
+
+## 3. 새 계정에서 처음 할 일
+
+1. **저장소 권한**: 새 계정(또는 그 PC의 git)이 `ssamgame/history`에 push할 수 있어야 한다. 안 되면 선생님께 조직 `ssamgame`에 초대해 달라고 한다. 이 PC에는 `gh` CLI가 없고 git은 저장된 자격 증명을 쓴다.
+2. 같은 PC면 폴더를 그대로 쓰고, 다른 PC면 `git clone https://github.com/ssamgame/history.git goryeo-game`.
+3. **미리보기 아티팩트**(https://claude.ai/artifact/QSh1YhvtwooxoyDRsBZsCT)는 이전 계정의 것이라 새 계정에서는 고칠 수 없다. 필요하면 새로 만들고(아래 5절), 새 주소를 선생님께 알려 드린다. 학생은 GitHub Pages 주소만 쓰므로 급하지 않다.
+4. **미리보기 서버**: `.claude/launch.json`의 `goryeo-game`(포트 8130, `tools/serve.ps1`). 세션의 작업 폴더가 다른 곳(예: wedding)이면 그 폴더의 `.claude/launch.json`에 같은 항목을 넣어야 미리보기가 뜬다(wedding의 launch.json은 git이 무시하는 파일).
+5. 전체 테스트를 한 번 돌려 출발점이 초록인지 본다.
+
+## 4. 최근(2026-10-24)에 바뀐 것 — 코드에서 찾는 곳
+
+선생님 의견 두 묶음을 반영했다.
+
+**공통**
+- **걷는 다리**: `core/people.js`의 `animateWalkers` — `makePerson`으로 만든 인물을 모아 두고 매 프레임 실제로 움직였으면 다리·팔을 흔든다. 배에 탄 사람은 `userData.noWalk = true`. 플레이어는 `makePerson(..., { track: false })`.
+- **틀리면 해설 뒤 다시 고르기**
+  - 퀴즈: `core/dialogue.js`의 `quiz(q)` — 틀리면 해설 → 같은 문제를 틀린 답을 막아 두고 다시 낸다. `{ correct(처음에 맞혔나), tries }`.
+  - 장면 놀이(`chapters/kit/play.js`): `stops`·`find`·`deliver`에서 틀리면 `s.wrong(text)`가 해설(부분의 `fail`, 없으면 `ctx.partHint`)을 들려주고 이어서 한다. 끝까지 하면 `'missed'`로 끝난다.
+  - 카드 놀이(`core/minigame.js`): `orderCards`·`chooseCards`·`sortCards`·`placeOnBoard`·`fitFigures` 모두 `hint`를 받아 카드 안에 해설(`.card-why`)을 보이고 맞는 것이 빛난다. 틀렸다 고치면 `'missed'`.
+  - `chapters/joseon/common.js`의 `tryPart`: `ok === true`이고 첫 시도일 때만 첫 시도 성공으로 센다.
+- **퀴즈 배경**: `core/quizview.js` — 문제 글(정답 말고 문제만 본다, 정답이 미리 보이지 않게)에 이름이 나오는 인물·안내판을 비추고, 장면에 없는 역사 인물(`FIGURES` 표: 흥선 대원군·김구 등)은 잠깐 세운다. 없으면 마을을 천천히 돈다. 문제 창 위에 "1863년 · 흥선 대원군" 이름표. 장이 `quizView(ctx, q, k)`를 가지면 그것을 쓴다(4장이 그렇다).
+- **역할**: `content/roles.js`의 `ROLES`(장마다 이름·하는 일·생김새·키)와 `roleLook`. 해설 카드에 "이번 장의 나", 화면 위에 "나: …". 아이 역할은 키 0.8.
+- **가져다 놓기(deliver)**: 대화 버튼 없이 알맞은 원 안에서 **멈춰 0.7초** 서 있으면 놓이고 처음 자리(`from`)로 돌아간다. 지나가기만 하면 놓이지 않는다(봇·학생이 다른 원을 지나가다 갇히는 문제가 있었다).
+- **개발용 주소**: `?debug=k1-explore`, `?debug=k1-quiz`도 된다(탐험부터, 퀴즈부터). 개발용 주소에서는 콘솔에 `window.__world`가 있다.
+
+**고려편 3~6장**
+- 3장: 둑 터뜨리기 판정 칸을 거란군 무리가 실제로 냇물 한가운데 있을 때로(`DAM_WINDOW`, 건너는 시간 10초). 공격 신호 뒤 귀주 전투 장면 `playGujuBattle`(돌격·먼지·쓰러짐·도망).
+- 4장: 압록강 가 저고여 장면(`scene.areas.jeogo.play`), 강화도 까닭 답을 말하는 문장으로, 천도 뒤 "도읍을 쉽게 함락시킬 수 없었어요", 크고 빛나는 꼬리의 화살(0.85초 비행), 글씨 있는 노비 문서 종이가 불타는 장면(`burnDocuments`), 퀴즈 배경(강화도·처인성).
+- 5장: 1번~4번 장인을 차례로만 만난다(머리 위 번호표), 경판 순서는 그림 카드(`chapters/ch5/pictures.js`, `MAKING_CARDS`).
+- 6장: 적선마다 몽골 군사 2명, 남은 거리 "노 젓기 N번", 마무리 놀이 `fitFigures`(인물 얼굴을 골라 그 사건의 원에 넣기).
+
+테스트: `tests/feedback.test.js`(공통 6가지), `tests/goryeo-feedback.test.js`(고려편 12가지).
+
+## 5. 실행·테스트·올리기 (명령 그대로)
+
+이 PC는 Windows. Bash 도구(Git Bash)와 PowerShell이 있다. **Python은 없다**(설치 안내용 가짜만 있음) → 파일을 고칠 때는 Edit 도구나 `node -e`/`node 파일.cjs`를 쓴다. PowerShell 스크립트는 실행 정책 때문에 `-ExecutionPolicy Bypass`를 붙인다.
+
+```bash
+cd /c/Users/장신효/Desktop/goryeo-game
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 > /tmp/full.txt 2>&1; grep -E "^FAIL|RESULT" /tmp/full.txt
+```
+- 전체는 10~20분 걸린다(백그라운드로 돌린다). 일부만: `-Only "goryeo|feedback:"`(테스트 이름 앞부분, `|`로 여럿).
+- 가끔 테스트 서버가 파일 하나를 못 받아 `Failed to fetch dynamically imported module`로 실패한다. 그 테스트만 다시 돌려 통과하면 괜찮다.
+- 새 테스트 파일은 `tests/index.html`의 `files` 목록에 넣는다. 새 게임 파일은 `core/precache.js`의 `PRECACHE`에 넣는다.
+
+올리는 순서(매번, `CLAUDE.md`와 같다):
+1. 전체 테스트 통과.
+2. `core/precache.js`의 `CACHE`를 하나 올리고(`goryeo-v37` …) `tests/sw.test.js`도 맞춘다.
+3. 한국어 커밋 메시지로 커밋 → `git push origin main`.
+4. `https://ssamgame.github.io/history/core/precache.js`에 새 판 번호가 뜰 때까지 확인(1~2분).
+5. (미리보기를 쓰면) 게임 파일을 복사본 폴더에 모아 아티팩트로 다시 올린다. 복사 방법: `core`·`chapters`·`content`·`styles.css`·`vendor/three.module.min.js`·`vendor/ARPHICPL.txt`와 `index.html`(맨 앞에 `<!doctype html>`)을 한 폴더에 두고, 그 폴더의 `index.html`을 file_path로, 나머지를 `files`로 올린다.
+
+## 6. 남은 일과 보류한 것
+
+- **보류(선생님 허락 필요)**: "업데이트 바로 보이기"(서비스 워커를 network-first로). 선생님이 중간에 멈추게 해서 적용하지 않았다. 변경 내용은 `docs/handoff/network-first.patch`(옛 판 기준이라 `CACHE` 줄은 손으로 맞춘다). 지금은 새 판이 학생 기기에 한 번 더 열어야 보인다. 적용하기 전에 꼭 묻는다.
+- 직접 눈으로 못 본 것: 3장 귀주 전투 장면, 5장 그림 카드(자동 테스트만 통과). 선생님께 해 보시고 의견 달라고 했다.
+- 실제 갤럭시 탭(S6 Lite)에서 프레임·장별 시간 재기, 배경음악 직접 들어 보기는 아직이다.
+- `CLAUDE.md` "아직 남은 일"의 작은 미완 항목들.
+
+## 7. 알아 두면 좋은 함정
+
+- Bash에서 `node -e "..."`로 한글·백틱·`${}`가 섞인 코드를 고치면 따옴표가 깨지기 쉽다. 긴 수정은 Write로 `.cjs` 스크립트를 만들어 돌리거나 Edit 도구를 쓴다. 정규식의 `\s` 같은 역슬래시가 사라지지 않았는지 꼭 다시 본다.
+- SVG를 문자열로 넣을 때 태그 사이 빈칸이 버튼 글(textContent)에 섞인다 → `pictures.js`처럼 `>\s+<`를 지운다.
+- 테스트 봇(`tests/bot.js`)은 버튼을 누르기 전에 그 버튼이 다른 화면에 덮였는지 검사한다. 한 테스트가 화면을 남기고 끝나면 뒤의 테스트들이 "covered by screen order"로 줄줄이 실패한다 → 맨 처음 실패한 것부터 고친다.
+- 장 순서를 바꿀 때는 `chapters/index.js`의 `no`, `SESSIONS[n].points` 순서, `tests/courses.test.js`를 함께 맞춘다.
