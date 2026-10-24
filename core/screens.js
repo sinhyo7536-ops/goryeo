@@ -139,7 +139,7 @@ export function showIntroCard(root, meta, lines, role = null) {
   });
 }
 
-export function showChapterResult(root, meta, r) {
+export function showChapterResult(root, meta, r, notes = null) {
   return new Promise(resolve => {
     const el = screen(root, 'result',
       h('div', { class: 'card' },
@@ -150,7 +150,9 @@ export function showChapterResult(root, meta, r) {
           h('div', {}, h('b', {}, `${r.quizCorrect}/${r.quizTotal}`), h('span', {}, '퀴즈')),
           r.firstTryTotal > 0 && h('div', {}, h('b', {}, `${r.firstTryCorrect}/${r.firstTryTotal}`), h('span', {}, '놀이 한 번에')),
           h('div', {}, h('b', {}, timeText(r.seconds)), h('span', {}, '걸린 시간'))),
-        h('button', { class: 'btn primary', type: 'button', onclick: () => { el.remove(); resolve(); } }, '다음')));
+        h('div', { class: 'row' },
+          notes && notes.length > 0 && h('button', { class: 'btn', type: 'button', onclick: () => showNotebook(root, meta, notes) }, '역사 수첩 보기'),
+          h('button', { class: 'btn primary', type: 'button', onclick: () => { el.remove(); resolve(); } }, '다음'))));
   });
 }
 
@@ -183,7 +185,7 @@ export function showSessionCard(root, session, save, chapters) {
 }
 
 const openMenus = new WeakMap(); // root → 열려 있는 메뉴의 약속 (Esc를 여러 번 눌러도 메뉴는 하나)
-export function showMenu(root, { muted, music = null, quality, storageOk = true }, onChange) {
+export function showMenu(root, { muted, music = null, quality, storageOk = true, notebook = false }, onChange) {
   if (openMenus.has(root)) return openMenus.get(root);
   const p = new Promise(resolve => {
     const close = v => { el.remove(); openMenus.delete(root); resolve(v); };
@@ -201,6 +203,7 @@ export function showMenu(root, { muted, music = null, quality, storageOk = true 
           music !== null && h('button', { class: 'btn', type: 'button', onclick: () => { onChange({ music: !music }); close('close'); } }, music ? '음악 끄기' : '음악 켜기')),
         h('p', {}, '화질'),
         h('div', { class: 'row' }, qb('low', '낮음'), qb('medium', '보통'), qb('high', '높음')),
+        notebook && h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => close('notebook') }, '역사 수첩')),
         h('div', { class: 'row' },
           h('button', { class: 'btn', type: 'button', onclick: () => (storageOk ? close('map') : (leave.hidden = false)) }, '장 선택으로'),
           h('button', { class: 'btn primary', type: 'button', onclick: () => close('close') }, '닫기')),
@@ -210,6 +213,35 @@ export function showMenu(root, { muted, music = null, quality, storageOk = true 
   return p;
 }
 
+// 역사 수첩: 이 장에서 알게 된 것. 살펴본 곳·만난 사람·사건 해설·확인 문제로 나누고, 문장마다 출처 번호를 단다.
+const NB_SECTIONS = [
+  ['place', '살펴본 곳', null],
+  ['person', '만난 사람', '사람들의 말은 역사 기록을 바탕으로 쉽게 꾸민 대사예요. 「기록에 남은 말」만 실제로 남은 말이에요.'],
+  ['event', '사건 해설', null],
+  ['quiz', '확인 문제', null],
+];
+export function showNotebook(root, meta, entries) {
+  return new Promise(resolve => {
+    const src = l => l.src && l.src.length ? h('span', { class: 'nb-src' }, `출처 ${l.src.join('·')}`) : null;
+    const sections = NB_SECTIONS.map(([kind, label, note]) => {
+      const list = entries.filter(e => e.kind === kind);
+      if (!list.length) return null;
+      return h('section', { class: `nb-sec nb-${kind}` }, h('h3', {}, label), note && h('p', { class: 'nb-note' }, note),
+        list.map(e => h('div', { class: 'nb-entry' },
+          kind !== 'event' && kind !== 'quiz' && h('h4', {}, e.title),
+          h('ul', {}, e.lines.map(l => kind === 'quiz'
+            ? h('li', {}, h('b', {}, l.text), ' → ', h('span', { class: 'nb-answer' }, l.answer), l.correct ? ' ○' : ' (다시 풀어서 맞힘)', h('div', { class: 'nb-explain' }, l.explain), src(l))
+            : h('li', {}, l.quote && h('span', { class: 'nb-quote' }, '기록에 남은 말 '), l.text, ' ', src(l)))))));
+    }).filter(Boolean);
+    const el = screen(root, 'notebook',
+      h('div', { class: 'card' },
+        h('div', { class: 'eyebrow' }, `역사 수첩 · ${meta.no}장`),
+        h('h2', {}, meta.title),
+        h('div', { class: 'nb-body' }, sections.length ? sections : h('p', { class: 'nb-empty' }, '아직 적은 것이 없어요. 안내판을 읽고 사람들과 이야기해 보세요.')),
+        h('button', { class: 'btn primary', type: 'button', onclick: () => { el.remove(); resolve(); } }, '닫기')));
+  });
+}
+
 export function showMessage(root, title, text) {
   screen(root, 'intro', h('div', { class: 'card' }, h('h2', {}, title), h('p', {}, text)));
 }
@@ -217,17 +249,21 @@ export function showMessage(root, title, text) {
 // 탐험 중 화면 위 정보: 장 제목, 목표, 메뉴 버튼, 인물 위 "대화하기" 표시, 터치 조작.
 export function createHud(root, { touch }) {
   const goal = h('span', { class: 'goal-text' });
+  const goalStep = h('span', { class: 'goal-step', hidden: true });
   const chapter = h('div', { class: 'hud-chapter' });
   const roleEl = h('div', { class: 'hud-role', hidden: true });
   const timer = h('div', { class: 'hud-timer', hidden: true });
   const counter = h('div', { class: 'hud-counter', hidden: true });
-  const box = h('div', { class: 'hud', hidden: true }, chapter, roleEl, h('div', { class: 'hud-goal' }, h('span', { class: 'seal' }, '목표'), goal), h('div', { class: 'hud-row' }, timer, counter));
+  const found = h('div', { class: 'hud-found', hidden: true });
+  const box = h('div', { class: 'hud', hidden: true }, chapter, roleEl, h('div', { class: 'hud-goal' }, h('span', { class: 'seal' }, '목표'), goal, goalStep), found, h('div', { class: 'hud-row' }, timer, counter));
+  const notice = h('div', { class: 'hud-notice', hidden: true, role: 'status' });
   const menuBtn = h('button', { class: 'menubtn', type: 'button', hidden: true, 'aria-label': '메뉴' }, '메뉴');
   const prompt = h('div', { class: 'prompt', hidden: true }, touch ? '대화 버튼을 눌러요' : 'E 대화하기');
   const joyZone = h('div', { class: 'joyzone', hidden: true });
   const talkBtn = h('button', { class: 'talkbtn', type: 'button', hidden: true, disabled: true }, '대화');
   const fade = h('div', { class: 'fade' });
-  root.append(box, menuBtn, prompt, joyZone, talkBtn, fade);
+  root.append(box, menuBtn, prompt, joyZone, talkBtn, fade, notice);
+  let noticeTimer = null;
   let camera = null;
   return {
     joyZone, talkBtn, menuBtn,
@@ -236,8 +272,13 @@ export function createHud(root, { touch }) {
       chapter.textContent = `${meta.no}장 · ${meta.years} ${meta.event}`;
       roleEl.hidden = !role; if (role) roleEl.textContent = `나: ${role.name}`;
       box.hidden = false; menuBtn.hidden = false; joyZone.hidden = talkBtn.hidden = !touch; },
-    hide() { box.hidden = true; menuBtn.hidden = true; prompt.hidden = true; joyZone.hidden = talkBtn.hidden = true; },
-    setGoal(text) { goal.textContent = text; },
+    hide() { box.hidden = true; menuBtn.hidden = true; prompt.hidden = true; joyZone.hidden = talkBtn.hidden = true; notice.hidden = true; found.hidden = true; },
+    // 잠깐 뜨는 알림(새 장소 발견 등): 화면 위 가운데, 누르지 않아도 사라진다
+    notice(text) { notice.textContent = text; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { notice.hidden = true; }, 2800); },
+    // 탐험 진행: 읽은 안내판 수 등 (null이면 숨김)
+    setFound(text) { found.hidden = text == null; if (text != null) found.textContent = text; },
+    // step: [지금, 전체] — 이 장의 목표 가운데 몇 번째인지(미션 진행)
+    setGoal(text, step = null) { goal.textContent = text; goalStep.hidden = !step; if (step) goalStep.textContent = `${step[0]}/${step[1]}`; },
     setTimer(sec) { timer.hidden = sec == null; if (sec != null) timer.textContent = `남은 시간 ${Math.max(0, Math.ceil(sec))}초`; },
     setCounter(text) { counter.hidden = text == null; if (text != null) counter.textContent = text; },
     setTalkEnabled(b) { talkBtn.disabled = !b; },

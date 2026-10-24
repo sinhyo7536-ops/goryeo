@@ -46,6 +46,7 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
     for (const [k, q] of quizzes.entries()) {
       const hide = ctx.world && ctx.ui ? showQuizView(ctx, chapter, q, k) : () => {}; // 3D 장면이 없는 시험용 ctx에서는 배경 없이
       const { correct } = await ctx.dialogue.quiz(q).finally(hide);
+      ctx.notebook?.recordQuiz(q, correct);
       result.quizTotal += 1;
       if (correct) result.quizCorrect += 1;
       else result.wrongQuizzes.push({ question: q.question, answer: q.options[q.answer], explain: q.explain });
@@ -66,12 +67,22 @@ export function roam(ctx, { onTalk, zones = [] }) {
   const { world, input, hud, dialogue } = ctx;
   let busy = false, stopped = false;
   const inside = new Set();
+  // 안내판(볼거리): 가까이 오면 '새 장소 발견'을 한 번 알리고, 읽은 수를 화면 위에 보인다
+  const spots = [...world.npcs.values()].filter(n => n.spot);
+  const st = ctx.spotState || (ctx.spotState = { found: new Set(), read: new Set() }), found = st.found, read = st.read; // 장마다 새로(main.js)
+  const showRead = () => hud.setFound?.(spots.length ? `살펴본 안내판 ${spots.filter(n => read.has(n.id)).length} / ${spots.length}` : null);
+  showRead();
   const off = world.onUpdate(() => {
     if (stopped || busy) { hud.setPrompt(null); hud.setTalkEnabled(false); return; }
     const npc = world.nearestNpc(2.8);
     hud.setPrompt(npc ? npc.mesh.position : null);
     hud.setTalkEnabled(!!npc);
     const p = world.player.position;
+    for (const n of spots) {
+      if (found.has(n.id) || !n.mesh.visible || n.mesh.position.distanceTo(p) > 7) continue;
+      found.add(n.id);
+      hud.notice?.(`새 장소 발견: ${n.mesh.userData.title || '안내판'}`);
+    }
     for (const z of zones) {
       const now = (!z.active || z.active()) && Math.hypot(p.x - z.x, p.z - z.z) < z.r; // 비활성 구역은 '안에 있음'으로 치지 않는다
       if (now && !inside.has(z)) { inside.add(z); z.onEnter(); }
@@ -86,11 +97,13 @@ export function roam(ctx, { onTalk, zones = [] }) {
     const p = npc.mesh.position;
     npc.mesh.rotation.y = Math.atan2(world.player.position.x - p.x, world.player.position.z - p.z);
     world.setTalkCamera(npc.mesh); // 대화하는 동안 인물 얼굴 가까이
+    if (npc.spot) { ctx.notebook?.setContext({ kind: 'place', title: npc.mesh.userData.title || '안내판' }); read.add(npc.id); showRead(); }
     try { await onTalk(npc.id); } finally {
+      ctx.notebook?.setContext(null);
       if (world.camMode === 'talk') world.camMode = 'follow';
       dialogue.close();
       busy = false; input.enabled = !stopped;
     }
   });
-  return () => { stopped = true; off(); unbind(); hud.setPrompt(null); hud.setTalkEnabled(false); };
+  return () => { stopped = true; off(); unbind(); hud.setPrompt(null); hud.setTalkEnabled(false); hud.setFound?.(null); };
 }

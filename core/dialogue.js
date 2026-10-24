@@ -4,21 +4,26 @@ import { portraitURL } from './faces.js';
 const NARR = { name: '해설', mark: '史', color: '#5a5248' };
 const CLICK_GUARD_MS = 250; // 선택지가 열린 직후의 탭은 앞 대사를 넘기려던 탭이므로 무시
 
-export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = false } = {}) {
+// onSay(line): 대사가 나올 때마다 부른다(역사 수첩이 사실을 적는다)
+export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = false, onSay = null } = {}) {
   const all = { narr: NARR, ...speakers };
   const el = document.createElement('div');
   el.className = 'dlg';
   el.hidden = true;
-  el.innerHTML = '<div class="dlg-portrait"></div><div class="dlg-name"></div><div class="dlg-text"></div><div class="dlg-next">눌러서 계속 ▸</div><div class="dlg-choices" hidden></div>';
+  el.innerHTML = '<div class="dlg-portrait"></div><div class="dlg-name"></div><div class="dlg-tag" hidden></div><div class="dlg-text"></div><div class="dlg-next">눌러서 계속 ▸</div><div class="dlg-choices" hidden></div>';
   root.appendChild(el);
   const $ = s => el.querySelector(s);
   const textEl = $('.dlg-text'), nextEl = $('.dlg-next'), choicesEl = $('.dlg-choices');
 
   let advanceFn = null, pickFn = null, timer = null, openedAt = 0;
 
-  function show(who) {
+  // 사람의 말에는 작은 표시: 기록에 남은 말(quote)인지, 기록을 바탕으로 쉽게 꾸민 말인지
+  function show(who, line = null) {
     const s = all[who] || NARR;
     $('.dlg-name').textContent = s.name;
+    const tag = $('.dlg-tag');
+    tag.hidden = !s.look;
+    tag.textContent = line && line.quote ? '기록에 남은 말' : '꾸민 대사';
     const pic = $('.dlg-portrait');
     if (s.look) {            // 사람: 만화풍 얼굴 그림
       pic.textContent = '';
@@ -34,7 +39,8 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
 
   function say(line) {
     return new Promise(resolve => {
-      show(line.who);
+      show(line.who, line);
+      if (onSay) onSay(line);
       choicesEl.hidden = true; nextEl.hidden = false;
       const chars = [...line.text];
       clearInterval(timer); timer = null;
