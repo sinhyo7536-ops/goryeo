@@ -9,13 +9,19 @@ const PORT_Z = 70, JINDO = [-10, 4], JEJU = [6, -74];
 
 function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 
+// 고려 배: 바닥이 평평한 몸통, 비스듬한 뱃머리판(앞 +z), 노, 돛대와 대나무 살을 댄 네모 돛
 function makeBoat(mk, hull, sail, parent) {
   const g = new THREE.Group(); parent.add(g);
-  mk(new THREE.BoxGeometry(1.9, 0.7, 4.2), hull, 0, 0.1, 0, g);
-  mk(new THREE.BoxGeometry(1.5, 0.2, 3.6), 0x8a6a45, 0, 0.5, 0, g);
-  mk(new THREE.CylinderGeometry(0.08, 0.08, 3.6, 5), 0x5a3f2a, 0, 2.2, 0.2, g);
+  mk(new THREE.BoxGeometry(1.5, 0.35, 3.6), hull, 0, -0.05, 0, g);
+  for (const sx of [-1, 1]) mk(new THREE.BoxGeometry(0.14, 0.7, 4.2), hull, sx * 0.88, 0.2, 0, g).rotation.z = sx * -0.15;
+  mk(new THREE.BoxGeometry(1.8, 0.75, 0.14), hull, 0, 0.25, 2.12, g).rotation.x = -0.5;
+  mk(new THREE.BoxGeometry(1.7, 0.7, 0.14), hull, 0, 0.25, -2.1, g).rotation.x = 0.4;
+  mk(new THREE.BoxGeometry(1.6, 0.08, 3.8), 0x8a6a45, 0, 0.42, 0, g);
+  for (const sx of [-1, 1]) for (const z of [-0.8, 0.6]) { const o = mk(new THREE.BoxGeometry(0.05, 0.05, 1.6), 0x6b4a32, sx * 1.3, 0.2, z, g); o.rotation.set(0, Math.PI / 2, sx * 0.4); }
+  mk(new THREE.CylinderGeometry(0.07, 0.09, 3.6, 6), 0x5a3f2a, 0, 2.2, 0.2, g);
   const s = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 2.2), new THREE.MeshLambertMaterial({ color: sail, side: THREE.DoubleSide }));
   s.position.set(0, 2.5, 0.25); g.add(s);
+  for (let i = 0; i < 5; i++) mk(new THREE.BoxGeometry(1.9, 0.04, 0.04), 0x7a6a4a, 0, 1.5 + i * 0.5, 0.27, g); // 돛에 댄 대나무 살
   return g;
 }
 
