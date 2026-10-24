@@ -9,7 +9,7 @@
 //   collect : 장면 속 빛나는 곳에 차례로 가기 { title, spots: [{ x, z }], seconds, howto }
 // 모든 부분에 fail(다시 할 때 힌트), done(끝난 뒤 대사), before/after(ctx, scene) 를 둘 수 있다.
 import * as THREE from 'three';
-import { showHowTo, chooseCards, sortCards, placeOnBoard, orderCards, timingBar } from '../../core/minigame.js';
+import { showHowTo, chooseCards, sortCards, placeOnBoard, orderCards, timingBar, readBook, showDocument } from '../../core/minigame.js';
 import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts } from '../joseon/common.js';
 import { buildTown } from './town.js';
 import { PLAY } from './play.js';
@@ -29,6 +29,8 @@ const HOWTO = {
   sneak: '불빛(감시원이 보는 곳)을 피해 파란 고리를 차례로 지나가요. 들키면 앞 고리에서 다시 가요.',
   judge: '사람들에게 다가가 대화 버튼을 눌러 이야기를 듣고, 그 말이 맞는지 골라요. 틀리면 해설을 듣고 다시 골라요.',
   build: '지을 것을 보고 알맞은 터로 걸어가 대화 버튼을 눌러요. 맞으면 그 자리에 건물이 지어져요.',
+  book: '그림과 글을 읽고 \'다음 쪽\'을 눌러 책장을 넘겨요. 다 읽으면 \'다 읽었어요\'를 눌러요.',
+  doc: '문서에 적힌 것을 읽고 \'다 읽었어요\'를 눌러요.',
 };
 
 // 장면 속 빛나는 고리들을 차례로 찾아가기. seconds 안에 다 가면 성공(쉬우면 시간 1.5배).
@@ -80,6 +82,9 @@ function runPart(ctx, scene, part, easy) {
     case 'order': return orderCards(ctx, { title: part.title, cards: part.cards, hint: typeof part.fail === 'string' ? part.fail : undefined, easy });
     case 'gauge': return timingBar(ctx, { title: part.title, prompt: part.prompt, label: part.label, zone: part.zone, seconds: part.seconds, easy });
     case 'collect': return collect(ctx, scene, part, easy);
+    case 'book': return readBook(ctx, { title: part.title, pages: part.pages });
+    case 'scene': return part.play(ctx, scene).then(() => true); // 짧은 장면(관아를 차지하는 모습 등)
+    case 'doc': return showDocument(ctx, { title: part.title, heading: part.heading, intro: part.docIntro, items: part.items, src: part.src });
     case 'drive': case 'stops': case 'deliver': case 'find': case 'ambush': case 'sneak': return PLAY[part.type](ctx, part, easy);
     default: throw new Error(`unknown part ${part.type}`);
   }
@@ -121,7 +126,8 @@ export function makeKitChapter(def) {
       for (const part of def.parts.slice(from)) {
         if (part.intro) { await sayAll(dialogue, part.intro); dialogue.close(); }
         if (part.before) part.before(ctx, scene);
-        results.push(await tryPart(ctx, easy => runPart(ctx, scene, part, easy), part.fail));
+        if (['book', 'doc', 'scene'].includes(part.type)) await runPart(ctx, scene, part, false); // 읽기·장면은 첫 시도 점수에 넣지 않는다
+        else results.push(await tryPart(ctx, easy => runPart(ctx, scene, part, easy), part.fail));
         if (part.after) part.after(ctx, scene);
         if (part.done) { await sayAll(dialogue, part.done); dialogue.close(); }
       }

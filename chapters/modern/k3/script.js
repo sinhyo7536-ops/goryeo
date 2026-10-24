@@ -62,36 +62,46 @@ export default {
         { label: '고부 관아 앞', needPickups: true, needSay: '아직 들판에 남은 농민이 있어요! 화살표를 따라가 봐요.',
           talk: [{ who: 'jeonbongjun', text: '모두 모였구나. 이제 고부 관아로 가자!' }] },
       ],
-      pickups: [{ label: '농민', follow: 'peasant' }, { label: '농민', follow: 'peasant' }, { label: '농민', follow: 'commoner' }],
+      pickups: [{ label: '농민', follow: 'peasant', say: '농민이 함께해요!' }, { label: '농민', follow: 'peasant', say: '농민이 함께해요!' }, { label: '농민', follow: 'commoner', say: '농민이 함께해요!' }],
       fail: '화살표가 가리키는 빛나는 곳으로 걸어가요.',
       done: [{ who: 'narr', text: '전봉준이 이끈 농민들의 봉기는 큰 농민 운동이 되었어요. 이것을 동학 농민 운동이라고 해요.', src: ['S51'] }],
     },
-    demands: {
-      type: 'find', src: ['S51'], title: '농민군 진영에서 농민군이 요구한 개혁안을 찾아요', counter: '찾은 요구',
-      howto: '팻말 가운데 농민군이 요구한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
-      intro: [{ who: 'farmer', text: '우리가 나라에 바라는 것들을 적어 두었어. 진짜 요구만 찾아 줘!' }],
-      items: [
-        { text: '탐관오리를 모두 쫓아낼 것', correct: true, look: 'peasant' },
-        { text: '세금을 더 많이 걷을 것', correct: false },
-        { text: '관직을 파는 사람들을 모두 쫓아낼 것', correct: true, look: 'peasant' },
-        { text: '집마다 매기는 여러 가지 세금을 줄일 것', correct: true, look: 'commoner', talk: [{ who: 'peasant', text: '그래야 우리 농민들이 살 수 있어요.' }] },
-        { text: '외국 군대를 불러들일 것', correct: false },
+    // 고부 관아를 차지하는 장면(선생님 의견으로 넣음). 조병갑은 농민군이 온다는 소식에 미리 전주로 달아났다(S65).
+    gobu: {
+      type: 'scene', title: '고부 관아로',
+      lines: [
+        { who: 'narr', text: '1894년 1월, 전봉준이 이끄는 농민 1천여 명이 고부 관아로 몰려갔어요.', src: ['S65'] },
+        { who: 'narr', text: '농민군이 온다는 소식에 군수 조병갑은 관아를 버리고 전주로 달아났어요.', src: ['S65'] },
+        { who: 'narr', text: '농민군은 관아를 차지하고, 억울하게 거두어 간 곡식을 농민들에게 나누어 주었어요.', src: ['S65'] },
+        { who: 'narr', text: '정부는 조병갑을 군수 자리에서 쫓아냈어요.', src: ['S65'] },
       ],
-      fail: '농민들을 괴롭히던 것을 없애 달라는 요구였어요.',
     },
-    flow: {
-      type: 'stops', src: ['S51'], title: '동학 농민 운동이 일어난 차례대로 찾아가요', counter: '찾아간 곳',
-      howto: '이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요.',
-      intro: [{ who: 'farmer', text: '우리 운동이 어떻게 흘러갔는지 차례대로 되짚어 보자.' }],
-      spots: [
-        { label: '고부 관아 습격', look: 'peasant', talk: [{ who: 'farmer', text: '고부 관아를 습격하며 우리 운동이 시작되었어.' }] },
-        { label: '정부와 화약을 맺고 해산', look: 'joseonOfficial', talk: [{ who: 'farmer', text: '정부와 화약을 맺고 일단 흩어졌지.' }] },
-        { label: '일본군의 경복궁 점령', look: 'gendarme', talk: [{ who: 'farmer', text: '그런데 일본군이 경복궁을 점령했어!' }] },
-        { label: '농민군이 다시 일어남', look: 'peasant', talk: [{ who: 'jeonbongjun', text: '나라를 지키려고 다시 일어섰소.' }] },
-        { label: '전봉준 체포', look: 'jeonbongjun', talk: [{ who: 'farmer', text: '농민군은 패하고 전봉준 장군님은 체포되셨어.' }] },
+    // 농민군의 요구: 찾아다니지 않고 문서로 바로 본다(선생님 의견)
+    demands: {
+      type: 'doc', src: ['S51'], title: '농민군이 나라에 바란 것', heading: '농민군의 요구',
+      docIntro: '농민군이 나라에 바라는 것을 적은 문서예요. 하나씩 읽어 보아요.',
+      intro: [{ who: 'farmer', text: '우리가 나라에 바라는 것들을 적어 두었어. 읽어 봐!' }],
+      items: [
+        { text: '탐관오리를 모두 쫓아낼 것', note: '백성을 괴롭히는 나쁜 관리를 몰아내 달라는 뜻이에요.' },
+        { text: '관직을 파는 사람들을 모두 쫓아낼 것', note: '돈을 받고 벼슬을 파는 일을 없애 달라는 뜻이에요.' },
+        { text: '집마다 매기는 여러 가지 세금을 줄일 것', note: '세금이 너무 많아 농민이 살기 어려웠어요.' },
       ],
-      fail: '처음엔 정부와 화약을 맺었지만, 일본이 경복궁을 점령하자 농민군이 다시 일어났어요.',
-      done: [{ who: 'narr', text: '다시 일어난 농민군은 일본군과 관군에 패했고, 전봉준 등 지도자들은 체포되었어요.', src: ['S51'] }],
+    },
+    // 1·2차 동학 농민 운동: 역사책을 넘기며 본다(선생님 의견). 쪽마다 그 일의 그림(chapters/modern/pictures.js)
+    flow: {
+      type: 'book', title: '역사책으로 보는 동학 농민 운동',
+      intro: [{ who: 'farmer', text: '우리 운동이 어떻게 흘러갔는지 역사책으로 함께 넘겨 보자.' }],
+      pages: [
+        { title: '고부 관아를 차지하다', year: '1894년 1월', pic: 'gobu', lines: [{ who: 'narr', text: '고부 군수의 횡포를 참다못한 농민들이 전봉준을 앞세워 고부 관아를 차지했어요.', src: ['S65', 'S51'] }] },
+        { title: '1차 봉기: 황토현', year: '1894년', pic: 'hwangtohyeon', lines: [{ who: 'narr', text: '다시 일어난 농민군은 황토현에서 관군을 크게 물리쳤어요.', src: ['S64'] }] },
+        { title: '전주성을 차지하다', year: '1894년', pic: 'jeonju', lines: [{ who: 'narr', text: '농민군은 기세를 몰아 전라도의 중심인 전주성을 차지했어요.', src: ['S64'] }] },
+        { title: '전주 화약과 집강소', year: '1894년', pic: 'hwayak', lines: [
+          { who: 'narr', text: '청과 일본 군대가 들어오자 농민군은 정부와 화약을 맺고 물러났어요.', src: ['S64', 'S51'] },
+          { who: 'narr', text: '그 뒤 전라도 고을마다 집강소를 두어 스스로 개혁을 펼쳤어요.', src: ['S64'] },
+        ] },
+        { title: '2차 봉기: 다시 일어서다', year: '1894년', pic: 'rise', lines: [{ who: 'narr', text: '일본군이 경복궁을 점령하자, 나라를 지키려고 농민군이 다시 일어났어요.', src: ['S51', 'S64'] }] },
+        { title: '우금치 전투와 전봉준 체포', year: '1894년', pic: 'ugeumchi', lines: [{ who: 'narr', text: '농민군은 공주 우금치에서 일본군과 관군에게 크게 졌고, 전봉준 등 지도자들은 체포되었어요.', src: ['S64', 'S51'] }] },
+      ],
     },
   },
   result: [{ who: 'narr', text: '정부는 농민군의 요구를 일부 받아들여 갑오개혁을 했고, 신분제와 과거제가 없어졌어요.', src: ['S51'] }],

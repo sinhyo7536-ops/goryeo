@@ -41,7 +41,7 @@ export default makeKitChapter({
     scatter: [{ kind: 'pine', count: 30, area: { x0: -60, x1: 60, z0: -40, z1: -14 }, seed: 211 }],
   },
   parts: [
-    { ...script.parts.flow, arena: NIGHT, from: [0, 15], spots: xy(script.parts.flow.spots, [{ x: -4, z: 9 }, { x: 4, z: -10 }, { x: 5, z: 4 }, { x: 9, z: -12 }, { x: -6, z: -4 }]) },
+    { ...script.parts.flow, arena: NIGHT, from: [0, 15], route: xy(script.parts.flow.route, [{ x: 0, z: 9 }, { x: -1, z: 3 }, { x: 1, z: -3 }, { x: -1, z: -9 }, { x: 0, z: -15 }]) }, // 길을 따라 차례대로
     { ...script.parts.reform, arena: YARD, from: [0, 11], items: xy(script.parts.reform.items, [{ x: -10, z: -3 }, { x: -5, z: 4 }, { x: 0, z: -4 }, { x: 5, z: 4 }, { x: 10, z: -3 }]) },
   ],
 });

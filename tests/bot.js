@@ -67,6 +67,8 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     if (stopped) return;
     const start = [...ui.querySelectorAll('.screen button')].find(b => b.textContent === '시작');
     if (start) { tap(start); return; }
+    const bookNext = ui.querySelector('.screen.book .book-next') || ui.querySelector('.screen.doc .doc-ok'); // 역사책 넘기기·문서 읽기
+    if (bookNext) { tap(bookNext); return; }
     // 지도에서 고르기: mapPicks 순서대로 누르고, 마지막 것은 계속 누른다
     const place = picks.length && ui.querySelector(`.map-place[data-place="${picks[0]}"]`);
     if (place) { if (picks.length > 1) picks.shift(); tap(place); return; }

@@ -39,6 +39,7 @@ export const LOOKS = {
   injo: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   kimsangheon: { robe: 0x55608a, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'full', beardColor: '#cfc9bd', age: 'old' } },
   choemyeonggil: { robe: 0x5d6b52, hat: 'official', face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },
+  jobyeonggap: { robe: 0x6a4a6a, hat: 'official', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } }, // 고부 군수 조병갑
   qingSoldier: { robe: 0x5a4632, hat: 'qing', gear: 'spear', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat' } },
   jeongjo: { robe: 0xa3262a, hat: 'ikseon', trim: 0xd9a441, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'mustache' } },
   jeongyakyong: { robe: 0xc9d4d8, hat: 'gat', trim: 0x2b241c, face: { eyes: 'stern', brows: 'stern', mouth: 'flat', beard: 'goatee' } },

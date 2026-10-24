@@ -506,3 +506,53 @@ export function fitFigures(ctx, { title, figures, circles, easy = false, hint = 
     });
   });
 }
+
+// 역사책 넘기기: 한 쪽마다 왼쪽에 그림, 오른쪽에 제목·해·해설(출처). '다음'을 누르면 책장이 넘어간다. 마지막 쪽에서 '다 읽었어요'.
+// pages: [{ title, year?, figure(SVG 글), lines: [{ who: 'narr', text, src }] }]. 읽은 해설은 역사 수첩에 적는다. 늘 true로 끝난다.
+export function readBook(ctx, { title, pages }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order book');
+    const card = el('div', 'card wide');
+    const spread = el('div', 'book-spread');
+    const pic = el('div', 'book-pic'), text = el('div', 'book-text');
+    spread.append(pic, text);
+    const prev = el('button', 'btn book-prev', '◀ 이전 쪽'); prev.type = 'button';
+    const next = el('button', 'btn primary book-next', '다음 쪽 ▶'); next.type = 'button';
+    const page = el('span', 'page');
+    const nav = el('div', 'book-nav'); nav.append(prev, page, next);
+    card.append(el('div', 'eyebrow', '역사책 읽기'), el('h2', null, title), spread, nav);
+    screen.append(card); ctx.ui.append(screen);
+    let i = 0;
+    const show = () => {
+      const p = pages[i];
+      pic.innerHTML = p.figure || '';
+      text.replaceChildren(el('h3', null, p.title), ...(p.year ? [el('div', 'book-year', p.year)] : []),
+        ...p.lines.map(l => { const q = el('p', null, l.text); if (l.src) q.append(' ', el('span', 'book-src', `[${l.src.join('·')}]`)); return q; }));
+      for (const l of p.lines) ctx.notebook?.record(l);
+      page.textContent = `${i + 1} / ${pages.length}`;
+      prev.disabled = i === 0;
+      next.textContent = i === pages.length - 1 ? '다 읽었어요' : '다음 쪽 ▶';
+    };
+    const turn = d => { spread.classList.remove('turn'); void spread.offsetWidth; spread.classList.add('turn'); setTimeout(() => { i += d; show(); }, 200); };
+    prev.addEventListener('click', () => { if (i > 0) turn(-1); });
+    next.addEventListener('click', () => { if (i < pages.length - 1) turn(1); else { screen.remove(); resolve(true); } });
+    show();
+  });
+}
+
+// 문서 보기: 한지에 적은 글(요구 사항 등)을 바로 읽는다. items: [{ text, note? }]. 읽은 것은 역사 수첩에 적는다(src가 있으면).
+export function showDocument(ctx, { title, heading, intro = '', items, src = null, button = '다 읽었어요' }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order doc');
+    const card = el('div', 'card wide');
+    const paper = el('div', 'doc-paper');
+    const ol = el('ol');
+    for (const it of items) { const li = el('li', null, it.text); if (it.note) li.append(el('small', null, it.note)); ol.append(li); }
+    paper.append(el('h3', null, heading), ol);
+    const ok = el('button', 'btn primary doc-ok', button); ok.type = 'button';
+    card.append(el('div', 'eyebrow', '문서 읽기'), el('h2', null, title), ...(intro ? [el('p', null, intro)] : []), paper, ok);
+    screen.append(card); ctx.ui.append(screen);
+    if (src) for (const it of items) ctx.notebook?.record({ who: 'narr', text: `${heading}: ${it.text}`, src });
+    ok.addEventListener('click', () => { screen.remove(); resolve(true); });
+  });
+}

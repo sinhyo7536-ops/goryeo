@@ -111,3 +111,43 @@ test('hud: goal shows which step of the chapter it is', () => {
     ok(ui.querySelector('.goal-step').hidden);
   } finally { ui.remove(); }
 });
+
+import { readBook, showDocument } from '../core/minigame.js';
+test('book: pages turn with 다음 쪽, every page line is noted, and it ends with 다 읽었어요', async () => {
+  const ui = document.createElement('div'); document.body.appendChild(ui);
+  const nb = createNotebook(); nb.start([], {});
+  try {
+    const p = readBook({ ui, notebook: nb }, { title: '책', pages: [
+      { title: '첫 쪽', figure: '<svg></svg>', lines: [{ who: 'narr', text: '가', src: ['S51'] }] },
+      { title: '둘째 쪽', lines: [{ who: 'narr', text: '나', src: ['S51'] }] },
+    ] });
+    ok(ui.textContent.includes('첫 쪽') && ui.textContent.includes('1 / 2'));
+    ui.querySelector('.book-next').click(); await sleep(260);
+    ok(ui.textContent.includes('둘째 쪽'));
+    eq(ui.querySelector('.book-next').textContent, '다 읽었어요');
+    ui.querySelector('.book-next').click();
+    eq(await p, true);
+    eq(nb.entries()[0].lines.map(l => l.text), ['가', '나']);
+  } finally { ui.remove(); }
+});
+
+test('doc: a document lists its items with notes and closes', async () => {
+  const ui = document.createElement('div'); document.body.appendChild(ui);
+  try {
+    const p = showDocument({ ui }, { title: '요구', heading: '농민군의 요구', items: [{ text: '탐관오리를 쫓아낼 것', note: '나쁜 관리' }] });
+    ok(ui.querySelector('.doc-paper li').textContent.includes('탐관오리'));
+    ui.querySelector('.doc-ok').click();
+    eq(await p, true);
+  } finally { ui.remove(); }
+});
+
+test('hud: remaining time shows big in the middle of the top', () => {
+  const ui = document.createElement('div'); document.body.appendChild(ui);
+  try {
+    const hud = createHud(ui, { touch: false });
+    hud.setTimer(42.2);
+    const big = ui.querySelector('.hud-bigtimer');
+    ok(!big.hidden && big.textContent === '43초');
+    hud.setTimer(null); ok(big.hidden);
+  } finally { ui.remove(); }
+});

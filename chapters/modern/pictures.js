@@ -1,0 +1,40 @@
+// 근대~현대편 역사책 그림(SVG): 쪽마다 그 일을 한눈에 보여 준다. 그림 안에 설명 글은 넣지 않는다(오른쪽 쪽에 있다).
+// viewBox 200×140. 작은 그림 조각(하늘·땅·집·사람·깃발 등)을 모아 그린다.
+const wrap = body => `<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body.replace(/>\s+</g, '><').trim()}</svg>`;
+const sky = (top = '#bcd8ee', bottom = '#eaf2f6') => `<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs><rect width="200" height="140" fill="url(#s)"/>`;
+const ground = (y = 100, c = '#a8a070') => `<rect x="0" y="${y}" width="200" height="${140 - y}" fill="${c}"/>`;
+const hill = (x, y, w, h, c = '#7a8a5a') => `<path d="M${x - w / 2} ${y} Q${x} ${y - h * 2} ${x + w / 2} ${y} Z" fill="${c}"/>`;
+// 기와집(관아·궁궐): 기단, 몸채, 휜 지붕
+const tileHouse = (x, y, w = 50, roof = '#3d4846') => `<rect x="${x - w / 2}" y="${y - 4}" width="${w}" height="4" fill="#b3ab99"/><rect x="${x - w / 2 + 4}" y="${y - 22}" width="${w - 8}" height="18" fill="#e9e2cf" stroke="#6b4a32" stroke-width="1.5"/>
+  <path d="M${x - w / 2 - 6} ${y - 20} Q${x} ${y - 26} ${x + w / 2 + 6} ${y - 20} L${x + w / 2 - 6} ${y - 34} L${x - w / 2 + 6} ${y - 34} Z" fill="${roof}"/><rect x="${x - 5}" y="${y - 16}" width="10" height="12" fill="#6b4a32"/>`;
+const hut = (x, y) => `<rect x="${x - 12}" y="${y - 14}" width="24" height="14" fill="#cdb58e" stroke="#6b4a32"/><path d="M${x - 16} ${y - 12} Q${x} ${y - 30} ${x + 16} ${y - 12} Z" fill="#d2b07a" stroke="#8a6a48"/>`;
+const western = (x, y, w = 44, h = 40, c = '#9a4a32') => `<rect x="${x - w / 2}" y="${y - h}" width="${w}" height="${h}" fill="${c}" stroke="#5a2a20"/>${[0, 1, 2].map(i => [0, 1].map(j => `<rect x="${x - w / 2 + 6 + i * (w - 12) / 3}" y="${y - h + 6 + j * 16}" width="8" height="10" fill="#3f5a6e"/>`).join('')).join('')}<path d="M${x - w / 2 - 3} ${y - h} L${x} ${y - h - 12} L${x + w / 2 + 3} ${y - h} Z" fill="#4a4f55"/>`;
+// 사람: 머리·몸, 모자(갓·상투·군모), 손에 든 것(창·깃발)
+const person = (x, y, robe = '#e6dcc3', { hat = 'topknot', hold = null, s = 1 } = {}) => {
+  const k = v => v * s;
+  const head = `<circle cx="${x}" cy="${y - k(26)}" r="${k(5)}" fill="#f0c9a2" stroke="#8a6a48" stroke-width=".8"/>`;
+  const hats = { topknot: `<circle cx="${x}" cy="${y - k(32)}" r="${k(2)}" fill="#2b241c"/>`, gat: `<ellipse cx="${x}" cy="${y - k(30)}" rx="${k(8)}" ry="${k(1.6)}" fill="#1e1c1a"/><rect x="${x - k(3)}" y="${y - k(36)}" width="${k(6)}" height="${k(6)}" fill="#1e1c1a"/>`, cap: `<rect x="${x - k(5)}" y="${y - k(33)}" width="${k(10)}" height="${k(4)}" fill="#3a4a3a"/>`, crown: `<rect x="${x - k(5)}" y="${y - k(36)}" width="${k(10)}" height="${k(6)}" fill="#d9a441"/>`, none: '' };
+  const body = `<path d="M${x - k(7)} ${y} L${x - k(5)} ${y - k(21)} L${x + k(5)} ${y - k(21)} L${x + k(7)} ${y} Z" fill="${robe}" stroke="#6b5a48" stroke-width=".8"/>`;
+  const holds = { spear: `<line x1="${x + k(8)}" y1="${y}" x2="${x + k(8)}" y2="${y - k(44)}" stroke="#6b4a32" stroke-width="${k(1.6)}"/>`, flag: `<line x1="${x + k(8)}" y1="${y}" x2="${x + k(8)}" y2="${y - k(46)}" stroke="#6b4a32" stroke-width="${k(1.4)}"/><rect x="${x + k(8)}" y="${y - k(46)}" width="${k(12)}" height="${k(8)}" fill="#f2efe6" stroke="#8a2f24"/>`, gun: `<line x1="${x + k(6)}" y1="${y - k(10)}" x2="${x + k(10)}" y2="${y - k(36)}" stroke="#2b2b2b" stroke-width="${k(2)}"/>`, paper: `<rect x="${x + k(5)}" y="${y - k(20)}" width="${k(9)}" height="${k(12)}" fill="#fffaf0" stroke="#8a8a88"/>` };
+  return body + head + (hats[hat] || '') + (hold ? holds[hold] : '');
+};
+const crowd = (x0, y, n, robe, opt = {}, gap = 12) => Array.from({ length: n }, (_, i) => person(x0 + i * gap, y + (i % 2) * 4, Array.isArray(robe) ? robe[i % robe.length] : robe, { ...opt, hold: opt.hold && i % 2 === 0 ? opt.hold : null })).join('');
+const smoke = (x, y, r = 10) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#9a9a96" opacity=".7"/><circle cx="${x + r * .8}" cy="${y - r * .6}" r="${r * .8}" fill="#b3b3ae" opacity=".7"/><circle cx="${x - r * .7}" cy="${y - r * .5}" r="${r * .7}" fill="#a8a8a4" opacity=".7"/>`;
+const flag = (x, y, c = '#f2efe6', h = 40) => `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - h}" stroke="#6b4a32" stroke-width="2"/><rect x="${x}" y="${y - h}" width="18" height="12" fill="${c}" stroke="#6b4a32" stroke-width=".8"/>`;
+const taeguk = (x, y) => `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - 44}" stroke="#6b4a32" stroke-width="2"/><rect x="${x}" y="${y - 44}" width="22" height="15" fill="#fff" stroke="#888" stroke-width=".6"/><circle cx="${x + 11}" cy="${y - 36.5}" r="4" fill="#cd2e3a"/><path d="M${x + 7} ${y - 36.5} a4 4 0 0 0 8 0 z" fill="#0047a0"/>`;
+
+export const PIC = {
+  // 동학 농민 운동
+  gobu: wrap(`${sky()}${ground(104)}${tileHouse(140, 104, 60)}<rect x="104" y="80" width="6" height="24" fill="#b3ab99"/><rect x="170" y="80" width="6" height="24" fill="#b3ab99"/>${crowd(14, 120, 7, ['#e6dcc3', '#d8cdb0'], { hold: 'spear' }, 13)}${person(108, 120, '#d8cdb0', { hold: 'flag' })}`),
+  hwangtohyeon: wrap(`${sky('#f6d6a8', '#f6ead6')}${ground(110, '#8a7a52')}${hill(70, 110, 140, 30, '#7a8a5a')}${crowd(36, 82, 6, '#e6dcc3', { hold: 'spear', s: .8 }, 12)}${crowd(120, 128, 5, '#3a4a6a', { hat: 'gat', hold: 'gun', s: .8 }, 14)}`),
+  jeonju: wrap(`${sky()}${ground(104)}<rect x="20" y="62" width="160" height="42" fill="#b3ada2" stroke="#6b6152"/>${Array.from({ length: 10 }, (_, i) => `<rect x="${22 + i * 16}" y="56" width="10" height="7" fill="#b3ada2" stroke="#6b6152"/>`).join('')}<path d="M86 104 L86 82 Q100 68 114 82 L114 104 Z" fill="#3a2c20"/>${tileHouse(100, 62, 44)}${flag(150, 56, '#f2efe6')}${flag(52, 56, '#f2efe6')}`),
+  hwayak: wrap(`${sky()}${ground(104)}${tileHouse(150, 104, 56)}<rect x="132" y="66" width="36" height="9" fill="#fffaf0" stroke="#6b4a32"/>${person(70, 120, '#e6dcc3', { hold: 'paper' })}${person(100, 120, '#3a4a6a', { hat: 'gat' })}<path d="M78 98 Q86 92 94 98" stroke="#6b4a32" stroke-width="2" fill="none"/>${crowd(14, 122, 3, '#d8cdb0', { s: .8 }, 12)}`),
+  rise: wrap(`${sky('#c8c0b0', '#ebe5da')}${ground(104, '#9a8a62')}${tileHouse(50, 82, 56, '#2f3634')}${crowd(22, 92, 4, '#5a6a4a', { hat: 'cap', hold: 'gun', s: .6 }, 10)}${crowd(100, 126, 7, ['#e6dcc3', '#d8cdb0'], { hold: 'spear' }, 13)}${flag(190, 126, '#f2efe6', 50)}`),
+  ugeumchi: wrap(`${sky('#b8bcc0', '#dfe0e0')}${ground(110, '#8a8070')}${hill(150, 110, 120, 34, '#6f7a5a')}${crowd(120, 74, 5, '#5a6a4a', { hat: 'cap', hold: 'gun', s: .7 }, 11)}${smoke(140, 66, 9)}${smoke(170, 70, 8)}${crowd(10, 128, 5, '#e6dcc3', { hold: 'spear', s: .8 }, 12)}`),
+  // 독립 협회와 대한 제국
+  eulmi: wrap(`${sky('#9aa0a8', '#d6d8da')}${ground(104, '#8a8478')}${tileHouse(100, 104, 90)}${crowd(30, 126, 3, '#e6dcc3', { s: .8 }, 12)}<rect x="0" y="0" width="200" height="140" fill="#1e1c1a" opacity=".12"/>`),
+  agwan: wrap(`${sky()}${ground(108)}<rect x="96" y="40" width="20" height="30" fill="#f2efe6" stroke="#8a8478"/><path d="M94 40 L106 24 L118 40 Z" fill="#4a4f55"/>${western(120, 108, 76, 40, '#f2efe6')}${person(50, 124, '#c08a2a', { hat: 'crown' })}${person(30, 126, '#3a4a6a', { hat: 'gat', s: .9 })}`),
+  newspaper: wrap(`${sky('#f6ead6', '#fbf5e6')}<rect x="40" y="18" width="120" height="104" fill="#fffaf0" stroke="#6b4a32" stroke-width="2"/><rect x="52" y="28" width="96" height="16" fill="#2b241c"/>${Array.from({ length: 6 }, (_, i) => `<rect x="${52 + (i % 2) * 50}" y="${54 + Math.floor(i / 2) * 20}" width="44" height="3" fill="#8a8478"/><rect x="${52 + (i % 2) * 50}" y="${60 + Math.floor(i / 2) * 20}" width="36" height="3" fill="#8a8478"/>`).join('')}`),
+  hwangudan: wrap(`${sky()}${ground(108)}<ellipse cx="100" cy="106" rx="70" ry="10" fill="#c8c2b6"/><ellipse cx="100" cy="96" rx="52" ry="8" fill="#d6d0c4"/><ellipse cx="100" cy="86" rx="34" ry="6" fill="#e2dccf"/>${person(100, 84, '#d9a441', { hat: 'crown' })}${taeguk(160, 104)}`),
+  forum: wrap(`${sky()}${ground(102)}${western(160, 100, 50, 40, '#8a5a4a')}<rect x="66" y="78" width="40" height="10" fill="#7a5a3c"/>${person(86, 78, '#2b2b2b', { hat: 'gat' })}${crowd(10, 126, 13, ['#e6dcc3', '#3a4a6a', '#b46a7a', '#d8cdb0'], { s: .9 }, 14)}`),
+};

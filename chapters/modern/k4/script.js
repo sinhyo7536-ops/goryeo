@@ -54,28 +54,28 @@ export default {
   parts: {
     paper: {
       type: 'drive', src: ['S53'], title: '독립신문을 받아 한성 거리에 배달해요', counter: '배달한 곳', seconds: 150,
-      howto: '신문사에서 신문 뭉치를 받고, 빛나는 곳을 차례로 지나며 신문을 건네요. 건네는 동안 잠깐 기다려요.',
+      howto: '신문사에서 신문 뭉치를 두 손에 받아 들고, 빛나는 곳을 차례로 지나며 신문을 건네요. 건네는 동안 잠깐 기다려요.',
       intro: [{ who: 'narr', text: '독립신문은 1896년에 창간한 우리나라 최초의 민간 신문이에요.', src: ['S53'] }, { who: 'seojaepil', text: '오늘 신문이 나왔습니다. 한성 사람들에게 나라 안팎의 소식을 전해 주세요!' }],
       route: [
-        { label: '독립신문사', hold: 3, holdLabel: '신문 뭉치 받는 중', holdSay: '갓 찍은 신문 뭉치를 받아요.' },
-        { label: '종로 가게', hold: 2, holdLabel: '신문 건네는 중', talk: [{ who: 'citizen', text: '한글로 쓰여 있어서 누구나 읽을 수 있네요!' }] },
-        { label: '궁궐 앞 거리', hold: 2, holdLabel: '신문 건네는 중', talk: [{ who: 'citizen', text: '임금께서 러시아 공사관에 머무신다니 걱정이에요.' }] },
-        { label: '시장', hold: 2, holdLabel: '신문 건네는 중', say: '시장 사람들도 신문을 돌려 읽어요.' },
+        { label: '독립신문사', hold: 3, holdLabel: '신문 뭉치 받는 중', holdSay: '신문사 사람이 갓 찍은 신문 뭉치를 건네줘요.', look: 'seojaepil', give: true },
+        { label: '종로 가게', hold: 2, holdLabel: '신문 건네는 중', hand: true, talk: [{ who: 'citizen', text: '한글로 쓰여 있어서 누구나 읽을 수 있네요!' }] },
+        { label: '궁궐 앞 거리', hold: 2, holdLabel: '신문 건네는 중', hand: true, talk: [{ who: 'citizen', text: '임금께서 러시아 공사관에 머무신다니 걱정이에요.' }] },
+        { label: '시장', hold: 2, holdLabel: '신문 건네는 중', hand: true, say: '시장 사람들도 신문을 돌려 읽어요.' },
         { label: '서재필 선생', talk: [{ who: 'seojaepil', text: '수고했어요. 신문으로 자주독립의 뜻을 널리 알릴 수 있습니다.' }] },
       ],
       fail: '화살표를 따라 빛나는 곳으로 가요. 시간 안에 모두 배달해요.',
     },
+    // 그동안 있었던 일: 해마다 차례로 찾아가기 대신 역사책을 넘기며 본다(선생님 의견)
     flow: {
-      type: 'stops', src: ['S52', 'S53', 'S54'], title: '한성 거리에서 일어난 차례대로 찾아가요', counter: '찾아간 곳',
-      howto: '궁궐, 공사관, 신문사, 환구단, 종로의 이름표를 일어난 차례대로 찾아가 대화 버튼을 눌러요. 해가 적혀 있어요.',
-      spots: [
-        { label: '경복궁: 을미사변 (1895)', look: 'joseonOfficial', talk: [{ who: 'citizen', text: '일본이 경복궁에 침입해 명성 황후를 시해했대요. 온 나라가 슬픔에 잠겼어요.' }] },
-        { label: '러시아 공사관 (1896)', look: 'gojong', talk: [{ who: 'gojong', text: '나는 몸을 피해 러시아 공사관으로 옮겼다.' }] },
-        { label: '독립신문사 (1896)', look: 'seojaepil', talk: [{ who: 'seojaepil', text: '독립신문을 펴내 나라 안팎의 소식을 알렸습니다.' }] },
-        { label: '환구단: 대한 제국 (1897)', look: 'gojong', talk: [{ who: 'gojong', text: '환구단에서 황제로 즉위하고, 나라 이름을 대한 제국으로 바꾸었다.' }] },
-        { label: '종로: 만민 공동회 (1898)', look: 'citizen', talk: [{ who: 'citizen', text: '만민 공동회에서는 누구나 나라 일에 대한 생각을 말할 수 있어요!' }] },
+      type: 'book', title: '역사책으로 보는 1895~1898년의 한성',
+      intro: [{ who: 'citizen', text: '그동안 한성에서 있었던 일을 역사책으로 차례차례 넘겨 봐요.' }],
+      pages: [
+        { title: '을미사변', year: '1895년', pic: 'eulmi', lines: [{ who: 'narr', text: '1895년, 일본이 경복궁에 침입해 명성 황후를 시해했어요. 이 일을 을미사변이라고 해요.', src: ['S54'] }] },
+        { title: '러시아 공사관으로', year: '1896년 2월', pic: 'agwan', lines: [{ who: 'narr', text: '을미사변 뒤 고종은 몸을 피해 러시아 공사관으로 옮겼어요.', src: ['S54'] }] },
+        { title: '독립신문', year: '1896년 4월', pic: 'newspaper', lines: [{ who: 'narr', text: '서재필이 독립신문을 펴냈어요. 한글로 쓴 우리나라 최초의 민간 신문이에요.', src: ['S53'] }] },
+        { title: '대한 제국', year: '1897년 10월', pic: 'hwangudan', lines: [{ who: 'narr', text: '고종은 환구단에서 황제로 즉위하고, 나라 이름을 대한 제국으로 바꾸었어요.', src: ['S51', 'S54'] }] },
+        { title: '만민 공동회', year: '1898년', pic: 'forum', lines: [{ who: 'narr', text: '독립 협회는 종로에서 만민 공동회를 열었어요. 누구나 나라 일에 대한 생각을 말할 수 있었어요.', src: ['S52'] }] },
       ],
-      fail: '이름표에 적힌 해를 보세요. 같은 해라면 고종이 러시아 공사관으로 옮긴 일이 먼저예요.',
       done: [{ who: 'narr', text: '고종은 1897년 환구단에서 황제로 즉위하고 나라 이름을 대한 제국으로 바꾸었어요.', src: ['S51', 'S54'] }],
     },
   },

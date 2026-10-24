@@ -59,20 +59,7 @@ export const BUILD = {
   // 벽돌로 지은 서양식 건물 (근대 건물·학교·관청). tower: 뾰족탑, dome: 둥근 지붕
   western(g, p) { BLD.western(g, p); return { rect: [p.w || 8, p.d || 5] }; },
   // 돌로 쌓은 무지개 문 (독립문 등). label: 앞에 새긴 글
-  arch(g, p) {
-    add(g, box(5, 6, 3), 0xd6d0c4, 0, 3, 0, 'stone');
-    add(g, box(2, 3.6, 3.1), 0x2b241c, 0, 1.8, 0);
-    const a = add(g, new THREE.CylinderGeometry(1, 1, 3.12, 16, 1, false, 0, Math.PI), 0x2b241c, 0, 3.6, 0); a.rotation.set(Math.PI / 2, 0, Math.PI / 2);
-    add(g, box(5.6, 0.5, 3.4), 0xc8c2b6, 0, 6.2, 0, 'stone');
-    if (p.label) {
-      const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
-      const c = cv.getContext('2d'); c.fillStyle = '#e9e4da'; c.fillRect(0, 0, 256, 64); c.fillStyle = '#2b241c';
-      c.font = 'bold 40px "Nanum Myeongjo", Batang, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(p.label, 128, 34, 240);
-      const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.65), new THREE.MeshLambertMaterial({ map: t })); m.position.set(0, 5.4, 1.56); g.add(m);
-    }
-    return { rect: [5.2, 3.2] };
-  },
+  arch(g, p) { BLD.arch(g, p); return { rect: [5.2, 3.2] }; },
   // 깃대와 깃발 (color 없으면 태극기)
   flagpole(g, p) {
     add(g, new THREE.CylinderGeometry(0.06, 0.06, 4.4, 6), 0x5a3f2a, 0, 2.2, 0, 'wood');

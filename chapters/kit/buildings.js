@@ -430,3 +430,29 @@ export function pier(g, p = {}) {
   for (const x of [-w / 2 + 0.6, w / 2 - 0.6]) P.cyl(0.18, 0.2, 0.5, 8, 0x3a3a3a, 'grain', [x, 0.8, d / 2 - 0.3]);
   return P.into(g);
 }
+
+// 돌로 쌓은 무지개 문(독립문 등): 화강암 몸채에 둥근 아치 문, 아치 머리돌, 처마 돌림띠와 난간, 이름 판. label: 앞에 새긴 글
+export function arch(g, p = {}) {
+  const P = parts(), W = 5.2, H = 6.2, D = 3, R = 1.15, SPRING = 2.6; // 아치 반지름·아치가 시작하는 높이
+  const face = new THREE.Shape([new THREE.Vector2(-W / 2, 0), new THREE.Vector2(W / 2, 0), new THREE.Vector2(W / 2, H), new THREE.Vector2(-W / 2, H)]);
+  const hole = new THREE.Path(); hole.moveTo(-R, 0); hole.lineTo(-R, SPRING); hole.absarc(0, SPRING, R, Math.PI, 0, true); hole.lineTo(R, 0); hole.lineTo(-R, 0);
+  face.holes.push(hole);
+  const body = new THREE.ExtrudeGeometry(face, { depth: D, bevelEnabled: false, curveSegments: 16 }); body.translate(0, 0, -D / 2);
+  P.add(body, 0xd6d0c4, 'stone', [0, 0, 0]);
+  P.box(W + 0.4, 0.4, D + 0.4, 0xc8c2b6, 'stone', [0, 0.2, 0]);                  // 받침
+  P.box(W + 0.5, 0.35, D + 0.5, 0xc8c2b6, 'stone', [0, H + 0.1, 0]);             // 돌림띠
+  P.box(W + 0.2, 0.6, D + 0.2, 0xd6d0c4, 'stone', [0, H + 0.58, 0]);            // 위 난간(막힌 돌담)
+  P.box(W + 0.35, 0.12, D + 0.35, 0xc8c2b6, 'stone', [0, H + 0.94, 0]);
+  P.box(0.5, 0.6, 0.12, 0xc8c2b6, 'stone', [0, SPRING + R - 0.1, D / 2 + 0.03]); // 아치 머리돌
+  P.box(0.5, 0.6, 0.12, 0xc8c2b6, 'stone', [0, SPRING + R - 0.1, -D / 2 - 0.03]);
+  for (const sx of [-1, 1]) P.box(0.25, H - 0.4, 0.1, 0xc8c2b6, 'stone', [sx * (W / 2 - 0.35), H / 2, D / 2 + 0.03]); // 모서리 기둥 무늬
+  P.into(g);
+  if (p.label) {
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
+    const c = cv.getContext('2d'); c.fillStyle = '#e9e4da'; c.fillRect(0, 0, 256, 64); c.strokeStyle = '#8a8478'; c.lineWidth = 4; c.strokeRect(2, 2, 252, 60); c.fillStyle = '#2b241c';
+    c.font = 'bold 40px "Nanum Myeongjo", Batang, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(p.label, 128, 34, 240);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.6), new THREE.MeshLambertMaterial({ map: t })); m.position.set(0, H - 0.75, D / 2 + 0.02); g.add(m);
+  }
+  return g;
+}

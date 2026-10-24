@@ -248,8 +248,12 @@ export function drive(ctx, part, easy) {
   const route = part.route.map((r, i) => {
     const m = ring(0xd9a441, 1.4, 1.9); m.position.set(r.x, 0.12, r.z); m.visible = i === 0; g.add(m);
     let lab = null;
-    if (r.label) { lab = labelSprite(r.label); lab.position.set(r.x, 3.2, r.z); lab.visible = i === 0; g.add(lab); }
-    return { ...r, m, lab, pos: s.at(r.x, r.z) };
+    if (r.label) { lab = labelSprite(r.label, { size: r.labelSize || 1 }); lab.position.set(r.x, r.post ? 3.6 : 3.2, r.z); lab.visible = i === 0 || !!part.showAll; g.add(lab); }
+    if (r.post) { const p = new THREE.Group(); p.position.set(r.x + 2.2, 0, r.z); g.add(p); add(p, new THREE.CylinderGeometry(0.1, 0.12, 2.6, 6), 0x5a3f2a, 0, 1.3, 0); add(p, box(1.6, 0.5, 0.08), 0xefe3c6, 0, 2.3, 0.08); } // 이정표 기둥
+    let person = null;
+    if (r.look) { person = standPerson(g, r.look, r.x + (r.post ? -1.6 : 1.6), r.z - 0.6); person.rotation.y = r.ry ?? 0; }
+    if (part.showAll) m.visible = true; // 이정표를 처음부터 모두 보이고 차례대로 걷는다
+    return { ...r, m, lab, person, pos: s.at(r.x, r.z) };
   });
   const hazards = (part.hazards || []).map(hz => {
     const hg = new THREE.Group(); hg.position.set(hz.x, 0, hz.z); g.add(hg);
@@ -264,7 +268,8 @@ export function drive(ctx, part, easy) {
   // 줍기: 가는 길에 흩어진 것(태극기·편지 등). needPickups가 붙은 지점은 다 모아야 지나갈 수 있다.
   const pickups = (part.pickups || []).map(pk => {
     const pg = new THREE.Group(); pg.position.set(pk.x, 0, pk.z); g.add(pg);
-    const item = add(pg, box(0.5, 0.5, 0.5), 0xd9a441, 0, 1.0, 0); item.rotation.set(0.5, 0.5, 0);
+    // 사람을 모으는 것(follow)은 들판에 선 사람으로, 물건은 빛나는 상자로 보인다
+    const item = pk.follow ? standPerson(pg, pk.follow, 0, 0) : add(pg, box(0.5, 0.5, 0.5), 0xd9a441, 0, 1.0, 0); if (!pk.follow) item.rotation.set(0.5, 0.5, 0);
     const m = ring(0xd9a441, 0.6, 0.85); m.position.set(0, 0.09, 0); pg.add(m);
     if (pk.label) { const lab = labelSprite(pk.label, { size: 0.7 }); lab.position.set(0, 2.1, 0); pg.add(lab); }
     return { ...pk, pg, item, pos: s.at(pk.x, pk.z), got: false };
@@ -286,8 +291,26 @@ export function drive(ctx, part, easy) {
     } else world.setGoal(r ? r.pos : null);
   };
   show();
+  // 건네받기: give가 있는 곳에 닿으면 그곳 사람이 꾸러미를 건네고, 학생이 두 손에 들고 다닌다. hand가 있는 곳에서는 하나씩 건넨다
+  let carried = null;
+  s.cleanup(() => { if (carried) world.player.remove(carried); });
+  const giveBundle = r => {
+    const b = new THREE.Group(); for (let k = 0; k < 5; k++) add(b, box(0.7, 0.07, 0.5), k % 2 ? 0xf2ede0 : 0xe6dfcc, 0, k * 0.075, 0); add(b, box(0.08, 0.42, 0.52), 0x8a6a48, 0, 0.18, 0);
+    const from = r.person ? r.person.position.clone().add(new THREE.Vector3(0, 1.3, 0)) : new THREE.Vector3(r.x, 1.3, r.z);
+    b.position.copy(from); g.add(b);
+    const to = new THREE.Vector3(); let k = 0;
+    const off = world.onUpdate(dt => { // 사람 손에서 학생 손으로 날아온다
+      k = Math.min(1, k + dt / 0.6);
+      world.player.localToWorld(to.set(0.42, 1.35, 0.4)); g.worldToLocal(to);
+      b.position.lerpVectors(from, to, k); b.position.y += Math.sin(k * Math.PI) * 0.6;
+      if (k >= 1) { off(); g.remove(b); const ks = world.player.scale.y || 1; b.position.set(0.42 / ks, 1.35 / ks, 0.4 / ks); b.scale.setScalar(1.3 / ks); world.player.add(b); carried = b; } // 옆구리에 끼고(뒤에서도 보이게)
+    });
+    s.cleanup(off);
+  };
   const reach = r => {
     audio.play('correct');
+    if (r.give) giveBundle(r);
+    if (r.hand && carried) carried.scale.y = Math.max(0.3, carried.scale.y - 0.22);
     r.m.visible = false; if (r.lab) r.lab.visible = false;
     if (r.say) toast(ctx, r.say, 'good');
     last = [r.x, r.z]; next += 1; held = 0;
@@ -319,9 +342,9 @@ export function drive(ctx, part, easy) {
     }
     for (const pk of pickups) {
       if (pk.got) continue;
-      pk.item.rotation.y += dt * 2;
+      if (!pk.follow) pk.item.rotation.y += dt * 2; else pk.item.rotation.y = Math.atan2(p.x - pk.pos.x, p.z - pk.pos.z); // 사람은 학생 쪽을 본다
       if (near(p, pk.pos, 1.5)) {
-        pk.got = true; pk.pg.visible = false; audio.play('tap'); toast(ctx, pk.say || `${pk.label || '하나'}를 주웠어요!`, 'good'); show();
+        pk.got = true; pk.pg.visible = false; audio.play('tap'); toast(ctx, pk.say || (pk.follow ? `${pk.label || '한 사람'}이(가) 함께해요!` : `${pk.label || '하나'}를 주웠어요!`), 'good'); show();
         if (pk.follow) { const f = new THREE.Group(); BUILD.crowd(f, { n: 1, looks: [pk.follow] }); f.scale.setScalar(pk.small ? 0.7 : 1); f.position.copy(p); g.parent.add(f); followers.push(f); } // 찾은 사람이 뒤따라온다
       }
     }

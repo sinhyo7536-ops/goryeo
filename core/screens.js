@@ -257,12 +257,13 @@ export function createHud(root, { touch }) {
   const found = h('div', { class: 'hud-found', hidden: true });
   const box = h('div', { class: 'hud', hidden: true }, chapter, roleEl, h('div', { class: 'hud-goal' }, h('span', { class: 'seal' }, '목표'), goal, goalStep), found, h('div', { class: 'hud-row' }, timer, counter));
   const notice = h('div', { class: 'hud-notice', hidden: true, role: 'status' });
+  const bigTimer = h('div', { class: 'hud-bigtimer', hidden: true, 'aria-live': 'off' }); // 남은 시간: 화면 위 가운데에 크게
   const menuBtn = h('button', { class: 'menubtn', type: 'button', hidden: true, 'aria-label': '메뉴' }, '메뉴');
   const prompt = h('div', { class: 'prompt', hidden: true }, touch ? '대화 버튼을 눌러요' : 'E 대화하기');
   const joyZone = h('div', { class: 'joyzone', hidden: true });
   const talkBtn = h('button', { class: 'talkbtn', type: 'button', hidden: true, disabled: true }, '대화');
   const fade = h('div', { class: 'fade' });
-  root.append(box, menuBtn, prompt, joyZone, talkBtn, fade, notice);
+  root.append(box, menuBtn, prompt, joyZone, talkBtn, fade, notice, bigTimer);
   let noticeTimer = null;
   let camera = null;
   return {
@@ -272,14 +273,17 @@ export function createHud(root, { touch }) {
       chapter.textContent = `${meta.no}장 · ${meta.years} ${meta.event}`;
       roleEl.hidden = !role; if (role) roleEl.textContent = `나: ${role.name}`;
       box.hidden = false; menuBtn.hidden = false; joyZone.hidden = talkBtn.hidden = !touch; },
-    hide() { box.hidden = true; menuBtn.hidden = true; prompt.hidden = true; joyZone.hidden = talkBtn.hidden = true; notice.hidden = true; found.hidden = true; },
+    hide() { box.hidden = true; menuBtn.hidden = true; prompt.hidden = true; joyZone.hidden = talkBtn.hidden = true; notice.hidden = true; found.hidden = true; bigTimer.hidden = true; },
     // 잠깐 뜨는 알림(새 장소 발견 등): 화면 위 가운데, 누르지 않아도 사라진다
     notice(text) { notice.textContent = text; notice.hidden = false; clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { notice.hidden = true; }, 2800); },
     // 탐험 진행: 읽은 안내판 수 등 (null이면 숨김)
     setFound(text) { found.hidden = text == null; if (text != null) found.textContent = text; },
     // step: [지금, 전체] — 이 장의 목표 가운데 몇 번째인지(미션 진행)
     setGoal(text, step = null) { goal.textContent = text; goalStep.hidden = !step; if (step) goalStep.textContent = `${step[0]}/${step[1]}`; },
-    setTimer(sec) { timer.hidden = sec == null; if (sec != null) timer.textContent = `남은 시간 ${Math.max(0, Math.ceil(sec))}초`; },
+    setTimer(sec) {
+      timer.hidden = true; bigTimer.hidden = sec == null; // 작은 글 대신 가운데 큰 숫자
+      if (sec != null) { const n = Math.max(0, Math.ceil(sec)); timer.textContent = `남은 시간 ${n}초`; bigTimer.textContent = `${n}초`; bigTimer.classList.toggle('low', n <= 10); }
+    },
     setCounter(text) { counter.hidden = text == null; if (text != null) counter.textContent = text; },
     setTalkEnabled(b) { talkBtn.disabled = !b; },
     setTouchVisible(b) { joyZone.hidden = talkBtn.hidden = !(touch && b); },
