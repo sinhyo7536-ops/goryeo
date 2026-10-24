@@ -6,6 +6,7 @@ import { mat } from '../../../core/people.js';
 import { scatter } from '../../../core/props.js';
 import { LOOKS } from '../../../content/characters.js';
 import { addSigns } from '../common.js';
+import { panokseon, geobukseon, japaneseShip } from '../ships.js';
 
 export const STRAIT_Z = -78;       // 견내량 입구
 // 적 배가 기다리는 곳: 견내량 안쪽 깊이(미끼 배가 돌아설 때 넉넉히 떨어져 있게)
@@ -14,50 +15,7 @@ export const WING = { x: 0, z: -44, r: 15 }; // 학익진 가운데와 반지름
 
 function seeded(s) { return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 
-// 판옥선: 넓은 배 위에 2층 갑판과 난간, 깃발
-function panokseon(mk) {
-  const g = new THREE.Group();
-  mk(new THREE.BoxGeometry(3, 1.2, 7), 0x5e432c, 0, 0.3, 0, g);
-  mk(new THREE.BoxGeometry(2.4, 0.9, 1.6), 0x5e432c, 0, 0.5, -3.6, g).rotation.x = 0.3;
-  mk(new THREE.BoxGeometry(3.2, 0.9, 5.4), 0x7a5a3c, 0, 1.35, 0.2, g);
-  mk(new THREE.BoxGeometry(3.4, 0.15, 5.8), 0x3a2c20, 0, 1.85, 0.2, g);
-  mk(new THREE.CylinderGeometry(0.08, 0.08, 4.2, 5), 0x5a3f2a, 0, 3.9, 0.3, g);
-  const flag = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.4).translate(0.55, 0, 0), new THREE.MeshLambertMaterial({ color: 0xb8452f, side: THREE.DoubleSide }));
-  flag.position.set(0, 5.2, 0.3); g.add(flag);
-  return g;
-}
-// 거북선: 판옥선 위를 덮은 등딱지 덮개와 송곳, 앞의 용머리
-function geobukseon(mk) {
-  const g = new THREE.Group();
-  mk(new THREE.BoxGeometry(3, 1.2, 7), 0x5e432c, 0, 0.3, 0, g);
-  const shell = mk(new THREE.SphereGeometry(1.7, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0x4a5a48, 0, 0.9, 0.2, g); shell.scale.set(1, 0.7, 2);
-  for (let i = 0; i < 18; i++) {
-    const a = (i % 6) / 6 * Math.PI * 2, row = Math.floor(i / 6);
-    const s = mk(new THREE.ConeGeometry(0.06, 0.32, 4), 0xc9ccd0, Math.cos(a) * (0.5 + row * 0.4), 2.0 - row * 0.3, Math.sin(a) * (1.2 + row * 0.8) + 0.2, g);
-    s.castShadow = false;
-  }
-  const neck = mk(new THREE.BoxGeometry(0.7, 0.7, 1.2), 0x6b5a3a, 0, 1.3, -3.9, g); neck.rotation.x = -0.4;
-  mk(new THREE.BoxGeometry(0.9, 0.8, 0.9), 0x8a6a3a, 0, 1.75, -4.5, g);
-  mk(new THREE.SphereGeometry(0.12, 6, 4), 0xb8452f, 0, 1.85, -4.98, g);
-  return g;
-}
-// 일본 배: 높은 뱃전, 네모 돛 (무늬 없이)
-function japaneseShip(mk) {
-  const g = new THREE.Group();
-  mk(new THREE.BoxGeometry(2.6, 1.4, 6.4), 0x3a2c20, 0, 0.4, 0, g);
-  mk(new THREE.BoxGeometry(2.2, 1.2, 2.4), 0x5d4330, 0, 1.6, 1.4, g);
-  mk(new THREE.CylinderGeometry(0.07, 0.07, 4.2, 5), 0x2b241c, 0, 3.0, -0.6, g);
-  const sail = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.4), new THREE.MeshLambertMaterial({ color: 0xe6dcc3, side: THREE.DoubleSide }));
-  sail.position.set(0, 3.3, -0.6); g.add(sail);
-  // 공격을 받으면 피어오르는 연기 (불길 없이)
-  const smoke = new THREE.Group(); smoke.visible = false; g.add(smoke);
-  for (let i = 0; i < 4; i++) {
-    const p = new THREE.Mesh(new THREE.SphereGeometry(0.6 + i * 0.15, 8, 6), new THREE.MeshLambertMaterial({ color: 0x8a8a88, transparent: true, opacity: 0.55 }));
-    p.position.set((i % 2) * 0.4 - 0.2, 2.4 + i * 0.8, 0.5 - i * 0.2); smoke.add(p);
-  }
-  g.userData.smoke = smoke;
-  return g;
-}
+// 배 모형은 ../ships.js (판옥선·거북선·일본 배)
 
 export function buildJ4Scene(world) {
   const L = world.level, rand = seeded(41);
@@ -89,8 +47,8 @@ export function buildJ4Scene(world) {
   // 부두(나무 다리)와 배들
   mk(new THREE.BoxGeometry(3, 0.3, 9), 0x8a6a45, 6, 0.05, 1.5);
   for (let i = 0; i < 4; i++) mk(new THREE.CylinderGeometry(0.15, 0.15, 1.6, 6), 0x5a3f2a, 6 + (i % 2 ? 1.3 : -1.3), -0.4, -1.5 + Math.floor(i / 2) * 4);
-  const turtle = geobukseon(mk); turtle.position.set(10.5, -0.2, 0); L.add(turtle);
-  for (const [x, z] of [[-4, -1], [-12, 0], [1, -3]]) { const s = panokseon(mk); s.position.set(x, -0.2, z); s.rotation.y = x * 0.02; L.add(s); }
+  const turtle = geobukseon(); turtle.position.set(10.5, -0.2, 0); L.add(turtle);
+  for (const [x, z] of [[-4, -1], [-12, 0], [1, -3]]) { const s = panokseon(); s.position.set(x, -0.2, z); s.rotation.y = x * 0.02; L.add(s); }
   // 포구 마을: 지휘소, 초가, 그물 말리기
   const cmd = new THREE.Group(); cmd.position.set(-10, 0, 11); L.add(cmd);
   mk(new THREE.BoxGeometry(5, 2.4, 3.6), 0xe6dcc3, 0, 1.2, 0, cmd);
@@ -114,14 +72,14 @@ export function buildJ4Scene(world) {
 
   // 미니게임에 쓰는 배들
   const lure = new THREE.Group(); L.add(lure);
-  for (let i = 0; i < 3; i++) { const s = panokseon(mk); s.position.set((i - 1) * 4.5, -0.2, i % 2 * 3); lure.add(s); }
+  for (let i = 0; i < 3; i++) { const s = panokseon(); s.position.set((i - 1) * 4.5, -0.2, i % 2 * 3); lure.add(s); }
   const enemy = new THREE.Group(); L.add(enemy);
-  for (let i = 0; i < 8; i++) { const s = japaneseShip(mk); s.position.set(((i % 4) - 1.5) * 4.5, -0.2, Math.floor(i / 4) * 7); enemy.add(s); }
+  for (let i = 0; i < 8; i++) { const s = japaneseShip(); s.position.set(((i % 4) - 1.5) * 4.5, -0.2, Math.floor(i / 4) * 7); enemy.add(s); }
   const fleet = new THREE.Group(); L.add(fleet); // 학익진으로 펼치는 우리 배 6척(가운데는 거북선)
   const wingSpots = [-1.1, -0.75, -0.4, 0.4, 0.75, 1.1].map(a => [WING.x + Math.sin(a) * WING.r, WING.z + Math.cos(a) * WING.r * 0.6 + 6, a]);
-  for (const [x, z, a] of wingSpots) { const s = panokseon(mk); s.position.set(x, -0.2, z); s.rotation.y = a * 0.6; fleet.add(s); } // 뱃머리가 북쪽(적)을 보며 안쪽으로 조금 돈다
+  for (const [x, z, a] of wingSpots) { const s = panokseon(); s.position.set(x, -0.2, z); s.rotation.y = a * 0.6; fleet.add(s); } // 뱃머리가 북쪽(적)을 보며 안쪽으로 조금 돈다
   // 학익진 앞에 선 거북선 (S43): 날개 가운데, 우리 배보다 조금 앞(북쪽)
-  const leadTurtle = geobukseon(mk); leadTurtle.position.set(WING.x, -0.2, WING.z + WING.r * 0.6 + 5); L.add(leadTurtle);
+  const leadTurtle = geobukseon(); leadTurtle.position.set(WING.x, -0.2, WING.z + WING.r * 0.6 + 5); L.add(leadTurtle);
   const goalRing = new THREE.Mesh(new THREE.RingGeometry(4, 5, 32), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
   goalRing.rotation.x = -Math.PI / 2; goalRing.visible = false; L.add(goalRing);
 

@@ -154,7 +154,7 @@ export function hanok(g, p = {}) {
     for (const s of [-1, 1]) P.box(0.22, 0.42, 0.42, RIDGE, 'tile', [s * (r.ridgeLen / 2 + 0.3), ry + 0.18, 0], [0, 0, s * 0.25]);
   } else {
     const r = roofSurface({ W: 5.4, D: 4.3, H: 1.9, profile: 'thatch', thick: 0.3 });
-    P.add(r.top, 0xd2b07a, 'thatch', [0, wallTop + 0.05, 0], [0, 0, 0], { smooth: true });
+    P.add(r.top, p.roofColor ?? 0xd2b07a, p.roofColor ? 'grain' : 'thatch', [0, wallTop + 0.05, 0], [0, 0, 0], { smooth: true }); // roofColor: 눈 덮인 지붕 등
     P.add(r.under, 0x8a6a48, 'grain', [0, wallTop + 0.05, 0], [0, 0, 0], { smooth: true, shadow: false });
     // 지붕을 묶은 새끼줄(용마름)
     P.cyl(0.14, 0.14, r.ridgeLen + 0.6, 8, 0xa8885a, 'grain', [0, wallTop + 0.05 + r.ridgeY, 0], [0, 0, Math.PI / 2]);

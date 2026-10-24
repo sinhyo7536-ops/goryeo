@@ -1,6 +1,7 @@
 // 2장 장면: 눈 덮인 흥화진 성, 북쪽의 거란 진영, 성 남쪽의 눈 들판.
 import { makeSign } from '../../core/signs.js';
 import * as THREE from 'three';
+import { hanok } from '../kit/buildings.js';
 import { groundMaterial } from '../../core/textures.js';
 import { mat, makePerson } from '../../core/people.js';
 import { scatter } from '../../core/props.js';
@@ -54,12 +55,7 @@ export function buildCh2Scene(world) {
   // 성안 초가와 창고
   const hut = (x, z, ry) => {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; L.add(g);
-    mk(new THREE.BoxGeometry(4, 2.2, 3), 0xb59a76, 0, 1.1, 0, g);
-    const roof = mk(new THREE.ConeGeometry(3.2, 1.8, 4), 0xeef2f5, 0, 3.1, 0, g); roof.rotation.y = Math.PI / 4; roof.scale.set(1.3, 1, 1);
-    // 눈 아래로 보이는 초가 처마, 문과 창
-    const eave = mk(new THREE.ConeGeometry(3.25, 0.5, 4), 0x9a8460, 0, 2.3, 0, g); eave.rotation.y = Math.PI / 4; eave.scale.set(1.3, 1, 1);
-    mk(new THREE.BoxGeometry(0.9, 1.6, 0.08), 0x5d4330, 0.6, 0.8, 1.53, g);
-    mk(new THREE.BoxGeometry(0.7, 0.5, 0.06), 0x3a2c20, -1.1, 1.4, 1.53, g);
+    hanok(g, { roofColor: 0xeef2f5 }); // 기단·기둥·창살을 갖춘 초가, 지붕은 눈에 덮였다
     world.addCollider({ x, z, r: 2.4 });
   };
   hut(-7, 3, 0.2); hut(7, -2, -0.3); hut(-6, -5, 0); hut(8, 7, 0.4);
