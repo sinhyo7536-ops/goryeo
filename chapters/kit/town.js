@@ -249,6 +249,31 @@ function dressHouse(world, L, p, layout) {
   else { put('woodpile', -1.2, -2.6, 0.8); put('straw', 1.6, -2.9, 1.0); }
 }
 
+// 자연 꾸미기: 바깥 언덕에는 소나무·덤불·바위, 마을 가장자리에는 풀포기(길·건물·안내판·인물 자리는 비운다).
+// 같은 배치표면 늘 같은 자리. 모두 인스턴스로 한 종류당 한두 번에 그린다.
+function addNature(world, layout, field, kind, color) {
+  const b = layout.bounds, cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2;
+  const wide = { x0: cx - 75, x1: cx + 75, z0: cz - 75, z1: cz + 75 };
+  const onHill = (x, z) => field.heightAt(x, z) > 0.7;
+  const hsl = {}; new THREE.Color(color).getHSL(hsl);
+  const snowy = hsl.l > 0.7;
+  const seed = Math.round(Math.abs(b.x0 * 31 + b.z1 * 17)) + 5;
+  const hasPines = (layout.scatter || []).some(s => s.kind === 'pine');
+  scatter(world, { kind: 'pine', count: hasPines ? 35 : 70, area: wide, keep: onHill, ground: field.heightAt, seed, scale: [1.1, 1.9] });
+  scatter(world, { kind: 'bush', count: 30, area: wide, keep: onHill, ground: field.heightAt, seed: seed + 1, scale: [0.9, 1.6], color: snowy ? 0xdfe6ea : null });
+  scatter(world, { kind: 'rock', count: 24, area: wide, keep: onHill, ground: field.heightAt, seed: seed + 2, scale: [0.8, 2.2] });
+  if (kind === 'stone' || snowy) return; // 포장한 길과 눈밭에는 풀포기를 두지 않는다
+  const busy = [
+    ...(layout.signs || []).map(s => ({ x: s.x, z: s.z, r: 1.8 })), ...(layout.npcs || []).map(n => ({ x: n.x, z: n.z, r: 1.5 })),
+    ...(layout.props || []).filter(p => p.type !== 'water').map(p => ({ x: p.x, z: p.z, r: (p.type === 'western' ? Math.max(p.w || 8, p.d || 5) * 0.65 : 3.2) * (p.scale || 1) })),
+    { x: layout.start?.[0] ?? 0, z: layout.start?.[1] ?? 0, r: 2 },
+  ];
+  const onRoad = (x, z) => (layout.roads || []).some(r => Math.abs(x - r.x) < r.w / 2 + 0.6 && Math.abs(z - r.z) < r.d / 2 + 0.6);
+  const f = field.flat;
+  scatter(world, { kind: 'grass', count: 90, area: { x0: f.x0, x1: f.x1, z0: f.z0, z1: f.z1 }, avoid: busy, keep: (x, z) => !onRoad(x, z), seed: seed + 3, scale: [0.7, 1.2], color: new THREE.Color(color).multiplyScalar(1.25).getHex() });
+  if (hsl.h > 0.17 && hsl.h < 0.45 && hsl.s > 0.2) scatter(world, { kind: 'flower', count: 25, area: { x0: f.x0, x1: f.x1, z0: f.z0, z1: f.z1 }, avoid: busy, keep: (x, z) => !onRoad(x, z), seed: seed + 4 });
+}
+
 export function buildTown(world, layout) {
   const L = world.level;
   world.bounds = layout.bounds;
@@ -267,11 +292,13 @@ export function buildTown(world, layout) {
   for (const p of layout.props || []) {
     const g = new THREE.Group(); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry || 0; if (p.scale) g.scale.setScalar(p.scale); L.add(g);
     const r = BUILD[p.type](g, p);
+    if (p.type === 'crowd') BLD.bakeStatic(g, m => m.material.map === flagTex); // 서 있는 무리는 한 덩어리로(태블릿 성능), 깃발은 그대로 흔들린다
     if (r && p.solid !== false) addFootprint(world, p, r);
     if (p.name) named[p.name] = g;
     if (p.type === 'hanok' && layout.dress !== false) dressHouse(world, L, p, layout);
   }
   for (const s of layout.scatter || []) scatter(world, { ground: field.heightAt, ...s });
+  if (layout.nature !== false) addNature(world, layout, field, kind, color);
   for (const n of layout.npcs || []) world.addNpc(n.id, typeof n.look === 'string' ? LOOKS[n.look] : n.look, n.x, n.z, n.ry || 0);
   for (const s of layout.signs || []) world.addSpot(s.id, makeSign(s.title), s.x, s.z, 0);
   const weather = layout.weather ? createWeather(world, layout.weather, { count: 700 }) : null;

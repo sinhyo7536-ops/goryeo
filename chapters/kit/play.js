@@ -21,7 +21,8 @@
 // arena: 마을과 떨어진 곳(origin)에 미니게임 무대를 따로 세운다. { origin: [x, z], ground, groundColor, bounds, props, roads }
 //        좌표는 모두 무대 기준. arena가 없으면 장 마을에서 한다.
 import * as THREE from 'three';
-import { BUILD, addFootprint } from './town.js';
+import { BUILD, addFootprint, taegukgiTexture } from './town.js';
+import { bakeStatic } from './buildings.js';
 import { terrainField, terrainMesh } from './terrain.js';
 import { mat, makePerson } from '../../core/people.js';
 import { createTapTargets } from '../../core/minigame.js';
@@ -84,6 +85,7 @@ export function buildArena(world, arena) {
     for (const p of arena.props || []) {
       const pg = new THREE.Group(); pg.position.set(p.x, 0, p.z); pg.rotation.y = p.ry || 0; if (p.scale) pg.scale.setScalar(p.scale); g.add(pg);
       const r = BUILD[p.type](pg, p);
+      if (p.type === 'crowd') bakeStatic(pg, m => m.material.map === taegukgiTexture()); // 서 있는 무리는 한 덩어리로
       if (p.type === 'water') pg.position.y = 0.32; // 무대 땅 위로 물이 보이게
       if (r && p.solid !== false) addFootprint(world, { ...p, ...at(p.x, p.z) }, r); // 긴 건물·기차는 작은 원을 줄지어
     }

@@ -53,15 +53,15 @@ const KINDS = {
   flower: () => [{ geo: new THREE.OctahedronGeometry(0.17, 0).translate(0, 0.3, 0), color: 0xffffff, kind: 'grain', shadow: false, palette: [0xe8c547, 0xd9604a, 0xf2efe6, 0xb07cc6] }],
 };
 
-// world: createWorld 결과. area: {x0,x1,z0,z1}. avoid: [{x,z,r}]. scale: [최소, 최대] 크기. ground(x,z): 땅 높이.
-export function scatter(world, { kind, count, area, avoid = [], seed = 1, scale = [0.8, 1.3], ground = () => 0, parent = world.level, color = null }) {
+// world: createWorld 결과. area: {x0,x1,z0,z1}. avoid: [{x,z,r}]. scale: [최소, 최대] 크기. ground(x,z): 땅 높이. keep(x,z): 놓아도 되는 곳만 true(언덕 위만 등)
+export function scatter(world, { kind, count, area, avoid = [], seed = 1, scale = [0.8, 1.3], ground = () => 0, parent = world.level, color = null, keep = null }) {
   const rand = rng(seed);
   const density = Math.max(0.25, world.quality.particles ?? 1);
   const n = Math.max(1, Math.round(count * density));
   const positions = [];
   for (let tries = 0; positions.length < n && tries < n * 30; tries++) {
     const x = area.x0 + rand() * (area.x1 - area.x0), z = area.z0 + rand() * (area.z1 - area.z0);
-    if (avoid.some(a => Math.hypot(x - a.x, z - a.z) < a.r)) continue;
+    if (avoid.some(a => Math.hypot(x - a.x, z - a.z) < a.r) || (keep && !keep(x, z))) continue;
     positions.push([+x.toFixed(2), +z.toFixed(2)]);
   }
   const parts = KINDS[kind]();

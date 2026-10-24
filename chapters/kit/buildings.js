@@ -333,3 +333,26 @@ export function curvedHipRoof(parent, w, d, h, color, x, y, z) {
   const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g);
   return P.into(g);
 }
+
+// 서 있기만 하는 무리(사람 여럿)를 재질별 한 덩어리로 굳힌다: 사람 하나가 스무 번 넘게 그리던 것을 무리 전체가 몇 번에 그린다.
+// skip(mesh)이 true인 조각(바람에 흔들리는 깃발 등)은 그대로 둔다. 걷기 움직임은 없어진다(움직이지 않는 무리에만 쓴다).
+export function bakeStatic(group, skip = () => false) {
+  group.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(group.matrixWorld).invert(), rel = new THREE.Matrix4();
+  const buckets = new Map(), keep = [];
+  group.traverse(o => {
+    if (!o.isMesh || o.isInstancedMesh) return;
+    if (skip(o)) { keep.push(o); return; }
+    rel.multiplyMatrices(inv, o.matrixWorld);
+    const geo = o.geometry.clone().applyMatrix4(rel);
+    if (!geo.attributes.normal) geo.computeVertexNormals();
+    const key = o.material.uuid;
+    if (!buckets.has(key)) buckets.set(key, { mat: o.material, geos: [], shadow: o.castShadow });
+    buckets.get(key).geos.push(geo);
+  });
+  for (const k of keep) { k.updateMatrixWorld(true); rel.multiplyMatrices(inv, k.matrixWorld); rel.decompose(k.position, k.quaternion, k.scale); }
+  for (const c of [...group.children]) group.remove(c);
+  for (const b of buckets.values()) { const m = new THREE.Mesh(merge(b.geos), b.mat); m.castShadow = b.shadow; m.receiveShadow = true; group.add(m); }
+  for (const k of keep) group.add(k);
+  return group;
+}
