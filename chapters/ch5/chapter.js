@@ -97,6 +97,6 @@ export default {
     await ctx.fade(false);
     await sayAll(dialogue, script.result);
     ctx.setGoal(script.goals[3]);
-    return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed };
+    return { firstTryCorrect: a.first ? 1 : 0, firstTryTotal: 1, easyModeUsed: a.easyModeUsed };
   },
 };

@@ -36,7 +36,8 @@ export async function runWithRetries(ctx, attempt, { failHint }) {
   for (;;) {
     const easy = fails >= 3;
     if (easy) easyModeUsed = true;
-    if (await attempt(easy)) return { easyModeUsed };
+    const ok = await attempt(easy);
+    if (ok) return { easyModeUsed, first: fails === 0 && ok === true }; // first: 첫 시도에 틀림 없이 해냈나('missed'는 아님)
     fails += 1;
     const hint = typeof failHint === 'function' ? failHint() : failHint;
     await ctx.dialogue.say({ who: 'guide', text: fails === 3 ? `${hint} 이번에는 조금 쉽게 해 볼게요.` : hint });

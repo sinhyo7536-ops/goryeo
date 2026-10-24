@@ -7,6 +7,22 @@ function memoryBackend() {
   return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) };
 }
 
+test('stars: minigame first tries count — 3 needs at least half of the parts right on the first try', () => {
+  eq(computeStars({ quizCorrect: 2, easyModeUsed: false, firstTryCorrect: 2, firstTryTotal: 3 }), 3);
+  eq(computeStars({ quizCorrect: 2, easyModeUsed: false, firstTryCorrect: 1, firstTryTotal: 3 }), 2, 'too few first tries');
+  eq(computeStars({ quizCorrect: 0, easyModeUsed: false, firstTryCorrect: 2, firstTryTotal: 2 }), 2, 'good play lifts a 1 to a 2');
+  eq(computeStars({ quizCorrect: 0, easyModeUsed: false, firstTryCorrect: 0, firstTryTotal: 2 }), 1);
+});
+
+import { runWithRetries } from '../core/minigame.js';
+test('runWithRetries: tells whether the first attempt succeeded cleanly', async () => {
+  const ctx = { dialogue: { say: async () => {}, close() {} } };
+  eq((await runWithRetries(ctx, async () => true, { failHint: '' })).first, true);
+  eq((await runWithRetries(ctx, async () => 'missed', { failHint: '' })).first, false, 'fixed a mistake');
+  let n = 0;
+  eq((await runWithRetries(ctx, async () => ++n > 1, { failHint: '' })).first, false, 'second attempt');
+});
+
 test('stars: 3 needs both quizzes and no easy mode', () => {
   eq(computeStars({ quizCorrect: 2, easyModeUsed: false }), 3);
   eq(computeStars({ quizCorrect: 2, easyModeUsed: true }), 2);

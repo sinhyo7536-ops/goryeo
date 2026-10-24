@@ -2,10 +2,11 @@
 const KEY = 'goryeo-game:v1';
 const empty = () => ({ name: '', chapters: {}, current: null, course: null }); // course: 마지막으로 고른 편(goryeo·joseon)
 
-// ★★★ 퀴즈 2개 정답 + 쉬운 모드 안 씀, ★★☆ 퀴즈 1개 이상, ★☆☆ 완료
-export function computeStars({ quizCorrect, easyModeUsed }) {
-  if (quizCorrect >= 2 && !easyModeUsed) return 3;
-  if (quizCorrect >= 1) return 2;
+// ★★★ 퀴즈 2개 정답 + 쉬운 모드 안 씀 + 미니게임 절반 이상 첫 시도 성공, ★★☆ 퀴즈 1개 이상 또는 미니게임을 잘함, ★☆☆ 완료
+export function computeStars({ quizCorrect, easyModeUsed, firstTryCorrect = 0, firstTryTotal = 0 }) {
+  const playWell = firstTryTotal === 0 || firstTryCorrect * 2 >= firstTryTotal;
+  if (quizCorrect >= 2 && !easyModeUsed && playWell) return 3;
+  if (quizCorrect >= 1 || (firstTryTotal > 0 && playWell)) return 2;
   return 1;
 }
 

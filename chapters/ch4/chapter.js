@@ -219,6 +219,6 @@ export default {
     world.setFixedCamera(C.cam.pos, C.cam.target);
     for (const l of script.chungju.slice(2)) await dialogue.say(l);
     ctx.setGoal(script.goals[4]);
-    return { firstTryCorrect: a.firstTry ? 1 : 0, firstTryTotal: 1, easyModeUsed: b.easyModeUsed };
+    return { firstTryCorrect: (a.firstTry ? 1 : 0) + (b.first ? 1 : 0), firstTryTotal: 2, easyModeUsed: b.easyModeUsed };
   },
 };

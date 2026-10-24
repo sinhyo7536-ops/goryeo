@@ -122,6 +122,6 @@ export default {
     const c = await runWithRetries(ctx, easy => fitFigures(ctx, { title: F.title, figures, circles: F.circles, easy, hint: F.failHint }), { failHint: F.failHint });
     await sayAll(dialogue, F.done); dialogue.close();
     showAftermath(ctx);
-    return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed || b.easyModeUsed || c.easyModeUsed };
+    return { firstTryCorrect: [a, b, c].filter(x => x.first).length, firstTryTotal: 3, easyModeUsed: a.easyModeUsed || b.easyModeUsed || c.easyModeUsed };
   },
 };

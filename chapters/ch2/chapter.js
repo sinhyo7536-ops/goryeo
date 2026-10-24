@@ -221,6 +221,6 @@ export default {
     await sayAll(dialogue, script.rescue.done);
     await sayAll(dialogue, script.result);
     ctx.setGoal(script.goals[5]);
-    return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed || b.easyModeUsed };
+    return { firstTryCorrect: [a, b].filter(x => x.first).length, firstTryTotal: 2, easyModeUsed: a.easyModeUsed || b.easyModeUsed };
   },
 };

@@ -34,7 +34,7 @@ test('ch2: completes with touch-only actions', async () => {
     eq(r.quizCorrect, 2);
     eq(r.easyModeUsed, false);
     eq(r.stars, 3);
-    eq(r.firstTryTotal, 0);
+    eq(r.firstTryTotal, 2); eq(r.firstTryCorrect, 2);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 120000 });
 

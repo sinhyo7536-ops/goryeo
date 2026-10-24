@@ -148,6 +148,7 @@ export function showChapterResult(root, meta, r) {
         h('div', { class: 'stats' },
           h('div', {}, h('b', { class: 'stars' }, starText(r.stars)), h('span', {}, '별점')),
           h('div', {}, h('b', {}, `${r.quizCorrect}/${r.quizTotal}`), h('span', {}, '퀴즈')),
+          r.firstTryTotal > 0 && h('div', {}, h('b', {}, `${r.firstTryCorrect}/${r.firstTryTotal}`), h('span', {}, '놀이 한 번에')),
           h('div', {}, h('b', {}, timeText(r.seconds)), h('span', {}, '걸린 시간'))),
         h('button', { class: 'btn primary', type: 'button', onclick: () => { el.remove(); resolve(); } }, '다음')));
   });

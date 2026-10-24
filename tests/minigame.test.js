@@ -26,7 +26,7 @@ test('minigame: third failure switches to easy mode', async () => {
   const results = [false, false, false, true], seen = [];
   const r = await runWithRetries(ctx, async easy => { seen.push(easy); return results.shift(); }, { failHint: '다시 해 보자' });
   eq(seen, [false, false, false, true]);
-  eq(r, { easyModeUsed: true });
+  eq(r, { easyModeUsed: true, first: false });
   eq(ctx.said.filter(t => t.startsWith('다시 해 보자')).length, 3);
   ok(ctx.said[2].includes('쉽게'), 'third hint announces easy mode');
   ctx.done();
@@ -34,7 +34,7 @@ test('minigame: third failure switches to easy mode', async () => {
 
 test('minigame: success first time is not easy', async () => {
   const ctx = fakeCtx();
-  eq(await runWithRetries(ctx, async () => true, { failHint: 'x' }), { easyModeUsed: false });
+  eq(await runWithRetries(ctx, async () => true, { failHint: 'x' }), { easyModeUsed: false, first: true });
   ctx.done();
 });
 

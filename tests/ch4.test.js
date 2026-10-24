@@ -38,7 +38,7 @@ test('ch4: completes with touch-only actions', async () => {
   try {
     const r = await runChapter(CHAPTERS[3], ch4, s.ctx, memSave());
     eq(r.quizCorrect, 2); eq(r.easyModeUsed, false); eq(r.stars, 3);
-    eq(r.firstTryTotal, 1); eq(r.firstTryCorrect, 1);
+    eq(r.firstTryTotal, 2); eq(r.firstTryCorrect, 2);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
 

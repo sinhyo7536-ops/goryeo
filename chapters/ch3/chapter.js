@@ -271,6 +271,6 @@ export default {
     await sayAll(dialogue, script.guju.done);
     await sayAll(dialogue, script.result);
     showAftermath(ctx);
-    return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed || b.easyModeUsed };
+    return { firstTryCorrect: [a, b].filter(x => x.first).length, firstTryTotal: 2, easyModeUsed: a.easyModeUsed || b.easyModeUsed };
   },
 };
