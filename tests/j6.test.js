@@ -1,4 +1,5 @@
 import { test, eq, ok } from './harness.js';
+import * as THREE from 'three';
 import { SOURCES } from '../content/sources.js';
 import { validateScript } from '../core/content.js';
 import j6Script from '../chapters/joseon/j6/script.js';
@@ -88,4 +89,41 @@ test('j6: result mentions the 1997 UNESCO listing with a source (S44)', () => {
 test('j6: 화산 is clearly a mountain name, not a volcano', () => {
   const lines = [...j6Script.intro, ...j6Script.npc.jeongjo.first].map(l => l.text).filter(t => t.includes('화산'));
   ok(lines.length >= 2 && lines.every(t => t.includes('화산\'이라는 산')), lines.join(' / '));
+});
+
+test('j6: placed stones look exactly like the wall stones (same material)', async () => {
+  const { buildJ6Scene } = await import('../chapters/joseon/j6/scene.js');
+  const w = testWorld();
+  try {
+    const s = buildJ6Scene(w);
+    const wallMat = s.wallMaterial;
+    ok(wallMat, 'scene tells its wall material');
+    ok(s.fillers.every(f => f.material === wallMat), 'fillers');
+    eq(s.stone.material, wallMat, 'the stone on the crane');
+  } finally { w.dispose(); }
+});
+
+test('j6: the crane lowers the stone into the gap and lifts the empty hook, like a claw machine', async () => {
+  const { buildJ6Scene, GAPS } = await import('../chapters/joseon/j6/scene.js');
+  const w = testWorld();
+  try {
+    const s = buildJ6Scene(w);
+    const step = () => w.step(0.05, { x: 0, z: 0 });
+    let picked = false; s.pickUp().then(() => { picked = true; });
+    const ys = [];
+    for (let i = 0; i < 200 && !picked; i++) { step(); ys.push(s.stone.getWorldPosition(new THREE.Vector3()).y); await Promise.resolve(); }
+    ok(picked && s.stone.visible, 'picked up a stone');
+    ok(Math.min(...ys) < 1.2 && ys[ys.length - 1] > 5, `went down to the pile then up (${Math.min(...ys).toFixed(1)} → ${ys[ys.length - 1].toFixed(1)})`);
+    s.setSlide(s.kOf(GAPS[1]));
+    let placed = false; s.placeAt(1).then(() => { placed = true; });
+    let filledWhileLow = false;
+    for (let i = 0; i < 200 && !placed; i++) { step(); if (s.fillers[1].visible && s.stone.visible === false) filledWhileLow = true; await Promise.resolve(); }
+    ok(placed && s.fillers[1].visible, 'stone sits in the gap');
+    ok(!s.stone.visible, 'hook is empty after letting go');
+    ok(filledWhileLow, 'the stone was handed over to the wall');
+  } finally { w.dispose(); }
+});
+
+test('j6: the crane howto reads naturally', () => {
+  ok(!j6Script.wall.howto[0].text.includes('들고 옆으로 옮겨'), j6Script.wall.howto[0].text);
 });

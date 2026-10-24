@@ -36,7 +36,7 @@ export function buildJ6Scene(world) {
   }
   for (const g of GAPS) {
     mk(new THREE.BoxGeometry(2, WALL_H - 1.2, 2.4), 0xb3ada2, g, (WALL_H - 1.2) / 2, WALL_Z); // 빈자리 아래쪽은 이미 쌓임
-    const f = mk(new THREE.BoxGeometry(1.9, 1.2, 2.3), 0xc9c2b4, g, WALL_H - 0.6, WALL_Z); f.visible = false; fillers.push(f);
+    const f = mk(new THREE.BoxGeometry(2, 1.2, 2.4), 0xb3ada2, g, WALL_H - 0.6, WALL_Z); f.visible = false; fillers.push(f); // 성벽 돌과 같은 돌·무늬
   }
   for (let x = -17; x <= 17; x += 2) world.addCollider({ x, z: WALL_Z, r: 1.3 });
   // 빈자리 표시(빛나는 테두리)
@@ -57,9 +57,14 @@ export function buildJ6Scene(world) {
   const rope = mk(new THREE.CylinderGeometry(0.03, 0.03, 1, 4), 0xd8c9a0, 0, 7, 0, trolley, false);
   const lower = new THREE.Group(); trolley.add(lower);
   for (const dz of [-0.4, 0.4]) { const p = mk(new THREE.CylinderGeometry(0.26, 0.26, 0.14, 12), 0x8a6a45, 0, 0, dz, lower); p.rotation.x = Math.PI / 2; } // 아래(움직) 도르래
-  const stone = mk(new THREE.BoxGeometry(1.9, 1.2, 2.3), 0xc9c2b4, 0, -1.0, 0, lower);
+  const stone = mk(new THREE.BoxGeometry(2, 1.2, 2.4), 0xb3ada2, 0, -1.0, 0, lower); // 성벽 돌과 같은 돌
+  // 갈고리와 돌을 묶은 줄(인형뽑기의 집게처럼 돌을 잡는다)
+  mk(new THREE.TorusGeometry(0.22, 0.05, 6, 12), 0x3a3a3a, 0, -0.3, 0, lower);
+  for (const sx of [-0.7, 0.7]) mk(new THREE.CylinderGeometry(0.025, 0.025, 0.8, 4), 0xd8c9a0, sx * 0.6, -0.55, 0, lower, false).rotation.z = sx * 0.9;
+  // 거중기 아래 땅의 돌 더미(여기서 돌을 집어 올린다)
+  for (const [dx, dz] of [[-0.6, 1.8], [0.9, 2.2], [0.1, 3.3]]) mk(new THREE.BoxGeometry(2, 1.2, 2.4), 0xb3ada2, TRACK[0] + dx, 0.6, WALL_Z + dz).rotation.y = dx;
   // 돌 높이: 0 = 땅, 1 = 성벽 위로 넉넉히
-  const setLift = h => { lower.position.y = 1.0 + h * (WALL_H + 2.2); rope.scale.y = Math.max(0.1, 8.6 - lower.position.y); rope.position.y = (8.6 + lower.position.y) / 2; };
+  const setLift = h => { lower.userData.h = h; lower.position.y = 1.0 + h * (WALL_H + 2.2); rope.scale.y = Math.max(0.1, 8.6 - lower.position.y); rope.position.y = (8.6 + lower.position.y) / 2; };
   setLift(1);
   // 돌 더미, 수레, 정조의 차일
   for (const [x, z] of [[8, 2], [10, 3.5], [9, 0.5], [-9, 3], [-10.5, 1.5]]) mk(new THREE.BoxGeometry(1.8, 1, 1.4), 0xc9c2b4, x, 0.5, z).rotation.y = x;
@@ -91,6 +96,12 @@ export function buildJ6Scene(world) {
   world.addNpc('jeongjo', LOOKS.jeongjo, -10, -3, 0);
 
   world.onUpdate((dt, t) => { if (gapGlow.visible) gapGlow.material.opacity = 0.45 + Math.sin(t * 5) * 0.3; });
+  // 천천히 움직이기: sec 동안 fn(0→1)
+  const anim = (sec, fn) => new Promise(resolve => { let t = 0; const off = world.onUpdate(dt => { t = Math.min(1, t + dt / sec); fn(t); if (t >= 1) { off(); resolve(); } }); });
+  const ease = t => t * t * (3 - 2 * t);
+  const PICK_H = 0.6 / (WALL_H + 2.2), GAP_H = (WALL_H - 0.6) / (WALL_H + 2.2); // 돌 더미 높이, 빈자리 높이(setLift 값: 돌 가운데 높이 ÷ 들 수 있는 높이)
+  const slideTo = x => { const x0 = trolley.position.x; return anim(Math.max(0.4, Math.abs(x - x0) / 12), t => { trolley.position.x = x0 + (x - x0) * ease(t); }); };
+  const liftTo = h => { const h0 = lower.userData.h ?? 1; return anim(0.9, t => { const v = h0 + (h - h0) * ease(t); lower.userData.h = v; setLift(v); }); };
 
   return {
     start: [0, 9], fillers, gapGlow, trolley, stone, setLift,
@@ -99,6 +110,19 @@ export function buildJ6Scene(world) {
     kOf: x => (x - TRACK[0]) / (TRACK[1] - TRACK[0]),
     showGap(i) { gapGlow.visible = i != null; if (i != null) gapGlow.position.set(GAPS[i], WALL_H - 1.15, WALL_Z); },
     fill(i, on = true) { fillers[i].visible = on; },
+    wallMaterial: fillers[0].material,
+    // 인형뽑기처럼: 빈 갈고리가 돌 더미 위로 가서 내려가 돌을 잡고 올라온다
+    async pickUp() {
+      stone.visible = false;
+      await liftTo(1); await slideTo(TRACK[0] + 0.1); await liftTo(PICK_H);
+      stone.visible = true; await liftTo(1);
+    },
+    // 지금 자리에서 줄을 풀어 돌을 빈자리에 내려놓고, 빈 갈고리를 다시 올린다
+    async placeAt(i) {
+      await slideTo(GAPS[i]); await liftTo(GAP_H);
+      fillers[i].visible = true; stone.visible = false;
+      await liftTo(1);
+    },
     // 거중기 장면 카메라: 화면 비율이 달라도 돌이 지나는 길 양 끝, 빈자리 셋, 들보가 모두 보이게 맞춘다(아래쪽 큰 버튼을 피해 위쪽에)
     wallFit: { target: [0, 3.2, WALL_Z], dir: [0, 0.42, 1], margin: 0.72,
       points: [[TRACK[0], WALL_H + 2.5, WALL_Z], [TRACK[1], WALL_H + 2.5, WALL_Z], ...GAPS.map(g => [g, WALL_H - 1.2, WALL_Z]), [0, 9.4, WALL_Z]] },

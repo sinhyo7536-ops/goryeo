@@ -31,11 +31,16 @@ export function pulleySVG() {
 }
 
 // 돌 하나 내리기: 돌이 왼쪽에서 오른쪽으로 지나가고, i번째 빈자리 위(±창)에서 누르면 성공
-function dropStone(ctx, i, easy, fail) {
+// 돌 하나: 거중기가 돌 더미에서 돌을 집어 올린 뒤(인형뽑기처럼) 왼쪽에서 오른쪽으로 옮긴다. i번째 빈자리 위(±창)에서 누르면
+// 줄을 풀어 돌을 빈자리에 내려놓는다.
+async function dropStone(ctx, i, easy, fail) {
   const k0 = scene.kOf(GAPS[i]), w = easy ? 0.075 : 0.055;
-  scene.showGap(i); scene.setLift(1);
-  return timingPress(ctx, { label: '내리기', seconds: easy ? 7.5 : 6, set: scene.setSlide, window: [k0 - w, k0 + w], fail })
-    .then(ok => { scene.showGap(null); if (ok) { scene.fill(i); ctx.audio.play('tap'); } return ok; });
+  await scene.pickUp();
+  scene.showGap(i);
+  const ok = await timingPress(ctx, { label: '내리기', seconds: easy ? 7.5 : 6, set: scene.setSlide, window: [k0 - w, k0 + w], fail });
+  scene.showGap(null);
+  if (ok) { ctx.audio.play('tap'); await scene.placeAt(i); }
+  return ok;
 }
 
 export default {
