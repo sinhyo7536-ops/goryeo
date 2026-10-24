@@ -215,6 +215,9 @@ export default {
     input.enabled = true;
     const b = await runWithRetries(ctx, easy => rescue(ctx, easy), { failHint: script.rescue.failHint });
     input.enabled = false;
+    await ctx.fade(true);
+    showAftermath(ctx); // 구출이 끝나면 들판에 멈춰 선 백성·거란 병사를 치운다(퀴즈 내내 서 있지 않게)
+    await ctx.fade(false);
     await sayAll(dialogue, script.rescue.done);
     await sayAll(dialogue, script.result);
     ctx.setGoal(script.goals[5]);

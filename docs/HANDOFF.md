@@ -9,8 +9,8 @@
 | 저장소 | https://github.com/ssamgame/history (조직 `ssamgame`, 브랜치 `main`) |
 | 학생 주소 | https://ssamgame.github.io/history/ (GitHub Pages, main에서 바로 배포) |
 | 마지막 커밋 | `73e0454` 선생님 의견 반영 (+ 이 문서를 넣은 커밋) |
-| 캐시 판 | `goryeo-v36` (`core/precache.js`) |
-| 테스트 | 370개 중 369개 통과, 1개(현대편 퀴즈 차례 검사)는 테스트 서버의 파일 받기 실패였고 단독으로 다시 돌려 통과 |
+| 캐시 판 | `goryeo-v37` (`core/precache.js`) |
+| 테스트 | 375개 모두 통과(2026-10-24, 클라우드 리눅스에서 Playwright 크로미움으로) |
 | 내용 | 5개 편(고려·조선·근대·일제 강점기·현대) × 6장 = 30장 모두 완성 |
 | PC 폴더 | `C:\Users\장신효\Desktop\goryeo-game` (옆의 `wedding` 폴더는 다른 프로젝트, 건드리지 않는다) |
 
@@ -92,3 +92,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/test.ps1 > /tmp/full.t
 - SVG를 문자열로 넣을 때 태그 사이 빈칸이 버튼 글(textContent)에 섞인다 → `pictures.js`처럼 `>\s+<`를 지운다.
 - 테스트 봇(`tests/bot.js`)은 버튼을 누르기 전에 그 버튼이 다른 화면에 덮였는지 검사한다. 한 테스트가 화면을 남기고 끝나면 뒤의 테스트들이 "covered by screen order"로 줄줄이 실패한다 → 맨 처음 실패한 것부터 고친다.
 - 장 순서를 바꿀 때는 `chapters/index.js`의 `no`, `SESSIONS[n].points` 순서, `tests/courses.test.js`를 함께 맞춘다.
+
+## 8. 클라우드(리눅스) 세션에서 이어받을 때 (2026-10-24 추가)
+
+- PowerShell·Edge가 없으므로 `tools/test.ps1` 대신 Node + Playwright로 같은 일을 한다: 정적 서버를 띄우고 크로미움(`--use-angle=swiftshader`)으로 `tests/index.html?only=…`를 열어 `#out`의 `RESULT` 줄을 기다린다. 묶음 나누기(`kit: `·`layout: `·`play: `·나머지)도 같다. 전체 약 6분.
+- 이번에 고친 것: 2장 구출이 끝나면 화면을 잠깐 어둡게 하고 들판의 포로·거란 병사를 치운다(퀴즈 내내 멈춰 서 있던 문제). 이어하기 테스트 ch4·ch5 추가. 캐시 `goryeo-v37`.

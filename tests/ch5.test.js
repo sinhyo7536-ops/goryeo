@@ -73,3 +73,24 @@ test('ch5: completes with touch-only actions', async () => {
     eq(r.quizCorrect, 2); eq(r.easyModeUsed, false); eq(r.stars, 3);
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
+
+test('ch5: resume at minigame puts the player at the start', () => {
+  const s = touchSetup(ch5Script.speakers);
+  try {
+    const sc = ch5.buildScene(s.w, s.ctx);
+    s.w.player.position.set(5, 0, 5);
+    ch5.enterStage(s.ctx, 'minigame');
+    eq([s.w.player.position.x, s.w.player.position.z], sc.start);
+  } finally { s.done(); }
+});
+
+test('ch5: resume at quiz shows the finished library of woodblocks', () => {
+  const s = touchSetup(ch5Script.speakers);
+  try {
+    const sc = ch5.buildScene(s.w, s.ctx);
+    eq(sc.library.visible, false);
+    ch5.enterStage(s.ctx, 'quiz');
+    eq(sc.library.visible, true);
+    eq([s.w.player.position.x, s.w.player.position.z], sc.start);
+  } finally { s.done(); }
+});

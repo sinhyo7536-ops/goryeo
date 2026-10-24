@@ -112,3 +112,24 @@ test('ch4: Goryeo archers rise on the wall and a tapped Mongol is shot and falls
     ok(!target.group.visible, 'cleared after falling');
   } finally { s.done(); }
 });
+
+test('ch4: resume at minigame puts the player in the palace', () => {
+  const s = touchSetup(ch4Script.speakers);
+  try {
+    const sc = ch4.buildScene(s.w, s.ctx);
+    ch4.enterStage(s.ctx, 'minigame');
+    eq(s.w.bounds, sc.areas.palace.bounds);
+  } finally { s.done(); }
+});
+
+test('ch4: resume at quiz shows Chungju with the slave documents already burnt', () => {
+  const s = touchSetup(ch4Script.speakers);
+  try {
+    const sc = ch4.buildScene(s.w, s.ctx);
+    ch4.enterStage(s.ctx, 'quiz');
+    eq(s.w.camMode, 'fixed');
+    eq(s.w.player.visible, false);
+    eq(sc.documents.visible, false, 'documents gone');
+    eq(sc.fire.visible, true, 'fire still burning');
+  } finally { s.done(); }
+});

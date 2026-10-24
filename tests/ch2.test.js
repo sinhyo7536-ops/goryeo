@@ -191,3 +191,14 @@ test('ch2 rescue: arrow up moves the player up the screen', async () => {
     ok(v.copy(s.w.player.position).project(s.w.camera).y >= y0 - 0.05, 'not moving down the screen');
   } finally { s.done(); }
 }, { timeout: 120000 });
+
+test('ch2: no captive is left standing still on the field after the rescue (quiz follows right away)', async () => {
+  const s = touchSetup(ch2Script.speakers);
+  const bot = touchBot(s, { answers });
+  try {
+    const sc = ch2.buildScene(s.w, s.ctx);
+    await ch2.minigame(s.ctx);
+    const left = sc.captives.filter(c => c.group.visible);
+    eq(left.length, 0, `captives still on the field: ${left.length}`);
+  } finally { bot.stop(); s.done(); }
+}, { timeout: 150000 });
