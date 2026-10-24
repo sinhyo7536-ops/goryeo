@@ -96,12 +96,9 @@ export const BUILD = {
   tram(g, p) {
     const len = p.track || 30;
     for (const dx of [-0.6, 0.6]) add(g, box(0.1, 0.06, len), 0x6b6862, dx, 0.03, 0, null, false);
+    for (let z = -len / 2 + 0.5; z < len / 2; z += 1.2) add(g, box(1.7, 0.04, 0.22), 0x5a3f2a, 0, 0.02, z, 'wood', false); // 침목
     const car = new THREE.Group(); car.name = 'tramCar'; g.add(car);
-    add(car, box(2.2, 2.4, 6), 0xb5532f, 0, 1.6, 0);
-    add(car, box(2.3, 0.2, 6.3), 0xe0c56a, 0, 2.9, 0);
-    for (let i = 0; i < 4; i++) for (const sx of [-1.11, 1.11]) add(car, box(0.04, 0.8, 0.9), 0xd9e4ea, sx, 2, -2.1 + i * 1.4, null, false);
-    add(car, new THREE.CylinderGeometry(0.03, 0.03, 2, 4), 0x2b241c, 0, 4, -1).rotation.x = 0.5;
-    for (const dz of [-2, 2]) for (const sx of [-0.6, 0.6]) { const w = add(car, new THREE.CylinderGeometry(0.35, 0.35, 0.15, 10), 0x2b241c, sx, 0.35, dz); w.rotation.z = Math.PI / 2; }
+    BLD.tramCar(car);
     g.userData.car = car;
     return 0;
   },
@@ -122,10 +119,7 @@ export const BUILD = {
     return { rect: [5.2, 3.2] };
   },
   // 천막
-  tent(g, p) {
-    const t = add(g, new THREE.ConeGeometry(2, 2.4, 4), p.color || 0xd8d0bc, 0, 1.2, 0); t.rotation.y = Math.PI / 4;
-    return 1.6;
-  },
+  tent(g, p) { BLD.tent(g, p); return 1.6; },
   // 돌담·벽 (w 길이)
   wall(g, p) { BLD.wall(g, p); return 0; },
   // 쌀가마 더미
@@ -134,12 +128,7 @@ export const BUILD = {
     return 1.6;
   },
   // 증기선 (항구)
-  steamship(g) {
-    add(g, box(5, 2, 16), 0x2b2f36, 0, 0.6, 0);
-    add(g, box(4, 2, 7), 0xe6dcc3, 0, 2.6, 1);
-    for (const dz of [-1, 2]) add(g, new THREE.CylinderGeometry(0.5, 0.5, 3, 12), 0x8a2f24, 0, 4.6, dz);
-    return 0;
-  },
+  steamship(g) { BLD.steamship(g); return 0; },
   // 바다·강 (넓은 물판)
   water(g, p) { const m = new THREE.Mesh(new THREE.PlaneGeometry(p.w || 200, p.d || 60).rotateX(-Math.PI / 2), new THREE.MeshPhongMaterial({ color: p.color || 0x3f7d9a, shininess: 60, transparent: true, opacity: 0.93 })); m.position.y = -0.3; g.add(m); return 0; },
   // 섬·땅덩이(바다 무대): 모래톱 위에 풀. r 반지름
@@ -160,7 +149,7 @@ export const BUILD = {
     return 0.9;
   },
   // 부두(배를 대는 곳)
-  pier(g, p) { add(g, box(p.w || 8, 0.5, p.d || 3), 0x7a5a3c, 0, 0.3, 0, 'wood'); return 0; },
+  pier(g, p) { BLD.pier(g, p); return 0; },
   // 큰 나무
   tree(g, p) { BLD.tree(g, p); return 0.6; },
   // 책상과 책 (학교·연구실)
@@ -178,12 +167,7 @@ export const BUILD = {
   woodpile(g) { BLD.woodpile(g); return 0.8; },
   lamp(g) { BLD.lamp(g); return 0.25; },
   // 군용 트럭
-  truck(g, p) {
-    add(g, box(2.2, 1.2, 5), p.color || 0x55603f, 0, 1.1, 0);
-    add(g, box(2.1, 1.3, 1.6), p.color || 0x55603f, 0, 2.2, -1.6);
-    for (const dz of [-1.6, 1.6]) for (const sx of [-1.05, 1.05]) { const w = add(g, new THREE.CylinderGeometry(0.45, 0.45, 0.3, 12), 0x1e1c1a, sx, 0.45, dz); w.rotation.z = Math.PI / 2; }
-    return { rect: [2.4, 5.2] };
-  },
+  truck(g, p) { BLD.truck(g, p); return { rect: [2.4, 5.2] }; },
   // 증기 기관차와 화물칸(쌀가마를 싣고), 선로
   train(g, p) {
     const len = p.track || 50;

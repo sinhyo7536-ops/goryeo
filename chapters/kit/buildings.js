@@ -356,3 +356,77 @@ export function bakeStatic(group, skip = () => false) {
   for (const k of keep) group.add(k);
   return group;
 }
+
+// ── 근대 이후 탈것·천막 ──
+const tri = (w, h, depth) => new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(-w / 2, 0), new THREE.Vector2(w / 2, 0), new THREE.Vector2(0, h)]), { depth, bevelEnabled: false });
+// 천막: 앞뒤가 세모인 맞배 천막, 가운데 기둥과 줄, 앞 출입구
+export function tent(g, p = {}) {
+  const P = parts(), c = p.color || 0xd8d0bc, W = 3.2, L = 3.4, H = 2.4;
+  const slope = Math.hypot(W / 2, H), ang = Math.atan2(H, W / 2);
+  for (const s of [-1, 1]) P.box(slope, 0.06, L, c, 'cloth', [s * W / 4, H / 2, 0], [0, 0, -s * ang]);
+  P.add(tri(W, H, 0.05), c, 'cloth', [0, 0, -L / 2]);
+  P.add(tri(W, H, 0.05), c, 'cloth', [0, 0, L / 2 - 0.05]);
+  P.add(tri(1.1, 1.5, 0.06), 0x3a2c20, 'cloth', [0, 0, L / 2 - 0.02]); // 출입구
+  P.cyl(0.05, 0.05, H + 0.3, 6, 0x5a3f2a, 'wood', [0, (H + 0.3) / 2, L / 2 + 0.05]);
+  P.cyl(0.05, 0.05, H + 0.3, 6, 0x5a3f2a, 'wood', [0, (H + 0.3) / 2, -L / 2 - 0.05]);
+  for (const s of [-1, 1]) for (const z of [-L / 2, L / 2]) P.cyl(0.012, 0.012, 1.9, 3, 0x8a7a62, 'grain', [s * 2.0, 0.8, z * 1.15], [z > 0 ? 0.25 : -0.25, 0, s * 0.9]);
+  return P.into(g);
+}
+// 증기선: 뾰족한 뱃머리, 붉은 물선, 갑판, 흰 선실과 창, 굴뚝 둘, 돛대와 줄
+export function steamship(g) {
+  const P = parts();
+  const hull = (scale, h) => { const sh = new THREE.Shape([new THREE.Vector2(-2.5 * scale, -8), new THREE.Vector2(2.5 * scale, -8), new THREE.Vector2(2.5 * scale, 4.5), new THREE.Vector2(0, 8.2), new THREE.Vector2(-2.5 * scale, 4.5)]); const geo = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); geo.rotateX(Math.PI / 2); return geo; };
+  P.add(hull(1, 2.4), 0x2b2f36, 'grain', [0, 2.0, 0]);
+  P.add(hull(1.02, 0.45), 0x8a2f24, 'grain', [0, 0.3, 0]);
+  P.box(4.7, 0.14, 12, 0x8a6a48, 'wood', [0, 2.05, -1.4]);
+  P.box(3.6, 1.7, 6.2, 0xe6dcc3, 'grain', [0, 2.95, -0.6]);
+  for (let i = 0; i < 5; i++) for (const s of [-1, 1]) P.box(0.05, 0.55, 0.7, 0, null, [s * 1.82, 3.1, -3 + i * 1.2], [0, 0, 0], { material: glass() });
+  P.box(2.6, 1.0, 2.4, 0xe6dcc3, 'grain', [0, 4.3, 0.8]);
+  P.box(2.4, 0.4, 0.05, 0, null, [0, 4.4, 2.02], [0, 0, 0], { material: glass() });
+  for (const dz of [-2.2, -0.2]) { P.cyl(0.55, 0.6, 3.2, 14, 0x8a2f24, 'grain', [0, 5.2, dz]); P.cyl(0.57, 0.57, 0.5, 14, 0x1e1c1a, 'grain', [0, 6.85, dz]); }
+  for (const dz of [-6.5, 5]) { P.cyl(0.08, 0.1, 7, 6, 0x5a3f2a, 'wood', [0, 5.5, dz]); P.box(2.6, 0.08, 0.08, 0x5a3f2a, 'wood', [0, 7.2, dz]); }
+  P.cyl(0.015, 0.015, 11.6, 3, 0x2b241c, 'grain', [0, 8.0, -0.75], [Math.PI / 2 - 0.02, 0, 0]);
+  return P.into(g);
+}
+// 트럭(군용은 짐칸에 덮개): 앞(−z)에 보닛, 유리 낀 운전칸, 바퀴와 휠
+export function truck(g, p = {}) {
+  const P = parts(), c = p.color || 0x55603f, cover = p.cover ?? (!p.color || p.color === 0x55603f);
+  P.box(2.0, 0.3, 5.0, 0x2b2b2b, 'grain', [0, 0.75, 0]);
+  P.box(1.9, 0.75, 1.1, c, 'grain', [0, 1.25, -2.15]);
+  P.box(2.1, 1.35, 1.5, c, 'grain', [0, 1.6, -1.0]);
+  P.box(1.8, 0.6, 0.05, 0, null, [0, 1.95, -1.77], [-0.12, 0, 0], { material: glass() });
+  for (const s of [-1, 1]) P.box(0.05, 0.55, 0.8, 0, null, [s * 1.06, 1.95, -1.0], [0, 0, 0], { material: glass() });
+  P.box(2.1, 0.12, 3.2, c, 'grain', [0, 0.95, 1.0]);
+  for (const s of [-1, 1]) P.box(0.08, 0.6, 3.2, c, 'grain', [s * 1.02, 1.3, 1.0]);
+  P.box(2.1, 0.6, 0.08, c, 'grain', [0, 1.3, 2.58]);
+  if (cover) { const geo = new THREE.CylinderGeometry(1.05, 1.05, 3.2, 12, 1, false, -Math.PI / 2, Math.PI); geo.rotateX(-Math.PI / 2); P.add(geo, 0x6b6a4a, 'cloth', [0, 1.55, 1.0], [0, 0, 0], { smooth: true }); }
+  for (const dz of [-1.7, 1.6]) for (const s of [-1, 1]) {
+    P.cyl(0.45, 0.45, 0.3, 14, 0x1e1c1a, 'grain', [s * 1.0, 0.45, dz], [0, 0, Math.PI / 2]);
+    P.cyl(0.2, 0.2, 0.32, 8, 0x8a8a88, 'grain', [s * 1.01, 0.45, dz], [0, 0, Math.PI / 2]);
+  }
+  for (const s of [-0.6, 0.6]) P.cyl(0.1, 0.1, 0.06, 8, 0xfff1c8, 'grain', [s, 1.3, -2.71], [Math.PI / 2, 0, 0], { shadow: false });
+  return P.into(g);
+}
+// 전차 몸통: 아래는 붉은 판, 위는 크림색에 유리창, 둥근 지붕, 집전봉(트롤리), 앞뒤 창과 등
+export function tramCar(car) {
+  const P = parts();
+  P.box(2.2, 1.0, 6, 0xa8452a, 'grain', [0, 0.95, 0]);
+  P.box(2.2, 1.1, 6, 0xe9dcb8, 'grain', [0, 2.0, 0]);
+  for (let i = 0; i < 5; i++) for (const s of [-1, 1]) P.box(0.05, 0.7, 0.85, 0, null, [s * 1.11, 2.05, -2.3 + i * 1.15], [0, 0, 0], { material: glass() });
+  for (const s of [-1, 1]) P.box(1.6, 0.7, 0.05, 0, null, [0, 2.05, s * 3.01], [0, 0, 0], { material: glass() });
+  const roof = new THREE.CylinderGeometry(1.2, 1.2, 6.3, 14, 1, false, -Math.PI / 2, Math.PI); roof.rotateX(-Math.PI / 2); roof.scale(1, 0.32, 1);
+  P.add(roof, 0x6b4a32, 'wood', [0, 2.55, 0], [0, 0, 0], { smooth: true });
+  P.box(2.3, 0.12, 6.3, 0xe0c56a, 'grain', [0, 2.55, 0]);
+  P.cyl(0.03, 0.03, 2.4, 4, 0x2b241c, 'grain', [0, 3.6, -0.6], [0.5, 0, 0]);
+  for (const s of [-1, 1]) P.cyl(0.12, 0.12, 0.05, 8, 0xfff1c8, 'grain', [0, 1.2, s * 3.02], [Math.PI / 2, 0, 0], { shadow: false });
+  for (const dz of [-2, 2]) for (const sx of [-0.6, 0.6]) P.cyl(0.35, 0.35, 0.15, 12, 0x2b241c, 'grain', [sx, 0.35, dz], [0, 0, Math.PI / 2]);
+  return P.into(car);
+}
+// 부두: 판자와 물에 박힌 기둥
+export function pier(g, p = {}) {
+  const P = parts(), w = p.w || 8, d = p.d || 3;
+  P.box(w, 0.3, d, 0x7a5a3c, 'wood', [0, 0.4, 0]);
+  for (let x = -w / 2 + 0.4; x <= w / 2 - 0.3; x += 1.8) for (const z of [-d / 2 + 0.2, d / 2 - 0.2]) P.cyl(0.15, 0.15, 1.6, 7, 0x5e4330, 'wood', [x, -0.2, z]);
+  for (const x of [-w / 2 + 0.6, w / 2 - 0.6]) P.cyl(0.18, 0.2, 0.5, 8, 0x3a3a3a, 'grain', [x, 0.8, d / 2 - 0.3]);
+  return P.into(g);
+}
