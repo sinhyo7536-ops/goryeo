@@ -58,23 +58,39 @@ export default {
 
   consonants: {
     title: '기본 자음 다섯 자: 어떤 모양을 본떴을까요?',
+    // 그림(소리 낼 때의 모양)을 보고 그 모양을 본떠 만든 글자를 고른다
+    pictures: [
+      { shape: 'root', caption: '혀뿌리가 목구멍을 막는 모양', answer: 'ㄱ' },
+      { shape: 'mouth', caption: '입 모양', answer: 'ㅁ' },
+      { shape: 'tongue', caption: '혀가 윗잇몸에 붙는 모양', answer: 'ㄴ' },
+      { shape: 'throat', caption: '목구멍 모양', answer: 'ㅇ' },
+      { shape: 'teeth', caption: '이 모양', answer: 'ㅅ' },
+    ],
+    options: ['ㄱ', 'ㄴ', 'ㅁ', 'ㅅ', 'ㅇ'],
     fail: '소리를 낼 때 혀와 입, 이, 목구멍이 어떤 모양인지 떠올려 보세요. ㅁ은 입, ㅅ은 이 모양이에요.',
     done: [{ who: 'narr', text: '기본 자음 ㄱ, ㄴ, ㅁ, ㅅ, ㅇ은 소리를 내는 입과 혀, 이, 목구멍의 모양을 본떠 만들었어요.', src: ['S28'] }],
   },
   strokes: {
     title: '소리가 세질수록 획을 더해요: 차례대로 놓아요',
     cards: ['ㄴ', 'ㄷ', 'ㅌ'],
+    steps: [{ base: 'ㄴ', answer: 'ㄷ', options: ['ㄹ', 'ㄷ', 'ㅁ', 'ㅌ'] }, { base: 'ㄷ', answer: 'ㅌ', options: ['ㅌ', 'ㄹ', 'ㅂ', 'ㄴ'] }],
     fail: '획이 적은 글자부터 놓아요. ㄴ에 획을 하나 더하면 ㄷ, 또 더하면 ㅌ이에요.',
     done: [{ who: 'narr', text: '소리가 세지면 기본 글자에 획을 더해 새 글자를 만들었어요.', src: ['S27'] }],
   },
   vowels: {
     title: '모음의 기본 세 글자: 무엇을 본떴을까요?',
+    pictures: [
+      { shape: 'sky', caption: '둥근 하늘', answer: 'ㆍ' },
+      { shape: 'earth', caption: '평평한 땅', answer: 'ㅡ' },
+      { shape: 'person', caption: '서 있는 사람', answer: 'ㅣ' },
+    ],
+    options: ['ㅣ', 'ㆍ', 'ㅡ'],
     fail: '둥근 하늘은 점(ㆍ), 평평한 땅은 가로선(ㅡ), 서 있는 사람은 세로선(ㅣ)이에요.',
     done: [{ who: 'narr', text: '모음은 하늘(ㆍ), 땅(ㅡ), 사람(ㅣ)을 본뜬 세 글자를 바탕으로 만들었어요.', src: ['S27'] }],
   },
   words: [
-    { title: '\'나무\'를 만들어요: 낱자를 차례대로 놓아요', cards: ['ㄴ', 'ㅏ', 'ㅁ', 'ㅜ'] },
-    { title: '\'한글\'을 만들어요: 낱자를 차례대로 놓아요', cards: ['ㅎ', 'ㅏ', 'ㄴ', 'ㄱ', 'ㅡ', 'ㄹ'] },
+    { title: '\'나무\'를 만들어요: 낱자를 차례대로 놓아요', cards: ['ㄴ', 'ㅏ', 'ㅁ', 'ㅜ'], prompt: '그림의 이름을 바르게 모아 쓴 것은 무엇일까요?', answer: '나무', options: ['너무', '나무', '나모', '누마'] },
+    { title: '\'한글\'을 만들어요: 낱자를 차례대로 놓아요', cards: ['ㅎ', 'ㅏ', 'ㄴ', 'ㄱ', 'ㅡ', 'ㄹ'], prompt: '이 낱자들을 소리 나는 차례대로 모아 쓴 것은 무엇일까요?', answer: '한글', options: ['한굴', '헌글', '한글', '한길'] },
   ],
   wordsFail: '소리 나는 차례대로 놓아요. 첫소리(자음) 다음에 가운뎃소리(모음)가 와요.',
   wordsDone: [{ who: 'guide', text: '자음과 모음을 모으니 낱말이 되었어! 이제 누구나 소리를 글로 적을 수 있어.' }],

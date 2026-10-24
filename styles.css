@@ -342,3 +342,4 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .nb-empty { color: var(--muted); }
 .goal-step { flex: none; margin-left: 6px; font-size: 13px; color: var(--gold); font-variant-numeric: tabular-nums; }
 .goal-step[hidden] { display: none; }
+.order-card.big { font-size: 30px; min-width: 64px; font-family: var(--font-display); }

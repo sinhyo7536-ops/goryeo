@@ -280,6 +280,7 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
     const screen = el('section', 'screen order choose');
     const card = el('div', 'card wide');
     const need = cards.filter(c => c.correct).length;
+    if (ctx.testHooks) ctx.testHooks.chooseAnswer = cards.filter(c => c.correct).map(c => c.text); // 테스트 봇용
     const count = el('p', 'choose-count');
     const pile = el('div', 'order-pile');
     card.append(el('div', 'eyebrow', '카드 고르기'), el('h2', null, title));
@@ -291,7 +292,7 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
     let got = 0, over = false, missed = false;
     const show = () => { count.textContent = `고른 카드 ${got} / ${need}`; };
     const buttons = cards.map(c => {
-      const b = el('button', `order-card${easy && c.correct ? ' hint' : ''}`, c.text); b.type = 'button';
+      const b = el('button', `order-card${easy && c.correct ? ' hint' : ''}${[...c.text].length <= 2 ? ' big' : ''}`, c.text); b.type = 'button'; // 글자 하나·둘(자음·모음·낱말)은 크게
       b.addEventListener('click', () => {
         if (over || b.disabled) return;
         if (c.correct) {

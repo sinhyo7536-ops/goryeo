@@ -87,7 +87,11 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
     }
     // 카드 고르기: cardPicks에 든 카드만 누른다
     if (ui.querySelector('.screen.choose')) {
-      const pick = [...ui.querySelectorAll('.screen.choose .order-card:not([disabled])')].find(b => cardPicks.has(b.textContent));
+      const open = [...ui.querySelectorAll('.screen.choose .order-card:not([disabled])')];
+      const wrong = ctx.testHooks.chooseWrongOnce && open.find(b => b.textContent === ctx.testHooks.chooseWrongOnce);
+      if (wrong) { ctx.testHooks.chooseWrongOnce = null; tap(wrong); return; } // 시험: 한 번만 일부러 틀린 카드
+      const want = cardPicks.size ? cardPicks : new Set(ctx.testHooks.chooseAnswer || []); // cardPicks를 안 주면 놀이가 알려 준 정답
+      const pick = open.find(b => want.has(b.textContent));
       if (pick) tap(pick);
       return;
     }
