@@ -4,6 +4,7 @@ import { showHowTo, placeOnBoard } from '../../../core/minigame.js';
 import { LOOKS } from '../../../content/characters.js';
 import { sayAll, placePlayer, talkInOrder, setTalkStep, tryPart, sumParts, timingPress } from '../common.js';
 import script from './script.js';
+import { PANOK_ICON } from '../ships.js';
 
 const ORDER = ['navy', 'commoner', 'yisunsin'];
 const SPOT = [-8, 7];
@@ -11,7 +12,7 @@ let scene = null;
 
 // 학익진 판: 아래(남쪽)로 둥글게 휜 다섯 자리가 날개, 곧은 뒷줄 세 자리는 틀린 자리
 export const WING_BOARD = {
-  items: Array.from({ length: 5 }, () => ({ id: 'ship', label: '판옥선' })),
+  items: Array.from({ length: 5 }, () => ({ id: 'ship', label: '판옥선', icon: PANOK_ICON })),
   slots: [
     { id: 'w1', xy: [14, 24], answer: 'ship' }, { id: 'w2', xy: [29, 46], answer: 'ship' }, { id: 'w3', xy: [50, 58], answer: 'ship' },
     { id: 'w4', xy: [71, 46], answer: 'ship' }, { id: 'w5', xy: [86, 24], answer: 'ship' },
@@ -81,9 +82,11 @@ export default {
       return timingPress(ctx, { label: '공격 신호', seconds: easy ? 10 : 8, set: scene.setAdvance, window: easy ? [0.64, 0.98] : [0.72, 0.95], fail: atkFail });
     }, () => (atkFail.why === 'early' ? script.attack.early : script.attack.late)));
     scene.goalRing.visible = false;
-    ctx.audio.play('whoosh');
+    world.fitFixedCamera([0, 0, -38], [0.9, 1.25, 0.45], [[-16, 0, -31], [16, 0, -31], [-6, 0, -49], [6, 0, -49]], 0.9); // 싸움을 옆에서 가까이
+    ctx.testHooks.sunk = await scene.playBattle(ctx.audio); // 포를 쏘아 일본 배를 가라앉힌다
+    world.fitFixedCamera(scene.seaFit.target, scene.seaFit.dir, scene.seaFit.points, scene.seaFit.margin);
     scene.setStage('won');
-    await ctx.wait(1200);
+    await ctx.wait(600);
     await sayAll(dialogue, script.result); dialogue.close();
 
     await ctx.fade(true);

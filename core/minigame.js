@@ -416,7 +416,8 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
         const item = items[i];
         if (s.answer === item.id) {
           b.disabled = true; b.classList.add("filled"); // 놓은 물건 이름을 크게, 칸의 설명은 작게 (칸이 길어져 판 밖으로 나가지 않게)
-          b.replaceChildren(`○ ${item.label}`, ...(s.label ? [el('small', null, s.label)] : []));
+          if (item.icon) { b.classList.add('icon'); b.innerHTML = item.icon; if (s.label) b.append(el('small', null, s.label)); } // 그림이 있는 물건(판옥선 등)은 그림으로 놓인다
+          else b.replaceChildren(`○ ${item.label}`, ...(s.label ? [el('small', null, s.label)] : []));
           i += 1;
           if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(result(missed)); }, 500); } else { glowNow = false; ask(); }
         } else {
@@ -430,7 +431,8 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
       return b;
     });
     const ask = () => {
-      now.replaceChildren('놓을 것: ', el('b', 'place-item', items[i].label), ` (${i + 1} / ${items.length})`);
+      const pic = items[i].icon ? Object.assign(el('span', 'place-icon'), { innerHTML: items[i].icon }) : null;
+      now.replaceChildren('놓을 것: ', ...(pic ? [pic] : []), el('b', 'place-item', items[i].label), ` (${i + 1} / ${items.length})`);
       buttons.forEach((b, k) => b.classList.toggle('hint', (easy || glowNow) && !b.disabled && slots[k].answer === items[i].id));
     };
     ask();

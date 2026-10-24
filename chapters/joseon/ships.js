@@ -97,3 +97,6 @@ export function japaneseShip() {
   g.userData.smoke = smoke;
   return g;
 }
+
+// 판옥선 그림(옆모습, SVG): 학익진 자리 놓기 판에 쓴다
+export const PANOK_ICON = '<svg viewBox="0 0 64 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 30 L60 30 L54 40 L10 40 Z" fill="#4e3826"/><rect x="10" y="22" width="44" height="8" fill="#7a5a3c"/><g fill="#2b241c"><rect x="15" y="24" width="4" height="3"/><rect x="24" y="24" width="4" height="3"/><rect x="33" y="24" width="4" height="3"/><rect x="42" y="24" width="4" height="3"/></g><path d="M8 22 H56" stroke="#6b4a32" stroke-width="2"/><g fill="#7a5a3c"><rect x="9" y="18" width="3" height="4"/><rect x="17" y="18" width="3" height="4"/><rect x="25" y="18" width="3" height="4"/><rect x="33" y="18" width="3" height="4"/><rect x="41" y="18" width="3" height="4"/><rect x="49" y="18" width="3" height="4"/></g><path d="M38 12 L50 12 L52 15 L36 15 Z" fill="#3d4846"/><path d="M40 15 V20 M48 15 V20" stroke="#8a2f24" stroke-width="1.5"/><path d="M24 4 V20" stroke="#5a3f2a" stroke-width="2"/><path d="M24 4 L34 7 L24 10 Z" fill="#b8452f"/></svg>';

@@ -85,3 +85,34 @@ test('j4: when the lure ships turn, the enemy is still far away (gap ≥ 20)', a
     for (const k of [0, 0.5, 1]) { s.setChase(k); const near = Math.max(...s.enemy.children.map(c => s.enemy.position.z + c.position.z)); ok(s.lure.position.z - near >= 20, `chase gap at ${k}`); }
   } finally { w.dispose(); }
 });
+
+test('j4: 이순신 stands in front of the harbour in view, and no rock sits in the ships\' lane', async () => {
+  const { buildJ4Scene, STRAIT_Z } = await import('../chapters/joseon/j4/scene.js');
+  const w = testWorld();
+  try {
+    const s = buildJ4Scene(w);
+    const yi = w.npcs.get('yisunsin').mesh.position;
+    ok(Math.abs(yi.x - s.start[0]) < 5 && Math.abs(yi.z - s.start[1]) < 3, `이순신 near the start (${yi.x}, ${yi.z})`);
+    const rocks = [];
+    w.level.traverse(o => { if (o.isMesh && o.geometry.type === 'DodecahedronGeometry' && Math.abs(o.position.z - STRAIT_Z) < 15) rocks.push(o.position.x); });
+    ok(rocks.length >= 2, 'rocks still mark the narrow strait');
+    const half = Math.max(...s.enemy.children.map(e => Math.abs(e.position.x))) + 1.3;
+    ok(rocks.every(x => Math.abs(x) - 0.9 > half), `rocks ${rocks} clear of ships (±${half})`);
+  } finally { w.dispose(); }
+});
+
+test('j4: the attack fires cannons and sinks the enemy ships', async () => {
+  const { buildJ4Scene } = await import('../chapters/joseon/j4/scene.js');
+  const w = testWorld();
+  try {
+    const s = buildJ4Scene(w);
+    s.setStage('wing'); s.setAdvance(0.85);
+    const p = s.playBattle();
+    let n = null; p.then(v => { n = v; });
+    for (let i = 0; i < 400 && n === null; i++) { w.step(0.05, { x: 0, z: 0 }); await new Promise(r => setTimeout(r, 0)); }
+    eq(n, 8, 'all eight hit');
+    ok(s.enemy.children.every(e => !e.visible), 'sunk');
+    s.setStage('wing');
+    ok(s.enemy.children.every(e => e.visible && !e.userData.sink), 'restored for a retry');
+  } finally { w.dispose(); }
+});

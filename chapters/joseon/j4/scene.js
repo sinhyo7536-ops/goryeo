@@ -59,22 +59,23 @@ export function buildJ4Scene(world) {
     const roof = mk(new THREE.SphereGeometry(2.6, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), 0xc8a476, x, 2.1, z); roof.scale.set(1, 0.55, 0.85);
     world.addCollider({ x, z, r: 2.3 });
   }
-  for (const x of [-3, -1]) mk(new THREE.CylinderGeometry(0.06, 0.06, 1.8, 5), 0x5a3f2a, x, 0.9, 8);
-  const net = mk(new THREE.PlaneGeometry(2, 1.2), 0x6b6152, -2, 1.2, 8); net.material = net.material.clone(); net.material.side = THREE.DoubleSide;
-  scatter(world, { kind: 'grass', count: 70, area: { x0: -30, x1: 30, z0: 8.5, z1: 20 }, avoid: [{ x: -10, z: 11, r: 4 }, { x: 16, z: 12.5, r: 3 }, { x: -19, z: 6, r: 3 }, { x: -2, z: 8, r: 2 }], seed: 81, color: 0x7a9450 });
+  for (const x of [-15, -13]) mk(new THREE.CylinderGeometry(0.06, 0.06, 1.8, 5), 0x5a3f2a, x, 0.9, 7.2); // 그물 말리기(이순신 앞을 가리지 않게 서쪽으로)
+  const net = mk(new THREE.PlaneGeometry(2, 1.2), 0x6b6152, -14, 1.2, 7.2); net.material = net.material.clone(); net.material.side = THREE.DoubleSide;
+  scatter(world, { kind: 'grass', count: 70, area: { x0: -30, x1: 30, z0: 8.5, z1: 20 }, avoid: [{ x: -10, z: 11, r: 4 }, { x: 16, z: 12.5, r: 3 }, { x: -19, z: 6, r: 3 }, { x: -14, z: 7.2, r: 2 }, { x: -2.2, z: 5.3, r: 1.5 }], seed: 81, color: 0x7a9450 });
   scatter(world, { kind: 'pine', count: 30, area: { x0: -60, x1: 60, z0: 22, z1: 40 }, seed: 82, scale: [1.1, 1.6], ground: () => 1.5 });
 
   // 바다 북쪽: 견내량(두 섬 사이 좁은 물길)과 서쪽의 한산도
   const island = (x, z, sx, sz, h) => { const m = mk(new THREE.ConeGeometry(1, 1, 9), 0x4f6b4a, x, h / 2 - 0.6, z, L, false); m.scale.set(sx, h, sz); return m; };
-  island(-24, STRAIT_Z - 6, 20, 12, 10); island(24, STRAIT_Z - 6, 20, 12, 11);
+  island(-28, STRAIT_Z - 6, 20, 12, 10); island(28, STRAIT_Z - 6, 20, 12, 11); // 두 섬 사이 물길은 배가 지나갈 만큼(x −9~9)
   island(-46, -46, 14, 12, 8);
-  for (const [x, z] of [[-3, STRAIT_Z + 2], [4, STRAIT_Z - 3]]) mk(new THREE.DodecahedronGeometry(0.9, 0), 0x6b6862, x, -0.2, z); // 암초
+  // 암초: 좁은 견내량 물길 가장자리(배가 지나는 길(x −6~6) 밖). 이 좁고 위험한 물길 때문에 적을 넓은 바다로 끌어냈다
+  for (const [x, z] of [[-8.2, STRAIT_Z + 2], [8.4, STRAIT_Z - 3], [-8.8, STRAIT_Z - 8]]) mk(new THREE.DodecahedronGeometry(0.9, 0), 0x6b6862, x, -0.2, z);
 
   // 미니게임에 쓰는 배들
   const lure = new THREE.Group(); L.add(lure);
-  for (let i = 0; i < 3; i++) { const s = panokseon(); s.position.set((i - 1) * 4.5, -0.2, i % 2 * 3); lure.add(s); }
+  for (let i = 0; i < 3; i++) { const s = panokseon(); s.position.set((i - 1) * 3.6, -0.2, i % 2 * 3); lure.add(s); }
   const enemy = new THREE.Group(); L.add(enemy);
-  for (let i = 0; i < 8; i++) { const s = japaneseShip(); s.position.set(((i % 4) - 1.5) * 4.5, -0.2, Math.floor(i / 4) * 7); enemy.add(s); }
+  for (let i = 0; i < 8; i++) { const s = japaneseShip(); s.position.set(((i % 4) - 1.5) * 3.3, -0.2, Math.floor(i / 4) * 7); enemy.add(s); }
   const fleet = new THREE.Group(); L.add(fleet); // 학익진으로 펼치는 우리 배 6척(가운데는 거북선)
   const wingSpots = [-1.1, -0.75, -0.4, 0.4, 0.75, 1.1].map(a => [WING.x + Math.sin(a) * WING.r, WING.z + Math.cos(a) * WING.r * 0.6 + 6, a]);
   for (const [x, z, a] of wingSpots) { const s = panokseon(); s.position.set(x, -0.2, z); s.rotation.y = a * 0.6; fleet.add(s); } // 뱃머리가 북쪽(적)을 보며 안쪽으로 조금 돈다
@@ -94,6 +95,7 @@ export function buildJ4Scene(world) {
     if (s === 'lure') { lure.position.set(0, 0, -30); enemy.position.set(0, 0, ENEMY_WAIT); enemy.rotation.y = 0; }
     if (s === 'wing') { enemy.position.set(0, 0, -78); }
     if (s === 'won') { enemy.position.set(0, 0, -50); }
+    if (s !== 'won') enemy.children.forEach(e => { e.visible = true; e.userData.sink = 0; e.rotation.set(0, 0, 0); }); // 다시 하기·이어하기 때 배를 되살린다
   };
   // 미끼 배 진행: 0 = 출발(-30), 1 = 견내량 깊숙이(STRAIT_Z - 6)
   const setLure = k => { lure.position.z = -30 + k * (STRAIT_Z - 6 + 30); lure.rotation.y = 0; };
@@ -103,6 +105,53 @@ export function buildJ4Scene(world) {
   const setAdvance = k => { enemy.position.z = -70 + k * 34; enemy.rotation.y = Math.PI; };
   setStage('harbor');
 
+  // 공격: 우리 배들이 차례로 포를 쏘고(포구 연기와 날아가는 포탄), 맞은 일본 배는 물보라와 연기 속에 기울며 가라앉는다(불길은 그리지 않는다)
+  const fx = new THREE.Group(); L.add(fx);
+  const ballGeo = new THREE.SphereGeometry(0.28, 8, 6), ballMat = new THREE.MeshLambertMaterial({ color: 0x1e1c1a });
+  const puff = (p, r, color = 0xe8e6e0) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), new THREE.MeshLambertMaterial({ color, transparent: true, opacity: 0.85, depthWrite: false })); m.position.copy(p); fx.add(m); return m; };
+  const playBattle = (audio = null) => new Promise(resolve => {
+    const shooters = [...fleet.children, leadTurtle], targets = [...enemy.children];
+    const shots = targets.map((tg, i) => ({ at: 0.4 + i * 0.5, from: shooters[i % shooters.length], to: tg, state: 'wait' }));
+    const effects = [];
+    const wp = new THREE.Vector3(), tp = new THREE.Vector3();
+    let t = 0;
+    const off = world.onUpdate(dt => {
+      t += dt;
+      for (const sh of shots) {
+        if (sh.state === 'wait' && t >= sh.at) {
+          sh.from.getWorldPosition(wp); wp.y += 2.2; sh.to.getWorldPosition(tp); tp.y += 1;
+          effects.push({ m: puff(wp, 0.9), k: 0, life: 1.2, grow: 2.2 }); // 포구 연기
+          const ball = new THREE.Mesh(ballGeo, ballMat); ball.position.copy(wp); fx.add(ball);
+          sh.ball = ball; sh.a = wp.clone(); sh.b = tp.clone(); sh.k = 0; sh.state = 'fly';
+          audio?.play('whoosh');
+        }
+        if (sh.state === 'fly') {
+          sh.k = Math.min(1, sh.k + dt / 0.9);
+          sh.ball.position.lerpVectors(sh.a, sh.b, sh.k); sh.ball.position.y += Math.sin(sh.k * Math.PI) * 6;
+          if (sh.k >= 1) {
+            fx.remove(sh.ball); sh.state = 'hit'; sh.sinkT = 0;
+            const s = puff(sh.b, 1.6, 0xf2f6f8); s.scale.set(0.8, 2.4, 0.8); effects.push({ m: s, k: 0, life: 1, grow: 1.4 }); // 물보라
+            effects.push({ m: puff(sh.b.clone().setY(2.6), 1.5, 0x8a8a88), k: 0, life: 2.6, grow: 1.8, rise: 1.2 }); // 연기
+            sh.to.userData.smoke.visible = true;
+          }
+        }
+        if (sh.state === 'hit') { // 기울며 가라앉는다
+          sh.sinkT = Math.min(1, sh.sinkT + dt / 2.6);
+          sh.to.userData.sink = sh.sinkT * 3.4; sh.to.rotation.z = sh.sinkT * 0.5; sh.to.rotation.x = sh.sinkT * 0.25;
+          if (sh.sinkT >= 1) { sh.state = 'sunk'; sh.to.visible = false; }
+        }
+      }
+      for (const e of effects) {
+        e.k += dt / e.life;
+        if (!e.base) e.base = e.m.scale.clone();
+        e.m.scale.copy(e.base).multiplyScalar(1 + Math.min(1, e.k) * e.grow * 0.5); e.m.material.opacity = Math.max(0, 0.85 * (1 - e.k)); // 연기는 조금씩만 커지며 옅어진다
+        if (e.rise) e.m.position.y += dt * e.rise;
+        if (e.k >= 1 && e.m.parent) fx.remove(e.m);
+      }
+      if (shots.every(s => s.state === 'sunk') && effects.every(e => e.k >= 1)) { off(); resolve(shots.length); }
+    });
+  });
+
   addSigns(world, [
     { id: 'signPanok', title: '판옥선', x: -6.5, z: 5.2 },
     { id: 'signTurtle', title: '거북선', x: 12, z: 5.4 },
@@ -111,16 +160,16 @@ export function buildJ4Scene(world) {
 
   world.addNpc('navy', LOOKS.navy, 7, 6.5, Math.PI);
   world.addNpc('commoner', LOOKS.commoner, -3, 9.6, Math.PI);
-  world.addNpc('yisunsin', LOOKS.yisunsin, -10, 7.6, 0);
+  world.addNpc('yisunsin', LOOKS.yisunsin, -2.2, 5.3, 0); // 포구 앞 한가운데, 바다와 배를 뒤로 하고 학생 쪽을 본다
 
   world.onUpdate((dt, t) => {
     if (goalRing.visible) goalRing.material.opacity = 0.5 + Math.sin(t * 4) * 0.3;
-    for (const g of [lure, enemy, fleet, { children: [leadTurtle] }]) g.children.forEach((s, i) => { s.position.y = -0.2 + Math.sin(t * 1.4 + i) * 0.08; });
+    for (const g of [lure, enemy, fleet, { children: [leadTurtle] }]) g.children.forEach((s, i) => { s.position.y = -0.2 + Math.sin(t * 1.4 + i) * 0.08 - (s.userData.sink || 0); });
     enemy.children.forEach(e => { if (e.userData.smoke.visible) e.userData.smoke.children.forEach((p, i) => { p.position.y = 2.4 + i * 0.8 + Math.sin(t * 2 + i) * 0.2; }); });
   });
 
   return {
-    start: [0, 6.5], turtle, leadTurtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance,
+    start: [0, 6.5], turtle, leadTurtle, lure, enemy, fleet, goalRing, setStage, setLure, setChase, setAdvance, playBattle,
     // 바다 장면 카메라: 미끼 배 출발점부터 견내량 안쪽 적까지, 학익진 양 끝이 모두 보이게 맞춘다
     seaFit: { target: [0, 0, -54], dir: [0, 1, 0.6], margin: 0.78,
       points: [[0, 0, -30], [0, 0, STRAIT_Z + 2], [-8, 0, ENEMY_WAIT], [8, 0, ENEMY_WAIT + 7], [WING.x - WING.r, 0, WING.z + 6], [WING.x + WING.r, 0, WING.z + 6], [0, 0, -40]] },
