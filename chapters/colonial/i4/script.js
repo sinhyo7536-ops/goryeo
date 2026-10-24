@@ -91,7 +91,7 @@ export default {
   },
   result: [{ who: 'narr', text: '독립군의 승리는 나라를 빼앗긴 우리 민족에게 큰 용기를 주었어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '봉오동 전투에서 독립군을 이끈 사람은?', options: ['홍범도', '김구', '안창호'], answer: 0, explain: '홍범도가 이끄는 독립군 부대가 봉오동에서 일본군을 무찔렀어요.', src: ['S51'] },
-    { kind: 'quiz', question: '1920년 독립군이 지형을 이용해 크게 이긴 싸움은?', options: ['한산도 대첩', '귀주 대첩', '청산리 대첩'], answer: 2, explain: '김좌진과 홍범도의 독립군이 청산리에서 크게 이겼어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1920, question: '봉오동 전투에서 독립군을 이끈 사람은?', options: ['홍범도', '김구', '안창호'], answer: 0, explain: '홍범도가 이끄는 독립군 부대가 봉오동에서 일본군을 무찔렀어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1920, question: '1920년 독립군이 지형을 이용해 크게 이긴 싸움은?', options: ['한산도 대첩', '귀주 대첩', '청산리 대첩'], answer: 2, explain: '김좌진과 홍범도의 독립군이 청산리에서 크게 이겼어요.', src: ['S51'] },
   ],
 };

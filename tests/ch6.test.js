@@ -15,8 +15,9 @@ const answers = new Set(ch6Script.quizzes.map(q => q.options[q.answer]));
 test('ch6: script passes validation', () => {
   eq(validateScript(ch6Script, SOURCES), []);
   for (const [id, sp] of Object.entries(ch6Script.speakers)) if (id !== 'guide') ok(LOOKS[sp.look], id);
-  eq(ch6Script.quizzes.map(q => q.options[q.answer]), ['강화도 → 진도 → 제주도', '고려 조정이 몽골과 싸움을 멈추고 개경으로 돌아가는 데 반대해서']);
-  eq(ch6Script.timeline.cards.length, 7);
+  eq(ch6Script.quizzes.map(q => q.options[q.answer]), ['고려 조정이 몽골과 싸움을 멈추고 개경으로 돌아가는 데 반대해서', '강화도 → 진도 → 제주도']); // 까닭(1270) → 옮겨 간 순서(1270~1273)
+  eq(ch6Script.fit.figures.length, 5); eq(ch6Script.fit.circles.length, 5);
+  ok(ch6Script.fit.circles.every(c => ch6Script.fit.figures.some(f => f.id === c.answer)), 'every circle has its person');
 });
 
 test('ch6: destinations start ahead of the boat', () => {
@@ -33,7 +34,7 @@ test('ch6: caught by a pursuer restarts the leg', async () => {
   const said = [];
   const say = s.dialogue.say; s.dialogue.say = l => { said.push(l.text); return say(l); };
   let caught = false;
-  const bot = touchBot(s, { answers, orders: [ch6Script.timeline.cards], holdStill: () => !caught && !said.includes(ch6Script.sail.failHint) });
+  const bot = touchBot(s, { answers, fits: Object.fromEntries(ch6Script.fit.circles.map(c => [c.answer, c.id])), holdStill: () => !caught && !said.includes(ch6Script.sail.failHint) });
   try {
     ch6.buildScene(s.w, s.ctx);
     ch6.enterStage(s.ctx, 'minigame');
@@ -45,7 +46,7 @@ test('ch6: caught by a pursuer restarts the leg', async () => {
 
 test('ch6: completes with touch-only actions', async () => {
   const s = touchSetup(ch6Script.speakers);
-  const bot = touchBot(s, { answers, orders: [ch6Script.timeline.cards] });
+  const bot = touchBot(s, { answers, fits: Object.fromEntries(ch6Script.fit.circles.map(c => [c.answer, c.id])) });
   try {
     const r = await runChapter(CHAPTERS[5], ch6, s.ctx, memSave());
     eq(r.quizCorrect, 2); eq(r.easyModeUsed, false); eq(r.stars, 3);

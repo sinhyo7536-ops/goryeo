@@ -74,7 +74,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '거란의 2차 침입 때 흥화진을 지킨 사람은?', options: ['서희', '양규', '김윤후'], answer: 1, explain: '양규가 흥화진을 끝까지 지켰어요.', src: ['S2'] },
-    { kind: 'quiz', question: '거란의 2차 침입 때 양규가 한 일은?', options: ['강화도로 도읍을 옮겼다', '끌려가던 백성을 구했다', '대장경을 만들었다'], answer: 1, explain: '양규는 물러가는 거란군을 공격해 끌려가던 백성을 구했어요.', src: ['S15'] },
+    { kind: 'quiz', year: 1010, question: '거란의 2차 침입 때 흥화진을 지킨 사람은?', options: ['서희', '양규', '김윤후'], answer: 1, explain: '양규가 흥화진을 끝까지 지켰어요.', src: ['S2'] },
+    { kind: 'quiz', year: 1010, question: '거란의 2차 침입 때 양규가 한 일은?', options: ['강화도로 도읍을 옮겼다', '끌려가던 백성을 구했다', '대장경을 만들었다'], answer: 1, explain: '양규는 물러가는 거란군을 공격해 끌려가던 백성을 구했어요.', src: ['S15'] },
   ],
 };

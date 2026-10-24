@@ -57,7 +57,11 @@ test('marks: placed cards get ○ and a wrong card gets ×', async () => {
   const wrong = [...ui.querySelectorAll('.order-card')].find(b => b.textContent === '다');
   wrong.click();
   ok(wrong.textContent.startsWith('×'), 'wrong card marked ×');
-  await p; ui.remove();
+  ok(!ui.querySelector('.card-why').hidden, 'and an explanation is shown');
+  [...ui.querySelectorAll('.order-card')].find(b => b.textContent === '나').click();
+  await new Promise(r => setTimeout(r, 950)); // 틀린 카드의 × 표시가 사라지면 이어서 고른다
+  [...ui.querySelectorAll('.order-card')].find(b => b.textContent === '다').click();
+  eq(await p, 'missed'); ui.remove();
 });
 
 test('marks: passed dots show a ✓', () => {

@@ -43,7 +43,7 @@ test('j3: completes with touch-only actions', async () => {
   const s = touchSetup(j3Script.speakers);
   const bot = touchBot(s, { answers, cardPicks, orders });
   try {
-    const r = await runChapter(JOSEON[2], j3, s.ctx, memSave());
+    const r = await runChapter(JOSEON.find(c => c.id === 'j3'), j3, s.ctx, memSave());
     eq(r.quizCorrect, 2);
     eq(r.firstTryCorrect, 3);
     eq(r.stars, 3);

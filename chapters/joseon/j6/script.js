@@ -90,7 +90,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '영조와 정조가 인재를 고르게 쓰려고 펼친 정책은?', options: ['탕평책', '4불가론', '북벌'], answer: 0, explain: '여러 당파의 인재를 고르게 쓰려는 탕평책이에요.', src: ['S41'] },
-    { kind: 'quiz', question: '수원 화성을 쌓을 때 무거운 돌을 들어 올린 기구는?', options: ['측우기', '거중기', '자격루'], answer: 1, explain: '정약용이 『기기도설』을 참고해 고안한 거중기예요.', src: ['S40'] },
+    { kind: 'quiz', year: 1724, question: '영조와 정조가 인재를 고르게 쓰려고 펼친 정책은?', options: ['탕평책', '4불가론', '북벌'], answer: 0, explain: '여러 당파의 인재를 고르게 쓰려는 탕평책이에요.', src: ['S41'] },
+    { kind: 'quiz', year: 1792, question: '수원 화성을 쌓을 때 무거운 돌을 들어 올린 기구는?', options: ['측우기', '거중기', '자격루'], answer: 1, explain: '정약용이 『기기도설』을 참고해 고안한 거중기예요.', src: ['S40'] },
   ],
 };

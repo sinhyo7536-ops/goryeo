@@ -10,9 +10,17 @@ export default {
 
   intro: [
     { who: 'narr', text: '몽골은 아시아 대부분과 유럽 일부까지 지배한 나라였어요.', src: ['S19'] },
-    { who: 'narr', text: '1225년, 고려에 왔다가 돌아가던 몽골 사신 저고여가 압록강 가에서 죽었어요. 누가 죽였는지는 밝혀지지 않았어요.', src: ['S22'] },
-    { who: 'narr', text: '몽골은 이 사건을 구실로 삼아 1231년 8월 고려에 쳐들어왔어요.', src: ['S22', 'S10'] },
+    { who: 'narr', text: '1225년, 고려와 몽골 사이에 큰 사건이 일어났어요. 무슨 일이 있었는지 함께 보아요.', src: ['S22'] },
   ],
+
+  // 저고여 피살 사건(1225년): 압록강 가 장면. before는 걷는 모습 전, after는 사건 뒤
+  jeogo: {
+    before: [{ who: 'narr', text: '1225년, 고려에 왔던 몽골 사신 저고여가 압록강 가 길을 따라 돌아가고 있어요.', src: ['S22'] }],
+    after: [
+      { who: 'narr', text: '그런데 압록강 가에서 저고여가 누군가에게 죽임을 당했어요. 누가 죽였는지는 끝내 밝혀지지 않았어요.', src: ['S22'] },
+      { who: 'narr', text: '몽골은 이 일을 고려 탓으로 돌리며 국교를 끊었고, 이 사건을 구실로 삼아 1231년 8월 고려에 쳐들어왔어요.', src: ['S22', 'S10'] },
+    ],
+  },
 
   start: [{ who: 'guide', text: '여기는 고려의 도읍 개경이야. 궁궐 앞의 관리에게 이야기를 들어 보자.' }],
 
@@ -39,12 +47,15 @@ export default {
       kind: 'choice', who: 'minister', src: ['S10'],
       prompt: { who: 'minister', text: '좋소. 그런데 왜 하필 강화도요?' },
       options: [
-        { text: '강화도가 가장 넓었다', correct: false, reply: null, hint: '강화도가 섬이라는 점을 떠올려 보세요.' },
-        { text: '몽골군은 바다와 물에서 싸우는 데 약했다', correct: true, reply: { who: 'minister', text: '그렇소. 섬이면 몽골군이 쉽게 건너오지 못하오.', src: ['S10'] }, hint: null },
-        { text: '몽골이 강화도를 허락했다', correct: false, reply: null, hint: '몽골은 고려를 공격하던 나라예요. 허락해 줄 리 없어요.' },
+        { text: '강화도가 고려에서 가장 넓은 땅이기 때문입니다.', correct: false, reply: null, hint: '강화도가 섬이라는 점을 떠올려 보세요.' },
+        { text: '몽골군을 상대로 바다와 물에서 싸우면 고려가 유리할 것입니다.', correct: true, reply: { who: 'minister', text: '그렇소. 몽골군은 바다와 물에서 싸우는 데 약하니, 섬인 강화도로는 쉽게 건너오지 못할 것이오.', src: ['S10'] }, hint: null },
+        { text: '몽골이 강화도로 옮겨도 된다고 허락했기 때문입니다.', correct: false, reply: null, hint: '몽골은 고려를 공격하던 나라예요. 허락해 줄 리 없어요.' },
       ],
     },
-    done: [{ who: 'narr', text: '1232년 7월, 고려 조정은 강화도로 도읍을 옮겼어요.', src: ['S10'] }],
+    done: [
+      { who: 'narr', text: '1232년 7월, 고려 조정은 강화도로 도읍을 옮겼어요.', src: ['S10'] },
+      { who: 'narr', text: '이 때문에 몽골군은 고려의 도읍을 쉽게 함락시킬 수 없었어요.', src: ['S10'] },
+    ],
   },
 
   cheoin: {
@@ -73,7 +84,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '고려 조정이 강화도로 도읍을 옮긴 까닭은?', options: ['몽골군이 바다와 물에서 싸우는 데 약해서', '강화도가 가장 따뜻해서', '몽골이 허락해서'], answer: 0, explain: '섬인 강화도는 몽골군이 쉽게 건너오지 못했어요.', src: ['S10'] },
-    { kind: 'quiz', question: '처인성과 충주성에서 몽골군에 맞선 승려 출신 인물은?', options: ['강감찬', '양규', '김윤후'], answer: 2, explain: '승려 출신 김윤후는 처인성과 충주성에서 백성과 함께 싸웠어요.', src: ['S4'] },
+    { kind: 'quiz', year: 1232, question: '고려 조정이 강화도로 도읍을 옮긴 까닭은?', options: ['몽골군이 바다와 물에서 싸우는 데 약해서', '강화도가 가장 따뜻해서', '몽골이 허락해서'], answer: 0, explain: '섬인 강화도는 몽골군이 쉽게 건너오지 못했어요.', src: ['S10'] },
+    { kind: 'quiz', year: 1232, question: '처인성과 충주성에서 몽골군에 맞선 승려 출신 인물은?', options: ['강감찬', '양규', '김윤후'], answer: 2, explain: '승려 출신 김윤후는 처인성과 충주성에서 백성과 함께 싸웠어요.', src: ['S4'] },
   ],
 };

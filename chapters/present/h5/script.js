@@ -66,7 +66,7 @@ export default {
     },
     life: {
       type: 'find', src: ['S51'], title: '피란민 마을에서 6·25 전쟁 뒤의 생활 모습을 찾아요', counter: '찾은 모습',
-      howto: '마을 곳곳의 팻말 가운데 전쟁 뒤의 생활 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '마을 곳곳의 팻말 가운데 전쟁 뒤의 생활 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'student', text: '우리 마을 사람들이 어떻게 살고 있는지 둘러보세요. 맞는 이야기만 골라야 해요.' }],
       items: [
         { text: '판잣집 같은 어려운 환경에서 살았다', correct: true, look: 'grandma' },
@@ -81,7 +81,7 @@ export default {
   },
   result: [{ who: 'narr', text: '사람들은 어려움 속에서도 서로 도우며 다시 일어섰어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '피란민이 밀가루로 냉면을 만들면서 생긴 음식은?', options: ['밀면', '떡볶이', '짜장면'], answer: 0, explain: '구호물품 밀가루로 만든 냉면이 부산 밀면의 시작이에요.', src: ['S51'] },
-    { kind: 'quiz', question: '6·25 전쟁 뒤 우리에게 남은 과제는?', options: ['평화 통일', '개항', '신분제 없애기'], answer: 0, explain: '분단이 이어져 평화 통일은 우리의 과제로 남아 있어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1953, question: '피란민이 밀가루로 냉면을 만들면서 생긴 음식은?', options: ['밀면', '떡볶이', '짜장면'], answer: 0, explain: '구호물품 밀가루로 만든 냉면이 부산 밀면의 시작이에요.', src: ['S51'] },
+    { kind: 'quiz', year: 1953, question: '6·25 전쟁 뒤 우리에게 남은 과제는?', options: ['평화 통일', '개항', '신분제 없애기'], answer: 0, explain: '분단이 이어져 평화 통일은 우리의 과제로 남아 있어요.', src: ['S51'] },
   ],
 };

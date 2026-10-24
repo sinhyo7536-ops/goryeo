@@ -82,7 +82,7 @@ export default {
     },
     truce: {
       type: 'find', src: ['S51'], title: '판문점에서 정전 협정을 맺은 뒤의 모습을 찾아요', counter: '찾은 것',
-      howto: '팻말 가운데 정전 협정 뒤의 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '팻말 가운데 정전 협정 뒤의 모습을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'unSoldier', text: '여기가 판문점이야. 2년 넘게 이어진 회담 끝에 여기서 정전 협정을 맺었지.' }],
       items: [
         { text: '남북을 가르는 휴전선이 그어졌다', correct: true, talk: [{ who: 'soldier', text: '휴전선을 사이에 두고 남과 북이 나뉘었어.' }] },
@@ -95,7 +95,7 @@ export default {
   },
   result: [{ who: 'narr', text: '정전 협정으로 전투는 멈추었지만, 남과 북은 휴전선을 사이에 두고 나뉘게 되었어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '1951년 1월 4일 서울을 다시 빼앗긴 일은?', options: ['1·4 후퇴', '인천 상륙 작전', '을미사변'], answer: 0, explain: '중국군의 공격에 밀려 1951년 1월 4일 서울을 다시 빼앗겼어요.', src: ['S51'] },
-    { kind: 'quiz', question: '1953년 7월 맺어져 휴전선이 그어진 협정은?', options: ['강화도 조약', '을사늑약', '정전 협정'], answer: 2, explain: '정전 협정으로 휴전선이 그어졌어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1951, question: '1951년 1월 4일 서울을 다시 빼앗긴 일은?', options: ['1·4 후퇴', '인천 상륙 작전', '을미사변'], answer: 0, explain: '중국군의 공격에 밀려 1951년 1월 4일 서울을 다시 빼앗겼어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1953, question: '1953년 7월 맺어져 휴전선이 그어진 협정은?', options: ['강화도 조약', '을사늑약', '정전 협정'], answer: 2, explain: '정전 협정으로 휴전선이 그어졌어요.', src: ['S51'] },
   ],
 };

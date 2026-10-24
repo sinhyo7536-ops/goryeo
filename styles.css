@@ -42,6 +42,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   display: flex; gap: 10px; align-items: baseline;
 }
 .dlg-choices button:hover { border-color: var(--gold); }
+.dlg-choices button.off { opacity: .45; text-decoration: line-through; cursor: default; }
 .dlg-choices .num { flex: none; color: var(--gold); font-family: var(--font-display); }
 @media (max-width: 600px) { .dlg-text { font-size: 17px; } .dlg-portrait { width: 44px; height: 44px; font-size: 20px; } }
 
@@ -152,6 +153,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   background: rgba(27,31,29,.82); border: 1px solid rgba(217,164,65,.45); border-radius: 6px; padding: 10px 14px; display: grid; gap: 4px; }
 .hud[hidden] { display: none; }
 .hud-chapter { font-size: 13px; color: var(--gold); }
+.hud-role { font-size: 13px; color: var(--hanji); opacity: .85; }
+.hud-role[hidden] { display: none; }
+.role-card { display: flex; gap: 12px; align-items: center; margin: 10px 0 14px; padding: 10px 12px; border: 1px solid rgba(217,164,65,.55); border-radius: 8px; background: rgba(217,164,65,.12); text-align: left; }
+.role-face { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--gold); }
+.role-card > div { min-width: 0; display: grid; gap: 2px; }
+.role-tag { font-size: 12px; letter-spacing: .08em; color: var(--gold); }
+.role-name { font-size: 18px; }
+.role-card p { margin: 0; font-size: 15px; line-height: 1.45; }
 .hud-goal { display: flex; gap: 8px; align-items: center; font-size: 16px; line-height: 1.4; }
 .seal { flex: none; background: var(--dan-red); color: var(--hanji); font-family: var(--font-display); font-size: 13px; padding: 2px 6px; border-radius: 2px; }
 .menubtn { position: fixed; z-index: 10; top: calc(12px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); min-height: 48px; padding: 0 16px; font-size: 16px; border-radius: 4px; border: 1px solid rgba(242,234,217,.5); background: rgba(27,31,29,.82); color: var(--hanji); }
@@ -185,6 +194,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .order-card.hint { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.5); }
 .order-card.picked { border-color: #2f6b5e; background: #dcebdf; opacity: 1; }
 .order-card.placed { visibility: hidden; }
+.card.pics .order-pile { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.order-card .order-pic { display: block; }
+.order-card .order-pic svg { display: block; width: 100%; height: auto; max-height: 96px; margin: 0 auto 4px; }
+.order-card .order-text { display: block; }
+@media (max-width: 520px) { .card.pics .order-pile { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .sort-now { font-size: 20px; font-weight: 700; line-height: 1.5; min-height: 3em; /* 두 줄 자리를 늘 비워 두어 카드 글이 길어져도 바구니가 움직이지 않게 */ color: var(--text-ink); word-break: keep-all; }
 .sort-bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .sort-bin { min-height: 72px; font-size: 18px; font-weight: 700; border-radius: 6px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); }
@@ -212,6 +226,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
 .place-slot.filled small { display: block; font-size: .76em; font-weight: 400; line-height: 1.25; }
 .place-slot.wrong { border: 2px solid var(--dan-red); background: #f6d6cf; animation: shake .3s; }
 .order-card.wrong { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
+.card-why { margin: .6rem 0 0; padding: .55rem .8rem; border-left: 4px solid var(--dan-red); background: #fbeee9; color: #5a2a20; font-size: .98rem; line-height: 1.5; border-radius: 6px; }
 @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 /* 획 따라 그리기 */
 /* 판은 화면 높이를 거의 다 쓰고, 설명은 왼쪽 옆에 둔다 (터치하기 쉽게) */
@@ -283,3 +298,25 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outl
   .place-slot { min-width: 48px; padding: 3px 5px; font-size: 13px; }
   .place-decor { font-size: 12px; }
 }
+/* 퀴즈 배경 이름표: 그때(해)와 화면이 비추는 인물·안내판. 문제 창 바로 위 왼쪽에 붙는다 */
+.quiz-plate { position: absolute; left: 12px; bottom: calc(100% + 8px); max-width: calc(100% - 24px); box-sizing: border-box;
+  padding: 6px 16px; border-radius: 999px; background: rgba(27,31,29,.88); border: 1px solid var(--gold); color: var(--hanji);
+  font-family: var(--font-display); font-size: 17px; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+/* 인물 넣기(6장): 위에는 사건 원, 아래에는 인물 얼굴 카드 */
+.fit-circles { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 6px 0 10px; }
+.fit-circle { width: 118px; min-height: 150px; padding: 0; border: none; background: none; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-ink); }
+.fit-inside { width: 96px; height: 96px; border-radius: 50%; border: 3px dashed #8f8068; background: #fffaf0; display: grid; place-items: center; overflow: hidden; }
+.fit-circle.filled .fit-inside { border-style: solid; border-color: #2f6b5e; background: #dcebdf; }
+.fit-circle.hint .fit-inside { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.55); }
+.fit-circle.wrong .fit-inside { border-color: var(--dan-red); background: #f6d6cf; animation: shake .3s; }
+.fit-inside img { width: 64px; height: 64px; border-radius: 50%; }
+.fit-inside span { font-size: 13px; font-weight: 700; }
+.fit-inside:has(img) { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.fit-label { font-size: 14px; line-height: 1.35; text-align: center; word-break: keep-all; }
+.fit-now { text-align: center; font-weight: 700; min-height: 1.5em; color: var(--text-ink); }
+.fit-figures { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.fit-figure { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 10px; min-width: 86px; border-radius: 10px; border: 2px solid #8f8068; background: #fffaf0; color: var(--text-ink); font-size: 16px; font-weight: 700; }
+.fit-figure img { width: 56px; height: 56px; border-radius: 50%; }
+.fit-figure.picked { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(217,164,65,.55); transform: translateY(-3px); }
+.fit-figure.placed { visibility: hidden; }
+@media (max-width: 520px) { .fit-circle { width: 96px; min-height: 128px; } .fit-inside { width: 76px; height: 76px; } .fit-inside img { width: 48px; height: 48px; } .fit-figure { min-width: 70px; font-size: 14px; } .fit-figure img { width: 44px; height: 44px; } }

@@ -67,7 +67,7 @@ export default {
     },
     change: {
       type: 'deliver', src: ['S51'], title: '광복 뒤의 모습일까요, 일제 강점기의 모습일까요?', counter: '가져다 놓은 것',
-      howto: '머리 위의 글을 「광복 뒤」 학교나 「일제 강점기」 건물로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 글을 「광복 뒤」 학교나 「일제 강점기」 건물로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'grandma', text: '광복 전과 뒤에 무엇이 달라졌는지, 알맞은 곳으로 가져가 보렴.' }],
       bins: [{ id: 'after', label: '광복 뒤', look: 'student' }, { id: 'before', label: '일제 강점기', look: 'gendarme' }],
       cards: [
@@ -83,7 +83,7 @@ export default {
   },
   result: [{ who: 'narr', text: '광복 뒤 사람들의 일상생활에도 큰 변화가 나타났어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '우리나라가 광복을 맞이한 날은?', options: ['1919년 3월 1일', '1945년 8월 15일', '1950년 6월 25일'], answer: 1, explain: '1945년 8월 15일 일본이 연합국에 항복하면서 광복을 맞이했어요.', src: ['S51'] },
-    { kind: 'quiz', question: '광복은 무엇의 결과일까요?', options: ['연합국의 승리와 우리 민족의 끊임없는 독립운동', '강화도 조약', '신탁 통치'], answer: 0, explain: '광복은 연합국의 승리로 얻은 것이자 우리 민족이 끊임없이 독립운동을 벌인 결과예요.', src: ['S51'] },
+    { kind: 'quiz', year: 1945, question: '우리나라가 광복을 맞이한 날은?', options: ['1919년 3월 1일', '1945년 8월 15일', '1950년 6월 25일'], answer: 1, explain: '1945년 8월 15일 일본이 연합국에 항복하면서 광복을 맞이했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1945, question: '광복은 무엇의 결과일까요?', options: ['연합국의 승리와 우리 민족의 끊임없는 독립운동', '강화도 조약', '신탁 통치'], answer: 0, explain: '광복은 연합국의 승리로 얻은 것이자 우리 민족이 끊임없이 독립운동을 벌인 결과예요.', src: ['S51'] },
   ],
 };

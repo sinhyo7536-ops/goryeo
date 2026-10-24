@@ -15,7 +15,7 @@ import { buildTown } from './town.js';
 import { PLAY } from './play.js';
 
 const HOWTO = {
-  choose: '맞는 카드를 모두 골라요. 틀린 카드를 누르면 다시 해요.',
+  choose: '맞는 카드를 모두 골라요. 틀린 카드를 누르면 해설을 보고 다시 골라요.',
   sort: '카드가 한 장씩 나오면 알맞은 쪽을 눌러요.',
   place: '놓을 것을 보고 알맞은 자리를 눌러요.',
   order: '일어난 순서(또는 알맞은 차례)대로 카드를 눌러요.',
@@ -23,8 +23,8 @@ const HOWTO = {
   collect: '빛나는 곳으로 걸어가요. 화살표가 길을 알려 줘요.',
   drive: '화살표를 따라 빛나는 곳을 차례로 지나가요. 부딪히면 앞 지점에서 다시 가요.',
   stops: '이름표가 선 곳을 일어난 차례대로 찾아가 대화 버튼을 눌러요.',
-  deliver: '머리 위에 든 것을 알맞은 곳으로 가져가 대화 버튼을 눌러요.',
-  find: '맞는 팻말만 찾아가 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+  deliver: '머리 위에 든 것을 들고 알맞은 원 안에 멈춰 잠깐 서 있으면 놓여요. 놓고 나면 처음 자리로 돌아와 다음 것을 들어요.',
+  find: '맞는 팻말만 찾아가 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
   ambush: '적이 빛나는 자리에 들어오면 그 위의 버튼을 눌러요.',
   sneak: '불빛(감시원이 보는 곳)을 피해 파란 고리를 차례로 지나가요. 들키면 앞 고리에서 다시 가요.',
 };
@@ -72,10 +72,10 @@ function collect(ctx, scene, part, easy) {
 
 function runPart(ctx, scene, part, easy) {
   switch (part.type) {
-    case 'choose': return chooseCards(ctx, { title: part.title, prompt: part.prompt, cards: part.cards, figure: part.figure, easy });
-    case 'sort': return sortCards(ctx, { title: part.title, bins: part.bins, cards: part.cards, easy });
-    case 'place': return placeOnBoard(ctx, { title: part.title, items: part.items, slots: part.slots, decor: part.decor, boardClass: part.boardClass, easy });
-    case 'order': return orderCards(ctx, { title: part.title, cards: part.cards, easy });
+    case 'choose': return chooseCards(ctx, { title: part.title, prompt: part.prompt, cards: part.cards, figure: part.figure, hint: typeof part.fail === 'string' ? part.fail : undefined, easy });
+    case 'sort': return sortCards(ctx, { title: part.title, bins: part.bins, cards: part.cards, hint: typeof part.fail === 'string' ? part.fail : undefined, easy });
+    case 'place': return placeOnBoard(ctx, { title: part.title, items: part.items, slots: part.slots, decor: part.decor, boardClass: part.boardClass, hint: typeof part.fail === 'string' ? part.fail : undefined, easy });
+    case 'order': return orderCards(ctx, { title: part.title, cards: part.cards, hint: typeof part.fail === 'string' ? part.fail : undefined, easy });
     case 'gauge': return timingBar(ctx, { title: part.title, prompt: part.prompt, label: part.label, zone: part.zone, seconds: part.seconds, easy });
     case 'collect': return collect(ctx, scene, part, easy);
     case 'drive': case 'stops': case 'deliver': case 'find': case 'ambush': case 'sneak': return PLAY[part.type](ctx, part, easy);

@@ -101,10 +101,16 @@ export function buildCh3Scene(world) {
 
   // 귀주 벌판: 남쪽 고려군, 북쪽 거란군, 동쪽에서 오는 지원군
   const guju = new THREE.Group(); L.add(guju);
-  const gujuFlags = [], gujuKhitan = [];
+  const gujuFlags = [], gujuKhitan = [], gujuGoryeo = [];
   for (let i = 0; i < 12; i++) {
-    const p = makePerson(LOOKS.player); p.position.set(-11 + i * 2, 0, GUJU_Z + 6); p.rotation.y = Math.PI; guju.add(p);
-    const q = makePerson(LOOKS.khitan); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); guju.add(q); gujuKhitan.push(q);
+    const p = makePerson(LOOKS.player); p.position.set(-11 + i * 2, 0, GUJU_Z + 6); p.rotation.y = Math.PI; guju.add(p); gujuGoryeo.push(p);
+    const q = makePerson(LOOKS.khitan); q.position.set(-11 + i * 2, 0, GUJU_Z - 6); q.rotation.order = 'YXZ'; guju.add(q); gujuKhitan.push(q);
+  }
+  // 싸움 먼지: 두 군대가 부딪치는 곳에 피어오르는 흙먼지(처음엔 숨김)
+  const dust = [];
+  for (let i = 0; i < 10; i++) {
+    const d = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshLambertMaterial({ color: 0xb8a888, transparent: true, opacity: 0, depthWrite: false }));
+    d.position.set(-10 + i * 2.2, 0.8, GUJU_Z); d.userData.ph = i * 0.7; d.visible = false; guju.add(d); dust.push(d);
   }
   for (const [x, c] of [[-8, 0xb8452f], [0, 0xd9a441], [8, 0xb8452f]]) {
     mk(new THREE.CylinderGeometry(0.08, 0.08, 5, 5), 0x5a3f2a, x, 2.5, GUJU_Z + 8, guju);
@@ -146,7 +152,7 @@ export function buildCh3Scene(world) {
   // 깃발 방향: 북쪽(-z)으로 휘날리면 rotation.y = +PI/2, 남쪽이면 -PI/2
   let flagDir = -Math.PI / 2;
   const scene = {
-    hides, damWall, ring, wave, rain, flagPoles, gujuFlags, gujuKhitan, reinforcements, guju,
+    hides, damWall, ring, wave, rain, flagPoles, gujuFlags, gujuKhitan, gujuGoryeo, reinforcements, guju, dust, gujuZ: GUJU_Z,
     dam: { x: DAM_X, z: -2.5, r: 1.6 },
     river: { army, setCross, zNorth, zSouth },
     damCam: { pos: [6, 12, 12], target: [-4, 0, -9] },

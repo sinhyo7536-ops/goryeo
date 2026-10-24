@@ -91,7 +91,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '병자호란 때 인조가 들어가 버틴 곳은?', options: ['강화도', '남한산성', '수원 화성'], answer: 1, explain: '강화도로 가는 길이 막혀 남한산성으로 들어갔어요.', src: ['S38'] },
-    { kind: 'quiz', question: '인조가 청나라에 항복한 곳은?', options: ['삼전도', '위화도', '한산도'], answer: 0, explain: '1637년 1월 삼전도에서 항복했어요.', src: ['S38'] },
+    { kind: 'quiz', year: 1636, question: '병자호란 때 인조가 들어가 버틴 곳은?', options: ['강화도', '남한산성', '수원 화성'], answer: 1, explain: '강화도로 가는 길이 막혀 남한산성으로 들어갔어요.', src: ['S38'] },
+    { kind: 'quiz', year: 1637, question: '인조가 청나라에 항복한 곳은?', options: ['삼전도', '위화도', '한산도'], answer: 0, explain: '1637년 1월 삼전도에서 항복했어요.', src: ['S38'] },
   ],
 };

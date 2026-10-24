@@ -88,7 +88,7 @@ export default {
   },
 
   quizzes: [
-    { kind: 'quiz', question: '이성계가 군사를 돌린 곳은?', options: ['귀주', '위화도', '강화도'], answer: 1, explain: '압록강의 섬 위화도에서 군사를 돌렸어요. 이 일을 위화도 회군이라고 해요.', src: ['S23'] },
-    { kind: 'quiz', question: '조선이 새 도읍으로 정한 곳은?', options: ['개경', '평양', '한양'], answer: 2, explain: '1394년 한양으로 도읍을 옮겼어요.', src: ['S24'] },
+    { kind: 'quiz', year: 1388, question: '이성계가 군사를 돌린 곳은?', options: ['귀주', '위화도', '강화도'], answer: 1, explain: '압록강의 섬 위화도에서 군사를 돌렸어요. 이 일을 위화도 회군이라고 해요.', src: ['S23'] },
+    { kind: 'quiz', year: 1394, question: '조선이 새 도읍으로 정한 곳은?', options: ['개경', '평양', '한양'], answer: 2, explain: '1394년 한양으로 도읍을 옮겼어요.', src: ['S24'] },
   ],
 };

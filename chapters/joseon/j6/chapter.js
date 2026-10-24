@@ -65,7 +65,7 @@ export default {
       keyboard: '카드와 버튼을 마우스로, 내리기는 E·스페이스도 돼요', touch: '카드와 화면 아래 큰 버튼을 손가락으로 눌러요',
     });
     const parts = [];
-    parts.push(await tryPart(ctx, easy => chooseCards(ctx, { title: script.pulley.title, prompt: script.pulley.prompt, figure: pulleySVG(), cards: script.pulley.cards, easy }), script.pulley.fail));
+    parts.push(await tryPart(ctx, easy => chooseCards(ctx, { title: script.pulley.title, prompt: script.pulley.prompt, figure: pulleySVG(), cards: script.pulley.cards, easy, hint: script.pulley.fail }), script.pulley.fail));
     await sayAll(dialogue, script.pulley.done); dialogue.close();
 
     await ctx.fade(true);

@@ -81,7 +81,7 @@ export default {
   },
   result: [{ who: 'narr', text: '대한 제국은 여러 개혁을 추진해 근대 국가로 나아가고자 했어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '서재필이 펴낸 신문은?', options: ['황성신문', '독립신문', '대한매일신보'], answer: 1, explain: '서재필은 1896년 독립신문을 펴냈어요.', src: ['S51', 'S53'] },
-    { kind: 'quiz', question: '1897년 고종이 바꾼 나라 이름은?', options: ['대한 제국', '조선', '고려'], answer: 0, explain: '고종은 환구단에서 황제로 즉위하고 대한 제국을 세웠어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1896, question: '서재필이 펴낸 신문은?', options: ['황성신문', '독립신문', '대한매일신보'], answer: 1, explain: '서재필은 1896년 독립신문을 펴냈어요.', src: ['S51', 'S53'] },
+    { kind: 'quiz', year: 1897, question: '1897년 고종이 바꾼 나라 이름은?', options: ['대한 제국', '조선', '고려'], answer: 0, explain: '고종은 환구단에서 황제로 즉위하고 대한 제국을 세웠어요.', src: ['S51'] },
   ],
 };

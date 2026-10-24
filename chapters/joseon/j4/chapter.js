@@ -69,7 +69,7 @@ export default {
     await sayAll(dialogue, script.lure.done); dialogue.close();
 
     // 2) 학익진 배치
-    parts.push(await tryPart(ctx, easy => placeOnBoard(ctx, { title: script.wing.title, ...WING_BOARD, easy }), script.wing.fail));
+    parts.push(await tryPart(ctx, easy => placeOnBoard(ctx, { title: script.wing.title, ...WING_BOARD, easy, hint: script.wing.fail }), script.wing.fail));
     scene.setStage('wing');
     await sayAll(dialogue, script.wing.done); dialogue.close();
 

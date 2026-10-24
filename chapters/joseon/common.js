@@ -47,15 +47,18 @@ export async function talkInOrder(ctx, script, order, start) {
   });
 }
 
-// 미니게임 한 부분: attempt(easy)가 true가 될 때까지 다시 한다. 첫 시도에 성공했는지와 쉬운 모드를 썼는지 돌려준다.
+// 미니게임 한 부분: attempt(easy)가 성공(true, 또는 틀렸다 고쳐 끝낸 'missed')할 때까지 다시 한다.
+// 첫 시도에 한 번도 틀리지 않고 성공했는지와 쉬운 모드를 썼는지 돌려준다.
 export async function tryPart(ctx, attempt, failHint) {
   let tries = 0, first = false;
+  ctx.partHint = typeof failHint === 'string' ? failHint : null; // 장면 속 놀이에서 틀렸을 때 들려줄 해설
   const r = await runWithRetries(ctx, async easy => {
     tries += 1;
     const ok = await attempt(easy);
-    if (ok && tries === 1) first = true;
+    if (ok === true && tries === 1) first = true;
     return ok;
   }, { failHint });
+  ctx.partHint = null;
   return { first, easy: r.easyModeUsed };
 }
 

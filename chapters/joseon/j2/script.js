@@ -85,7 +85,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '훈민정음을 만든 왕은?', options: ['태조', '세종', '정조'], answer: 1, explain: '세종이 1443년에 만들고 1446년에 널리 알렸어요.', src: ['S27'] },
-    { kind: 'quiz', question: '자음 \'ㄴ\'은 무엇을 본떠 만들었나요?', options: ['혀가 윗잇몸에 붙는 모양', '입 모양', '이 모양'], answer: 0, explain: 'ㄴ은 혀가 윗잇몸에 붙는 모양을 본떴어요.', src: ['S28'] },
+    { kind: 'quiz', year: 1443, question: '훈민정음을 만든 왕은?', options: ['태조', '세종', '정조'], answer: 1, explain: '세종이 1443년에 만들고 1446년에 널리 알렸어요.', src: ['S27'] },
+    { kind: 'quiz', year: 1443, question: '자음 \'ㄴ\'은 무엇을 본떠 만들었나요?', options: ['혀가 윗잇몸에 붙는 모양', '입 모양', '이 모양'], answer: 0, explain: 'ㄴ은 혀가 윗잇몸에 붙는 모양을 본떴어요.', src: ['S28'] },
   ],
 };

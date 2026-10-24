@@ -101,13 +101,17 @@ test('dialogue: quiz marks correct with ○ and wrong with ×', async () => {
   let p = d.quiz(quiz); await sleep(5); d.pick(0);
   await until(() => q('.dlg-text').textContent.includes('×'));
   d.advance();
-  ok(q('.dlg-text').textContent.includes('서희'), 'shows the right answer');
+  ok(q('.dlg-text').textContent.includes('서희의 담판'), 'explains (the explanation names the right answer)');
   d.advance();
-  eq(await p, { correct: false });
+  await until(() => !q('.dlg-choices').hidden); // 틀리면 같은 문제를 다시 낸다
+  d.pick(1);
+  await until(() => q('.dlg-text').textContent.includes('○'));
+  d.advance(); d.advance();
+  eq(await p, { correct: false, tries: 2 });
   p = d.quiz(quiz); await sleep(5); d.pick(1);
   await until(() => q('.dlg-text').textContent.includes('○'));
   d.advance(); d.advance();
-  eq(await p, { correct: true });
+  eq(await p, { correct: true, tries: 1 });
   done();
 });
 

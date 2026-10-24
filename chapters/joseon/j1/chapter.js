@@ -109,13 +109,13 @@ export default {
     let tries = 0, firstTryCorrect = 0;
     await showHowTo(ctx.ui, {
       title: '이성계가 반대한 까닭',
-      steps: ['비 내리는 진영의 팻말 여섯 개 중에서 이성계와 군사들이 말한 까닭을 찾아가요.', '맞는 팻말 네 개에 가서 대화 버튼을 누르면 성공이에요.', '틀린 팻말을 고르면 처음부터 다시 해요.'],
+      steps: ['비 내리는 진영의 팻말 여섯 개 중에서 이성계와 군사들이 말한 까닭을 찾아가요.', '맞는 팻말 네 개에 가서 대화 버튼을 누르면 성공이에요.', '틀린 팻말을 고르면 해설을 듣고 이어서 찾아요.'],
       keyboard: 'W A S D 또는 방향키로 걷고, E로 골라요', touch: '화면 왼쪽을 끌어 걷고, 대화 버튼으로 골라요',
     });
     const a = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, look: i % 2 ? 'archer' : 'soldier', talk: REASON_TALK[i], ...REASON_SPOTS[i] })) }, easy);
-      if (ok && tries === 1) firstTryCorrect += 1;
+      const ok = await PLAY.find(ctx, { arena: CAMP, from: [0, 12], fail: script.reasons.fail, counter: '찾은 까닭', items: script.reasons.cards.map((c, i) => ({ ...c, look: i % 2 ? 'archer' : 'soldier', talk: REASON_TALK[i], ...REASON_SPOTS[i] })) }, easy);
+      if (ok === true && tries === 1) firstTryCorrect += 1; // 틀렸다가 고쳐 끝낸 것('missed')은 첫 시도 성공이 아니다
       return ok;
     }, { failHint: script.reasons.fail });
     await sayAll(dialogue, script.reasons.done);
@@ -147,8 +147,8 @@ export default {
     tries = 0;
     const b = await runWithRetries(ctx, async easy => {
       tries += 1;
-      const ok = await PLAY.deliver(ctx, { arena: HANYANG_SITE, from: [0, 13], counter: '놓은 곳', bins: SITES, cards: HANYANG.items.map(it => ({ text: it.label, bin: HANYANG.slots.find(s => s.answer === it.id).id })) }, easy);
-      if (ok && tries === 1) firstTryCorrect += 1;
+      const ok = await PLAY.deliver(ctx, { arena: HANYANG_SITE, from: [0, 13], fail: script.hanyang.fail, counter: '놓은 곳', bins: SITES, cards: HANYANG.items.map(it => ({ text: it.label, bin: HANYANG.slots.find(s => s.answer === it.id).id })) }, easy);
+      if (ok === true && tries === 1) firstTryCorrect += 1; // 틀렸다가 고쳐 끝낸 것('missed')은 첫 시도 성공이 아니다
       return ok;
     }, { failHint: script.hanyang.fail });
     await sayAll(dialogue, script.hanyang.done);

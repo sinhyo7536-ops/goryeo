@@ -45,7 +45,7 @@ export function touchSetup(speakers) {
 
 // answers: 정답 문장 집합. wrongFirst: 처음 한 번은 일부러 틀릴 정답 문장.
 // noTaps(): true인 동안 화면 위 누르기 목표를 누르지 않는다. pressEarlyOnce: 큰 버튼을 준비 전에 한 번 누른다.
-export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [], holdStill = () => false, cardPicks = new Set(), places = {}, sortPicks = {} } = {}) {
+export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => false, pressEarlyOnce = false, mapPicks = [], orders = [], holdStill = () => false, cardPicks = new Set(), places = {}, sortPicks = {}, fits = {} } = {}) {
   const picks = [...mapPicks];
   let tracing = false;
   const { w, hud, dialogue, input, ui, ctx } = s;
@@ -76,6 +76,13 @@ export function touchBot(s, { answers, wrongFirst = new Set(), noTaps = () => fa
       const key = Object.keys(sortPicks).find(k => sortNow.textContent.includes(k));
       const bin = key && ui.querySelector(`.sort-bin[data-bin="${sortPicks[key]}"]:not([disabled])`);
       if (bin) tap(bin);
+      return;
+    }
+    // 인물 넣기: 인물을 하나 고르고(fits: 인물 id → 원 id) 그 원을 누른다
+    if (ui.querySelector('.screen.fit')) {
+      const picked = ui.querySelector('.fit-figure.picked');
+      if (picked) { const c = ui.querySelector(`.fit-circle[data-circle="${fits[picked.dataset.figure]}"]`); if (c) tap(c); }
+      else { const f = ui.querySelector('.fit-figure:not([disabled])'); if (f) tap(f); }
       return;
     }
     // 카드 고르기: cardPicks에 든 카드만 누른다

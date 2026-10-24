@@ -84,9 +84,16 @@ export function buildCh6Scene(world) {
 
   // 플레이어가 탄 배 (항해 중에만 보인다)
   const boat = makeBoat(mk, 0x6b4a32, 0xe8e2d6, L); boat.visible = false;
-  const crew = makePerson(LOOKS.sambyeolcho); crew.scale.setScalar(0.8); crew.position.set(0, 0.4, -1.1); boat.add(crew);
+  const crew = makePerson(LOOKS.sambyeolcho); crew.scale.setScalar(0.8); crew.position.set(0, 0.4, -1.1); crew.userData.noWalk = true; boat.add(crew); // 배에 탄 사람은 걷지 않는다
   // 뒤쫓는 배 3척
-  const pursuers = [0, 1, 2].map(() => { const b = makeBoat(mk, 0x2a2a30, 0x3e4a5c, L); b.visible = false; return b; });
+  // 뒤쫓는 배에는 몽골 군사 두 명이 타고 있다(창을 든 병사)
+  const pursuers = [0, 1, 2].map(() => {
+    const b = makeBoat(mk, 0x2a2a30, 0x3e4a5c, L); b.visible = false;
+    for (const [x, z] of [[-0.35, 0.6], [0.35, -0.9]]) {
+      const m = makePerson({ ...LOOKS.mongol, gear: 'spear' }); m.scale.setScalar(0.8); m.position.set(x, 0.4, z); m.userData.noWalk = true; m.name = 'enemy'; b.add(m);
+    }
+    return b;
+  });
 
   // 도착 지점 원
   const ring = new THREE.Mesh(new THREE.RingGeometry(1.6, 2.2, 32), new THREE.MeshBasicMaterial({ color: 0xd9a441, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
@@ -117,8 +124,8 @@ export function buildCh6Scene(world) {
     portBounds: { x0: -18, x1: 18, z0: 64, z1: 86 },
     seaBounds: { x0: -40, x1: 40, z0: -84, z1: 66 },
     legs: [
-      { from: [0, 61], to: { x: JINDO[0], z: JINDO[1], r: 2.4 }, chasers: [[-22, 58], [22, 56], [-26, 40]] },
-      { from: [JINDO[0], -4], to: { x: JEJU[0], z: JEJU[1], r: 2.4 }, chasers: [[-26, -6], [20, -10], [-28, -30]] },
+      { name: '진도', from: [0, 61], to: { x: JINDO[0], z: JINDO[1], r: 2.4 }, chasers: [[-22, 58], [22, 56], [-26, 40]] },
+      { name: '제주', from: [JINDO[0], -4], to: { x: JEJU[0], z: JEJU[1], r: 2.4 }, chasers: [[-26, -6], [20, -10], [-28, -30]] },
     ],
     start: [0, 80],
   };

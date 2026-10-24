@@ -1,4 +1,4 @@
-// 4장 「강화도 천도와 처인성·충주성」: 개경 → 도읍 고르기 → 강화도 → 처인성 방어 → 충주성 → 퀴즈.
+// 4장 「강화도 천도와 처인성·충주성」: 저고여 사건 → 개경 → 도읍 고르기 → 강화도 → 처인성 방어 → 충주성(노비 문서 불태우기) → 퀴즈.
 import * as THREE from 'three';
 import { buildCh4Scene } from './scene.js';
 import { roam } from '../../core/flow.js';
@@ -17,7 +17,7 @@ function placePlayer(world, [x, z], ry = Math.PI) {
 
 // 처인성 방어 한 번: 40초 버티면 성공, 몽골군 3명이 성벽에 닿으면 실패.
 // 성벽 위로 고려 궁수들이 올라오고, 몽골군을 누르면 가장 가까운 궁수가 화살을 쏜다. 맞은 몽골군은 뒤로 쓰러진다.
-const FLY = 0.5, FALL = 0.5, LIE = 1.0, RISE = 0.6; // 화살 나는 시간, 쓰러지는 시간, 누워 있는 시간, 궁수가 올라오는 시간
+const FLY = 0.85, FALL = 0.5, LIE = 1.0, RISE = 0.6; // 화살 나는 시간, 쓰러지는 시간, 누워 있는 시간, 궁수가 올라오는 시간
 export function cheoinDefense(ctx, easy) {
   const { world, hud, audio } = ctx;
   const A = scene.areas.cheoin, [cx] = A.center;
@@ -121,14 +121,35 @@ export default {
   enterStage(ctx, stage) {
     const P = scene.areas.palace;
     if (stage === 'minigame') { ctx.world.bounds = P.bounds; placePlayer(ctx.world, P.start); }
-    if (stage === 'quiz') { showChungju(ctx); scene.documents.visible = false; scene.flames.forEach(f => { f.visible = true; }); ctx.setGoal(script.goals[4]); }
+    if (stage === 'quiz') { showChungju(ctx); scene.burnt(); ctx.setGoal(script.goals[4]); }
+  },
+
+  // 배운 내용 확인 배경: 강화도 문제는 강화도 해협을, 처인성·충주성 문제는 처인성을 비춘다
+  quizView(ctx, q) {
+    const { world } = ctx;
+    world.player.visible = false;
+    if (q.question.includes('강화도')) { world.setFixedCamera(scene.areas.ganghwa.cam.pos, scene.areas.ganghwa.cam.target); return { name: '강화도' }; }
+    const c = scene.areas.cheoin.center[0];
+    world.setFixedCamera([c + 6, 16, 26], [c, 0, -2]);
+    return { name: '처인성' };
   },
 
   async explore(ctx) {
     const { world, dialogue } = ctx;
     const P = scene.areas.palace;
+    // 저고여 사건: 압록강 가 길을 걷던 몽골 사신이 쓰러진다
+    const J = scene.areas.jeogo;
+    world.player.visible = false;
+    world.setFixedCamera(J.cam.pos, J.cam.target);
+    await sayAll(dialogue, script.jeogo.before);
+    dialogue.close();
+    await J.play();
+    await sayAll(dialogue, script.jeogo.after);
+    dialogue.close();
+    await ctx.fade(true);
     world.bounds = P.bounds;
     placePlayer(world, P.start);
+    await ctx.fade(false);
     ctx.setGoal(script.goals[0]);
     const minister = world.npcs.get('minister');
     minister.mark.visible = true;
@@ -189,9 +210,14 @@ export default {
     showChungju(ctx);
     await ctx.fade(false);
     await dialogue.say(script.chungju[0]);
-    scene.flames.forEach(fl => { fl.visible = true; }); scene.documents.visible = false; // 문서를 불태운다
+    const C = scene.areas.chungju;
+    world.setFixedCamera(C.burnCam.pos, C.burnCam.target); // 노비 문서 가까이
+    await dialogue.say(script.chungju[1]);
+    dialogue.close();
     ctx.audio.play('whoosh');
-    for (const l of script.chungju.slice(1)) await dialogue.say(l);
+    await scene.burnDocuments(); // 노비 문서가 활활 타서 재가 된다
+    world.setFixedCamera(C.cam.pos, C.cam.target);
+    for (const l of script.chungju.slice(2)) await dialogue.say(l);
     ctx.setGoal(script.goals[4]);
     return { firstTryCorrect: a.firstTry ? 1 : 0, firstTryTotal: 1, easyModeUsed: b.easyModeUsed };
   },

@@ -1,7 +1,7 @@
 // 3D 무대: 렌더러, 분위기(하늘·안개·빛), 따라가는 카메라, 플레이어, 인물, 충돌, 목표 화살표.
 import * as THREE from 'three';
 import { QUALITY } from './quality.js';
-import { makePerson, animateWalk, markerSprite } from './people.js';
+import { makePerson, animateWalk, animateWalkers, markerSprite } from './people.js';
 import { LOOKS } from '../content/characters.js';
 
 // 장면 분위기. 2~6장 값은 다음 계획에서 채운다.
@@ -125,7 +125,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
 
   const level = new THREE.Group();
   scene.add(level);
-  const player = makePerson(LOOKS.player);
+  const player = makePerson(LOOKS.player, { track: false });
   scene.add(player);
 
   const goalArrow = new THREE.Mesh(
@@ -201,9 +201,10 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
     },
-    // 장마다 학생 생김새를 바꾼다(조선편 수군·일꾼 등). 플레이어 물체는 그대로 두고 안의 몸만 바꾼다.
-    setPlayerLook(opts) {
-      const fresh = makePerson(opts);
+    // 장마다 학생 생김새를 바꾼다(조선편 수군·일꾼 등). 플레이어 물체는 그대로 두고 안의 몸만 바꾼다. scale: 역할의 키(아이는 작게)
+    setPlayerLook(opts, scale = 1) {
+      player.scale.setScalar(scale);
+      const fresh = makePerson(opts, { track: false });
       for (const c of [...player.children]) { player.remove(c); c.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
       for (const c of [...fresh.children]) player.add(c);
       player.userData = fresh.userData;
@@ -301,6 +302,7 @@ export function createWorld(container, { quality = 'medium', renderer: injected 
         goalArrow.rotation.y = Math.atan2(dx, dz);
       } else goalArrow.visible = false;
       for (const fn of [...updaters]) fn(dt, elapsed); // 도중에 해제해도 안전하도록 복사본을 돈다
+      animateWalkers(dt, scene); // 움직인 인물(따라오는 사람·감시원 등)은 다리를 흔든다
       if (world.camMode === 'fixed' && fit && fit.aspect !== camera.aspect) applyFit();
       if (world.camMode === 'talk') {
         const a = 1 - Math.exp(-dt * 5);

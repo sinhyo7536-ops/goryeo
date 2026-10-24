@@ -1,4 +1,4 @@
-// 상황 놀이 부품(chapters/kit/play.js): 터치만으로 끝까지 할 수 있고, 틀리게 고르면 그 시도는 실패한다.
+// 상황 놀이 부품(chapters/kit/play.js): 터치만으로 끝까지 할 수 있고, 틀리게 고르면 해설을 듣고 이어서 한다.
 import { test, eq, ok } from './harness.js';
 import { makeKitChapter } from '../chapters/kit/chapter.js';
 import { PLAY, buildArena } from '../chapters/kit/play.js';
@@ -60,16 +60,19 @@ for (const [kind, part] of Object.entries(PARTS)) {
   }, { timeout: 120000 });
 }
 
-test('play: 틀린 곳을 고르면 그 시도는 실패한다 (차례·나누기·찾기)', async () => {
+test('play: 틀린 곳을 고르면 놀이가 끝나지 않고 해설을 들은 뒤 이어서 한다 (차례·나누기·찾기)', async () => {
   for (const kind of ['stops', 'deliver', 'find']) {
     const s = touchSetup(script.speakers);
     try {
       const p = PLAY[kind](s.ctx, PARTS[kind], false);
       const wrong = kind === 'stops' ? PARTS.stops.spots[1] : kind === 'deliver' ? PARTS.deliver.bins[1] : PARTS.find.items[1];
       s.w.player.position.set(300 + wrong.x, 0, wrong.z); s.w.step(1 / 30, { x: 0, z: 0 });
-      ok(!s.hud.talkBtn.disabled, `${kind}: 가까이 가면 버튼이 켜진다`);
-      s.hud.talkBtn.click();
-      eq(await p, false, `${kind}: 틀리면 실패`);
+      if (kind !== 'deliver') { ok(!s.hud.talkBtn.disabled, `${kind}: 가까이 가면 버튼이 켜진다`); s.hud.talkBtn.click(); }
+      else for (let k = 0; k < 30; k++) s.w.step(1 / 30, { x: 0, z: 0 }); // 나누기는 원 안에 잠깐 서 있으면 놓인다
+      let ended = false; p.then(() => { ended = true; });
+      await sleep(50);
+      eq(ended, false, `${kind}: 틀려도 처음부터 다시 하지 않는다`);
+      ok(s.dialogue.isOpen(), `${kind}: 해설을 들려준다`);
     } finally { s.done(); }
   }
 });

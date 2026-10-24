@@ -14,7 +14,7 @@ const places = { '판옥선': ['w1', 'w2', 'w3', 'w4', 'w5'] };
 test('j4: script passes validation', () => eq(validateScript(j4Script, SOURCES), []));
 
 test('j4: quiz answers match the spec and the turtle ship leads the wing (S43)', () => {
-  eq(j4Script.quizzes.map(q => q.options[q.answer]), ['학익진', '의병']);
+  eq(j4Script.quizzes.map(q => q.options[q.answer]), ['의병', '학익진']); // 일어난 차례: 의병(1592년 4월~) → 한산도 대첩(7월)
   const wing = j4Script.wing.done[0];
   ok(wing.text.includes('거북선') && wing.src.includes('S43'), wing.text);
   ok(j4Script.result[0].src.includes('S35'));

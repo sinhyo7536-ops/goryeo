@@ -5,7 +5,7 @@ import { showHowTo, runWithRetries, actionButton } from '../../core/minigame.js'
 import script from './script.js';
 
 const EXPLORE_BOUNDS = { x0: -28, x1: 28, z0: -3.5, z1: 14 };
-const CROSS_SECONDS = 8;
+const CROSS_SECONDS = 10;
 let scene = null;
 
 async function sayAll(dialogue, lines) { for (const l of lines) await dialogue.say(l); }
@@ -56,10 +56,12 @@ function collectHides(ctx) {
   });
 }
 
-// 거란군이 냇물 한가운데(진행도 0.4~0.65, 쉬운 모드 0.3~0.75)에 왔을 때 둑을 터뜨린다.
+// 거란군이 냇물 한가운데에 왔을 때 둑을 터뜨린다. 진행도 k에서 거란군 무리(앞줄·뒷줄)의 가운데가 냇물 한가운데에 오는 때는 k≈0.67,
+// 무리 전체가 물속에 있는 때는 k≈0.56~0.78이다. 판정 칸은 그 둘레(0.5~0.82, 쉬운 모드 0.42~0.88)로 화면에 보이는 모습과 맞춘다.
+export const DAM_WINDOW = { normal: [0.5, 0.82], easy: [0.42, 0.88] };
 function damAttempt(ctx, easy, fail) {
   const { world, audio } = ctx;
-  const [lo, hi] = easy ? [0.3, 0.75] : [0.4, 0.65];
+  const [lo, hi] = easy ? DAM_WINDOW.easy : DAM_WINDOW.normal;
   scene.river.army.visible = true; scene.river.army.position.y = 0; scene.wave.visible = false;
   scene.river.setCross(0);
   const btn = actionButton(ctx, '둑 터뜨리기');
@@ -134,6 +136,43 @@ function gujuAttempt(ctx, easy, fail) {
       if (t >= arriveAt && !announced) { announced = true; scene.setFlags(true); hud.setCounter(script.guju.arrive); }
       ctx.testHooks.ready = t >= arriveAt + 0.2 && t <= arriveAt + open - 0.2;
       if (t > arriveAt + open) { fail.why = 'late'; scene.setFlags(false); finish(false); }
+    });
+  });
+}
+
+// 귀주 대첩: 공격 신호 뒤 고려군과 김종현의 지원군이 바람을 등지고 몰아쳐, 부딪친 거란군이 쓰러지고 나머지는 북쪽으로 달아난다(약 7초).
+export function playGujuBattle(ctx) {
+  const { world, audio } = ctx;
+  const Z = scene.gujuZ;
+  const go = scene.gujuGoryeo.map(p => p.position.clone()), kh = scene.gujuKhitan.map(p => p.position.clone());
+  const rf = scene.reinforcements.position.clone();
+  return new Promise(resolve => {
+    let t = 0, clashed = false;
+    const off = world.onUpdate(dt => {
+      t += dt;
+      const adv = Math.min(1, t / 2.2), e = adv * adv * (3 - 2 * adv); // 돌격
+      scene.gujuGoryeo.forEach((p, i) => {
+        const jit = t > 2.2 && t < 4.4 ? Math.sin(t * 18 + i) * 0.25 : 0; // 맞붙어 싸운다
+        p.position.set(go[i].x + jit, 0, go[i].z - e * 4.8 - Math.max(0, t - 4.4) * 1.5);
+      });
+      scene.reinforcements.position.set(rf.x - e * 10, 0, rf.z - e * 6); // 지원군은 옆에서 들이친다
+      scene.reinforcements.children.forEach(p => { p.rotation.y = -Math.PI / 2 - e * 0.6; });
+      if (t > 2.2 && !clashed) { clashed = true; audio.play('whoosh'); scene.dust.forEach(d => { d.visible = true; }); }
+      scene.dust.forEach(d => {
+        const k = Math.max(0, Math.min(1, (t - 2.2) / 3));
+        d.material.opacity = k > 0 && k < 1 ? Math.sin(Math.PI * k) * 0.55 : 0;
+        d.scale.setScalar(0.6 + k * 1.6 + Math.sin(t * 3 + d.userData.ph) * 0.15);
+      });
+      scene.gujuKhitan.forEach((q, i) => {
+        if (t < 2.2) { q.position.z = kh[i].z + e * 1.2; return; } // 버티며 조금 나선다
+        if (i % 2 === 0) q.rotation.x = -1.45 * Math.min(1, (t - 2.6 - (i % 4) * 0.2) / 0.5) * (t > 2.6 + (i % 4) * 0.2 ? 1 : 0); // 쓰러진다
+        else if (t > 3.6) { q.rotation.y = Math.PI; q.position.z -= dt * 7; if (q.position.z < Z - 26) q.visible = false; } // 달아난다
+      });
+      if (t >= 7.2) {
+        off();
+        scene.dust.forEach(d => { d.visible = false; });
+        resolve();
+      }
     });
   });
 }
@@ -226,6 +265,8 @@ export default {
     const b = await runWithRetries(ctx, easy => gujuAttempt(ctx, easy, gujuFail), {
       failHint: () => (gujuFail.why === 'early' ? script.guju.early : script.guju.late),
     });
+    await sayAll(dialogue, script.guju.charge); dialogue.close();
+    await playGujuBattle(ctx); // 깃발이 북쪽으로 휘날리자 고려군이 몰아쳐 이긴다
     for (const k of scene.gujuKhitan) k.visible = false;
     await sayAll(dialogue, script.guju.done);
     await sayAll(dialogue, script.result);

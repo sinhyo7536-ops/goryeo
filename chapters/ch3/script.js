@@ -68,6 +68,7 @@ export default {
     early: '아직 바람이 바뀌지 않았어요. 깃발을 잘 보세요.',
     late: '바람이 다시 잦아들었어요. 다시 해 봐요.',
     arrive: '김종현의 지원군이 도착했다!',
+    charge: [{ who: 'gangamchan', text: '바람이 우리 편이다! 모두 앞으로 나아가라!' }],
     done: [{ who: 'narr', text: '비바람이 남쪽에서 불어와 깃발이 북쪽을 가리켰고, 고려군은 그 기세를 타서 공격했어요.', src: ['S5'] }],
   },
 
@@ -77,7 +78,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '강감찬이 거란군을 크게 물리친 싸움은?', options: ['처인성 전투', '귀주 대첩', '살수 대첩'], answer: 1, explain: '1019년 귀주에서 거란군을 크게 물리쳤어요.', src: ['S3', 'S5'] },
-    { kind: 'quiz', question: '흥화진 앞 냇물에서 고려군이 쓴 작전은?', options: ['불화살 쏘기', '쇠가죽으로 물을 막았다가 터뜨리기', '땅굴 파기'], answer: 1, explain: '쇠가죽으로 냇물을 막았다가 적이 건널 때 한꺼번에 터뜨렸어요.', src: ['S3', 'S5'] },
+    { kind: 'quiz', year: 1018, question: '흥화진 앞 냇물에서 고려군이 쓴 작전은?', options: ['불화살 쏘기', '쇠가죽으로 물을 막았다가 터뜨리기', '땅굴 파기'], answer: 1, explain: '쇠가죽으로 냇물을 막았다가 적이 건널 때 한꺼번에 터뜨렸어요.', src: ['S3', 'S5'] },
+    { kind: 'quiz', year: 1019, question: '강감찬이 거란군을 크게 물리친 싸움은?', options: ['처인성 전투', '귀주 대첩', '살수 대첩'], answer: 1, explain: '1019년 귀주에서 거란군을 크게 물리쳤어요.', src: ['S3', 'S5'] },
   ],
 };

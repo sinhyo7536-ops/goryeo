@@ -53,7 +53,8 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
     });
   }
 
-  function choose(prompt, options) {
+  // off: 고를 수 없게 흐리게 막아 둘 선택지 번호(퀴즈에서 이미 틀린 답)
+  function choose(prompt, options, { off = [] } = {}) {
     return new Promise(resolve => {
       clearInterval(timer); timer = null; advanceFn = null;
       show(prompt.who);
@@ -66,6 +67,7 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
         b.innerHTML = '<span class="num"></span><span class="txt"></span>';
         b.querySelector('.num').textContent = String(i + 1);
         b.querySelector('.txt').textContent = text;
+        if (off.includes(i)) { b.disabled = true; b.classList.add('off'); }
         let downAt = -1;
         b.addEventListener('pointerdown', () => { downAt = performance.now(); });
         b.addEventListener('click', e => {
@@ -96,12 +98,20 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
     }
   }
 
+  // 퀴즈: 틀리면 해설을 들려준 뒤, 틀린 답을 흐리게 막아 둔 채 같은 문제를 다시 내어 맞는 답을 고르게 한다.
+  // correct는 처음에 맞혔는지(점수에 들어간다), tries는 고른 횟수.
   async function quiz(q) {
-    const i = await choose({ who: 'narr', text: q.question }, q.options);
-    const correct = i === q.answer;
-    const head = correct ? '○ 맞았어요!' : `× 아쉬워요. 정답은 "${q.options[q.answer]}"이에요.`;
-    await say({ who: 'narr', text: `${head} ${q.explain}` });
-    return { correct };
+    const off = [];
+    for (;;) {
+      const text = off.length ? `해설을 떠올리며 다시 골라 봐요. ${q.question}` : q.question;
+      const i = await choose({ who: 'narr', text }, q.options, { off });
+      if (i === q.answer) {
+        await say({ who: 'narr', text: off.length ? `○ 맞았어요! 정답은 "${q.options[q.answer]}"이에요.` : `○ 맞았어요! ${q.explain}` });
+        return { correct: off.length === 0, tries: off.length + 1 };
+      }
+      off.push(i);
+      await say({ who: 'narr', text: `× 아쉬워요. "${q.options[i]}"은(는) 답이 아니에요. ${q.explain}` });
+    }
   }
 
   const onKey = e => {
@@ -115,7 +125,7 @@ export function createDialogue(root, speakers, { typeMs = 26, reduceMotion = fal
   const dialogue = {
     say, choose, ask, quiz,
     advance() { if (advanceFn) advanceFn(); },
-    pick(i) { if (pickFn) pickFn(i); },
+    pick(i) { if (pickFn && !choicesEl.children[i]?.disabled) pickFn(i); }, // 막아 둔(이미 틀린) 답은 고를 수 없다
     isOpen() { return !el.hidden; },
     isChoosing() { return !!pickFn; },
     close() { clearInterval(timer); timer = null; advanceFn = pickFn = null; el.hidden = true; },

@@ -52,7 +52,7 @@ export default {
   parts: {
     regent: {
       type: 'deliver', src: ['S51'], title: '흥선 대원군이 한 일일까요? 알맞은 쪽으로 가져가요', counter: '가져다 놓은 것',
-      howto: '머리 위의 글을 「흥선 대원군이 한 일」이나 「다른 때의 일」로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 글을 「흥선 대원군이 한 일」이나 「다른 때의 일」로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'elder', text: '흥선 대원군께서 하신 일을 기억하느냐? 알맞은 쪽으로 가져가 보거라.' }],
       bins: [{ id: 'yes', label: '흥선 대원군이 한 일', look: 'daewongun' }, { id: 'no', label: '다른 때의 일' }],
       cards: [
@@ -79,7 +79,7 @@ export default {
     },
     treaty: {
       type: 'find', src: ['S51'], title: '조약을 맺는 곳에서 조선에 불리한 내용을 찾아요', counter: '찾은 내용',
-      howto: '팻말 가운데 강화도 조약에서 조선에 불리한 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '팻말 가운데 강화도 조약에서 조선에 불리한 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'official', text: '조약에 어떤 내용이 들어 있는지 살펴보아라. 조선에 불리한 것을 찾아야 한다.' }],
       items: [
         { text: '죄를 지은 일본인은 일본 관리가 재판한다', correct: true, talk: [{ who: 'official', text: '우리 땅에서 죄를 지어도 우리가 벌줄 수 없다니!' }] },
@@ -93,7 +93,7 @@ export default {
   },
   result: [{ who: 'narr', text: '조선은 이렇게 문을 열고 새로운 시대를 맞이했어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '1876년 조선이 일본과 맺은 조약은?', options: ['을사늑약', '강화도 조약', '정전 협정'], answer: 1, explain: '강화도 조약은 조선이 맺은 최초의 근대적 조약이에요.', src: ['S51'] },
-    { kind: 'quiz', question: '흥선 대원군은 서양 나라들의 교류 요구에 어떻게 했나요?', options: ['거절했다', '모두 받아들였다', '조약을 맺었다'], answer: 0, explain: '흥선 대원군은 서양 나라의 교류 요구를 거절했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1863, question: '흥선 대원군은 서양 나라들의 교류 요구에 어떻게 했나요?', options: ['거절했다', '모두 받아들였다', '조약을 맺었다'], answer: 0, explain: '흥선 대원군은 서양 나라의 교류 요구를 거절했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1876, question: '1876년 조선이 일본과 맺은 조약은?', options: ['을사늑약', '강화도 조약', '정전 협정'], answer: 1, explain: '강화도 조약은 조선이 맺은 최초의 근대적 조약이에요.', src: ['S51'] },
   ],
 };

@@ -11,6 +11,7 @@ import { createMusic } from './music.js';
 import { showTitle, askName, showCourses, showMap, showIntroCard, showChapterResult, showSessionCard, showMenu, showMessage, createHud } from './screens.js';
 import { ALL_CHAPTERS, COURSES, courseById, courseOfChapter, isSessionDone } from '../chapters/index.js';
 import { LOOKS } from '../content/characters.js';
+import { ROLES, roleLook } from '../content/roles.js';
 
 const PREF_QUALITY = 'goryeo-game:quality';
 const PREF_MUTED = 'goryeo-game:muted';
@@ -48,6 +49,7 @@ function boot() {
   input.enabled = false;
   const actionHandlers = new Set();
   let dialogue = null;
+  let role = null; // 지금 장에서 학생이 맡은 역할(content/roles.js)
   input.onAction(() => {
     if (dialogue && dialogue.isOpen()) { if (!dialogue.isChoosing()) dialogue.advance(); return; }
     actionHandlers.forEach(f => f());
@@ -71,7 +73,7 @@ function boot() {
 
   const ctx = {
     world, input, audio, music, hud, ui, testHooks: {},
-    screens: { showIntroCard: (meta, lines) => showIntroCard(ui, meta, lines) },
+    screens: { showIntroCard: (meta, lines) => showIntroCard(ui, meta, lines, role) },
     get dialogue() { return dialogue; },
     setGoal: text => hud.setGoal(text),
     wait: ms => new Promise(r => setTimeout(r, ms)),
@@ -100,9 +102,10 @@ function boot() {
     quality.restart();
     world.camMode = 'follow';
     world.setMood(mod.mood);
-    world.setPlayerLook(mod.player || LOOKS.player); // 장마다 학생 역할(고려 병사, 조선 수군 등)
+    role = ROLES[meta.id] ? { ...ROLES[meta.id], lookOpts: roleLook(meta.id, mod.player) } : null;
+    world.setPlayerLook(roleLook(meta.id, mod.player), role ? role.scale : 1); // 장마다 학생 역할(고려 병사, 궁궐 심부름하는 아이 등): 생김새와 키
     dialogue = createDialogue(ui, mod.script.speakers, { reduceMotion });
-    hud.show(meta);
+    hud.show(meta, role);
     hud.setTouchVisible(true);
     inChapter = true; input.enabled = true;
     music.play(meta.id);
@@ -145,16 +148,16 @@ function boot() {
 
   async function main() {
     const debug = new URLSearchParams(location.search).get('debug');
-    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터 시작한다. 조선편은 ?debug=j1-scene, 근대·일제 강점기·현대편은 k1·i1·h1.
-    const dm = /^(ch\d|[jkih]\d)-(scene|minigame)$/.exec(debug || '');
+    // 개발용: ?debug=ch2-scene 처럼 장면만 띄운다. ?debug=ch2-minigame 은 미니게임부터, ?debug=ch2-quiz 는 퀴즈부터 시작한다. 조선편은 ?debug=j1-scene, 근대·일제 강점기·현대편은 k1·i1·h1.
+    const dm = /^(ch\d|[jkih]\d)-(scene|explore|minigame|quiz)$/.exec(debug || '');
     const meta = dm && ALL_CHAPTERS.find(c => c.id === dm[1] && c.load);
     if (meta) {
-      if (dm[2] === 'minigame') { await playChapter(meta, 'minigame'); return mapLoop(); }
+      window.__world = world; // 개발용(?debug=…)에서만: 콘솔로 장면을 살펴본다
+      if (dm[2] !== 'scene') { await playChapter(meta, dm[2]); return mapLoop(); }
       const mod = (await meta.load()).default;
-      world.setMood(mod.mood); world.setPlayerLook(mod.player || LOOKS.player); const sc = mod.buildScene(world, ctx);
+      world.setMood(mod.mood); world.setPlayerLook(roleLook(meta.id, mod.player), ROLES[meta.id]?.scale ?? 1); const sc = mod.buildScene(world, ctx);
       const [sx, sz] = sc.start || [0, 19];
       world.player.position.set(sx, 0, sz); world.snapCamera(); input.enabled = true; inChapter = true;
-      window.__world = world; // 개발용 장면 보기에서만: 콘솔로 자리를 옮겨 살펴본다
       return;
     }
     const hasProgress = !!(save.data.name || Object.keys(save.data.chapters).length || save.data.current);

@@ -77,8 +77,26 @@ const JOSEON_HATS = {
     [new THREE.SphereGeometry(0.08, 8, 6), 0xb8452f, 0, 2.58, 0]],
 };
 
-// gear: 'spear'(창) · 'sword'(허리에 찬 칼) · 'bow'(등에 멘 활) · 없음
-export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null, outfit = null, hairColor = null }) {
+// 움직이는 인물(따라오는 사람·감시원·행진하는 사람들)도 걸을 때 다리와 팔을 흔든다. 만든 인물을 모아 두고 매 프레임 자리가 바뀌었는지 본다.
+// 탈것에 탄 사람은 userData.noWalk = true로 둔다(배와 함께 움직여도 걷지 않는다). 플레이어는 world가 직접 움직임을 알려 준다.
+const walkers = new Set();
+const wp = new THREE.Vector3();
+export function animateWalkers(dt, root) {
+  if (!dt) return;
+  for (const g of walkers) {
+    let top = g; while (top.parent) top = top.parent;
+    if (top !== root) { if (g.userData.seen) walkers.delete(g); continue; } // 장면에서 치운 인물은 놓아준다
+    const u = g.userData; u.seen = true;
+    g.getWorldPosition(wp);
+    const moved = u.last ? Math.hypot(wp.x - u.last.x, wp.z - u.last.z) / dt : 0;
+    if (!u.last) u.last = new THREE.Vector3();
+    u.last.copy(wp);
+    animateWalk(g, !u.noWalk && g.visible && moved > 0.4, dt);
+  }
+}
+
+// gear: 'spear'(창) · 'sword'(허리에 찬 칼) · 'bow'(등에 멘 활) · 없음. track: false면 걷기 자동 움직임에서 뺀다(플레이어)
+export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null, outfit = null, hairColor = null }, { track = true } = {}) {
   const g = new THREE.Group();
   const legs = [], arms = [];
   for (const sx of [-0.16, 0.16]) {
@@ -180,13 +198,16 @@ export function makePerson({ robe, hat, trim = 0x2b241c, face = {}, gear = null,
     b.name = 'bow'; b.position.set(0, 1.45, -0.42); b.rotation.set(0, 0, Math.PI / 2 + 0.3); b.castShadow = true; g.add(b);
   }
   g.userData = { legs, arms, walk: 0 };
+  if (track) walkers.add(g);
   return g;
 }
 
+// 걷기: 다리를 앞뒤로 크게 흔들고(옷자락 밑으로 발이 보이게), 팔은 반대로 흔든다
 export function animateWalk(person, moving, dt) {
   const u = person.userData;
+  if (!u.legs) return;
   if (moving) u.walk += dt * 11;
-  const k = moving ? Math.sin(u.walk) * 0.65 : 0;
+  const k = moving ? Math.sin(u.walk) * 0.8 : 0;
   const ease = (o, v) => { o.rotation.x += (v - o.rotation.x) * 0.3; };
   ease(u.legs[0], k); ease(u.legs[1], -k);
   ease(u.arms[0], -k * 0.7); ease(u.arms[1], k * 0.7);

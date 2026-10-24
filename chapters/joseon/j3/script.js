@@ -86,7 +86,7 @@ export default {
   },
 
   quizzes: [
-    { kind: 'quiz', question: '글을 모르는 백성도 시간을 알 수 있게 앙부일구에 그린 것은?', options: ['별자리', '12지신 동물', '한자 숫자'], answer: 1, explain: '시각마다 12지신 동물 그림을 그려 넣었어요.', src: ['S31'] },
-    { kind: 'quiz', question: '비가 온 양을 잰 기구는?', options: ['자격루', '앙부일구', '측우기'], answer: 2, explain: '측우기에 고인 빗물의 깊이를 자로 재었어요.', src: ['S33'] },
+    { kind: 'quiz', year: 1434, question: '글을 모르는 백성도 시간을 알 수 있게 앙부일구에 그린 것은?', options: ['별자리', '12지신 동물', '한자 숫자'], answer: 1, explain: '시각마다 12지신 동물 그림을 그려 넣었어요.', src: ['S31'] },
+    { kind: 'quiz', year: 1441, question: '비가 온 양을 잰 기구는?', options: ['자격루', '앙부일구', '측우기'], answer: 2, explain: '측우기에 고인 빗물의 깊이를 자로 재었어요.', src: ['S33'] },
   ],
 };

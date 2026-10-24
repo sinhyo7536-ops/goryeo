@@ -76,11 +76,14 @@ export default {
     const parts = [];
     // 1) 앙부일구: 세 번 모두 맞히면 성공
     parts.push(await tryPart(ctx, async easy => {
+      let missed = false;
       for (const { h, opts } of DIAL_ROUNDS) {
         const cards = opts.map(k => ({ text: `${HOURS[k][1]} ${HOURS[k][0]}`, correct: k === h }));
-        if (!await chooseCards(ctx, { title: script.dial.title, prompt: script.dial.prompt, figure: dialSVG(h), cards, easy })) return false;
+        const r = await chooseCards(ctx, { title: script.dial.title, prompt: script.dial.prompt, figure: dialSVG(h), cards, easy, hint: script.dial.fail });
+        if (!r) return false;
+        if (r === 'missed') missed = true;
       }
-      return true;
+      return missed ? 'missed' : true;
     }, script.dial.fail));
     await sayAll(dialogue, script.dial.done); dialogue.close();
     // 2) 자격루 차례
@@ -93,11 +96,14 @@ export default {
     await ctx.wait(1500);
     scene.setRain(false);
     parts.push(await tryPart(ctx, async easy => {
+      let missed = false;
       for (const { lv, opts } of GAUGE_ROUNDS) {
         const cards = opts.map(n => ({ text: `눈금 ${n}`, correct: n === lv }));
-        if (!await chooseCards(ctx, { title: script.rain.title, prompt: script.rain.prompt, figure: gaugeSVG(lv), cards, easy })) return false;
+        const r = await chooseCards(ctx, { title: script.rain.title, prompt: script.rain.prompt, figure: gaugeSVG(lv), cards, easy, hint: script.rain.fail });
+        if (!r) return false;
+        if (r === 'missed') missed = true;
       }
-      return true;
+      return missed ? 'missed' : true;
     }, script.rain.fail));
     await sayAll(dialogue, script.rain.done); dialogue.close();
     placePlayer(world, SPOT);

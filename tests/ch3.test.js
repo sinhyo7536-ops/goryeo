@@ -8,7 +8,7 @@ import { testWorld } from './bot.js';
 test('ch3: script passes validation', () => eq(validateScript(ch3Script, SOURCES), []));
 
 test('ch3: quiz answers match the spec', () => {
-  eq(ch3Script.quizzes.map(q => q.options[q.answer]), ['귀주 대첩', '쇠가죽으로 물을 막았다가 터뜨리기']);
+  eq(ch3Script.quizzes.map(q => q.options[q.answer]), ['쇠가죽으로 물을 막았다가 터뜨리기', '귀주 대첩']); // 일어난 차례: 삼교천(1018) → 귀주(1019)
 });
 
 test('ch3: scene builds with 6 hides and a dam', () => {

@@ -1,5 +1,6 @@
 // 한 장을 단계(해설 → 탐험 → 미니게임 → 퀴즈) 순서로 실행하고, 단계마다 체크포인트를 남긴다.
 import { computeStars } from './save.js';
+import { showQuizView, endQuizView } from './quizview.js';
 
 export const STAGES = ['intro', 'explore', 'minigame', 'quiz'];
 
@@ -40,13 +41,17 @@ export async function runChapter(meta, chapter, ctx, save, { resumeStage = 'intr
 
     level('calm');
     checkpoint('quiz', { firstTryCorrect: result.firstTryCorrect, firstTryTotal: result.firstTryTotal, easyModeUsed: result.easyModeUsed });
-    for (const q of chapter.quizzes) {
-      const { correct } = await ctx.dialogue.quiz(q);
+    // 배운 내용 확인: 일어난 차례(year)대로 묻고, 문제마다 관련된 장면을 뒤에 비춘다. 틀리면 해설을 듣고 다시 고른다.
+    const quizzes = [...chapter.quizzes].sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+    for (const [k, q] of quizzes.entries()) {
+      const hide = ctx.world && ctx.ui ? showQuizView(ctx, chapter, q, k) : () => {}; // 3D 장면이 없는 시험용 ctx에서는 배경 없이
+      const { correct } = await ctx.dialogue.quiz(q).finally(hide);
       result.quizTotal += 1;
       if (correct) result.quizCorrect += 1;
       else result.wrongQuizzes.push({ question: q.question, answer: q.options[q.answer], explain: q.explain });
     }
     ctx.dialogue.close();
+    if (ctx.world) endQuizView(ctx);
   } finally { clearInterval(tick); removeEventListener('pagehide', stamp); document.removeEventListener('visibilitychange', onHide); }
 
   result.seconds = Math.round(spent());

@@ -54,7 +54,7 @@ export default {
   parts: {
     eras: {
       type: 'deliver', src: ['S51'], title: '언제 일어난 일일까요? 알맞은 시대의 문으로 가져가요', counter: '가져다 놓은 것',
-      howto: '머리 위의 글을 「1910년대」, 「1920년대」, 「1930년대 후반」 가운데 알맞은 문으로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 글을 「1910년대」, 「1920년대」, 「1930년대 후반」 가운데 알맞은 문으로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'teacher', text: '일제의 통치는 시기마다 모습이 달랐단다. 일어난 일을 알맞은 시대의 문으로 가져가 보렴.' }],
       bins: [{ id: 'a', label: '1910년대', look: 'gendarme' }, { id: 'b', label: '1920년대', look: 'gentleman' }, { id: 'c', label: '1930년대 후반', look: 'student' }],
       cards: [
@@ -85,7 +85,7 @@ export default {
     },
     rail: {
       type: 'find', src: ['S51'], title: '기차역에서 일제가 철도를 놓은 까닭을 찾아요', counter: '찾은 까닭',
-      howto: '역 곳곳의 팻말 가운데 일제가 철도를 놓은 까닭을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '역 곳곳의 팻말 가운데 일제가 철도를 놓은 까닭을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'porter', text: '오늘도 쌀가마를 가득 실은 기차가 항구로 가오. 철도는 누구를 위해 놓았을까?' }],
       items: [
         { text: '한반도의 물자를 일본으로 가져가려고', correct: true, look: 'commoner', talk: [{ who: 'porter', text: '이 쌀도 다 배에 실려 일본으로 가지.' }] },
@@ -99,7 +99,7 @@ export default {
   },
   result: [{ who: 'narr', text: '일제의 억압과 수탈 속에서도 우리 민족은 나라를 되찾으려는 노력을 멈추지 않았어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '일제가 우리 민족을 다스리려고 세운 기구는?', options: ['조선 총독부', '대한민국 임시 정부', '독립 협회'], answer: 0, explain: '일제는 조선 총독부를 세워 식민 통치를 했어요.', src: ['S51'] },
-    { kind: 'quiz', question: '1920년대 일제가 쌀을 더 많이 가져가려고 세운 계획은?', options: ['토지 조사 사업', '산미 증식 계획', '서울 진공 작전'], answer: 1, explain: '산미 증식 계획으로 늘어난 것보다 더 많은 쌀이 일본으로 빠져나갔어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1910, question: '일제가 우리 민족을 다스리려고 세운 기구는?', options: ['조선 총독부', '대한민국 임시 정부', '독립 협회'], answer: 0, explain: '일제는 조선 총독부를 세워 식민 통치를 했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1920, question: '1920년대 일제가 쌀을 더 많이 가져가려고 세운 계획은?', options: ['토지 조사 사업', '산미 증식 계획', '서울 진공 작전'], answer: 1, explain: '산미 증식 계획으로 늘어난 것보다 더 많은 쌀이 일본으로 빠져나갔어요.', src: ['S51'] },
   ],
 };

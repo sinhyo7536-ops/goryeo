@@ -97,7 +97,7 @@ export default {
   },
   result: [{ who: 'narr', text: '국군과 유엔군은 서울을 되찾은 뒤 북쪽으로 나아갔어요.', src: ['S51', 'S57'] }],
   quizzes: [
-    { kind: 'quiz', question: '6·25 전쟁이 일어난 날은?', options: ['1945년 8월 15일', '1950년 6월 25일', '1953년 7월 27일'], answer: 1, explain: '1950년 6월 25일 새벽 북한군이 남침했어요.', src: ['S57'] },
-    { kind: 'quiz', question: '1950년 9월 15일 국군과 유엔군이 펼친 작전은?', options: ['인천 상륙 작전', '서울 진공 작전', '학익진'], answer: 0, explain: '인천 상륙 작전으로 9월 28일 서울을 되찾았어요.', src: ['S57'] },
+    { kind: 'quiz', year: 1950, question: '6·25 전쟁이 일어난 날은?', options: ['1945년 8월 15일', '1950년 6월 25일', '1953년 7월 27일'], answer: 1, explain: '1950년 6월 25일 새벽 북한군이 남침했어요.', src: ['S57'] },
+    { kind: 'quiz', year: 1950, question: '1950년 9월 15일 국군과 유엔군이 펼친 작전은?', options: ['인천 상륙 작전', '서울 진공 작전', '학익진'], answer: 0, explain: '인천 상륙 작전으로 9월 28일 서울을 되찾았어요.', src: ['S57'] },
   ],
 };

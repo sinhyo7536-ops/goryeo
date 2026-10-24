@@ -8,11 +8,11 @@ export const CHAPTERS = [
   { id: 'ch6', no: 6, session: 1, title: '삼별초의 항쟁', years: '1270~1273', event: '몽골에 맞선 항쟁', place: '진도·제주', mapXY: [32, 85], load: () => import('./ch6/chapter.js') },
 ];
 
-// 조선편 6개 장 (조선편 설계 문서). 장을 완성하면 load를 채운다.
+// 조선편 6개 장 (조선편 설계 문서). 장을 완성하면 load를 채운다. 일어난 차례대로: 과학 기구(1434~) 다음에 훈민정음(1443~)
 export const JOSEON = [
   { id: 'j1', no: 1, session: 2, title: '위화도 회군과 조선 건국', years: '1388~1394', event: '새 나라 조선', place: '위화도·한양', mapXY: [20, 20], load: () => import('./joseon/j1/chapter.js') },
-  { id: 'j2', no: 2, session: 2, title: '세종과 훈민정음', years: '1443~1446', event: '우리 글자', place: '한양 경복궁', mapXY: [35, 51], load: () => import('./joseon/j2/chapter.js') },
-  { id: 'j3', no: 3, session: 2, title: '세종 때의 과학 기술', years: '1434~1442', event: '시간과 비를 재다', place: '한양', mapXY: [45, 49], load: () => import('./joseon/j3/chapter.js') },
+  { id: 'j3', no: 2, session: 2, title: '세종 때의 과학 기술', years: '1434~1442', event: '시간과 비를 재다', place: '한양', mapXY: [45, 49], load: () => import('./joseon/j3/chapter.js') },
+  { id: 'j2', no: 3, session: 2, title: '세종과 훈민정음', years: '1443~1446', event: '우리 글자', place: '한양 경복궁', mapXY: [35, 51], load: () => import('./joseon/j2/chapter.js') },
   { id: 'j4', no: 4, session: 2, title: '임진왜란과 한산도 대첩', years: '1592', event: '일본의 침입', place: '한산도 앞바다', mapXY: [60, 88], load: () => import('./joseon/j4/chapter.js') },
   { id: 'j5', no: 5, session: 2, title: '병자호란과 남한산성', years: '1636~1637', event: '청의 침입', place: '남한산성', mapXY: [50, 58], load: () => import('./joseon/j5/chapter.js') },
   { id: 'j6', no: 6, session: 2, title: '영조·정조와 수원 화성', years: '1742~1796', event: '탕평과 화성', place: '수원', mapXY: [39, 62], load: () => import('./joseon/j6/chapter.js') },
@@ -64,8 +64,8 @@ export const SESSIONS = {
     title: '조선의 건국과 발전',
     points: [
       '이성계는 위화도에서 군사를 돌리고 조선을 세워 한양으로 도읍을 옮겼다',
-      '세종은 백성을 위해 훈민정음을 만들었다',
       '세종 때 앙부일구·자격루·측우기 같은 과학 기구를 만들었다',
+      '세종은 백성을 위해 훈민정음을 만들었다',
       '이순신은 한산도 대첩에서 학익진으로 일본 수군을 물리쳤고, 각지에서 의병이 일어났다',
       '병자호란 때 인조는 남한산성에서 버티다 삼전도에서 항복했다',
       '영조와 정조는 탕평책을 펼쳤고, 정조는 거중기를 써서 수원 화성을 쌓았다',

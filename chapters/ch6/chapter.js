@@ -1,25 +1,9 @@
-// 6장 「삼별초의 항쟁」: 강화도 포구 → 바닷길 항해(진도, 제주) → 마무리 연표 → 퀴즈.
+// 6장 「삼별초의 항쟁」: 강화도 포구 → 바닷길 항해(진도, 제주) → 마무리 인물 넣기 → 퀴즈.
 import { buildCh6Scene } from './scene.js';
 import { roam } from '../../core/flow.js';
-import { showHowTo, runWithRetries } from '../../core/minigame.js';
-import { PLAY, mapSpot } from '../kit/play.js';
+import { showHowTo, runWithRetries, fitFigures } from '../../core/minigame.js';
+import { portraitURL } from '../../core/faces.js';
 import script from './script.js';
-
-// 마무리: 바닥에 그린 지도(마을에서 떨어진 x 400) 위에서 고려를 지킨 곳들을 일어난 차례대로 찾아간다.
-const GMAP = { x: 0, z: 0, w: 48, line38: false }, GM = mapSpot(GMAP);
-const TIMELINE_ARENA = { origin: [400, 0], ground: 'grass', groundColor: 0x5f7a4c, bounds: { x0: -28, x1: 28, z0: -36, z1: 36 }, map: GMAP };
-// 서희(서북 국경), 흥화진, 귀주, 강화도, 처인성, 해인사(합천), 진도·제주 — 카드 차례와 같다
-// 지도 위 자리마다 한마디: 고려를 지킨 사람들의 이야기를 되짚는다(1~6장에서 배운 것)
-const TIMELINE_TALK = [
-  [{ who: 'guide', text: '서희는 말로 거란을 설득해 강동 6주를 얻었어.' }],
-  [{ who: 'guide', text: '양규는 흥화진을 지키고 끌려가던 백성을 구했지.' }],
-  [{ who: 'guide', text: '강감찬은 귀주에서 거란군을 크게 물리쳤어.' }],
-  [{ who: 'guide', text: '몽골에 맞서 도읍을 강화도로 옮겼지.' }],
-  [{ who: 'guide', text: '김윤후와 백성들이 처인성에서 몽골군을 막아 냈어.' }],
-  [{ who: 'guide', text: '부처의 힘으로 나라를 지키려고 팔만대장경을 만들었지.' }],
-  [{ who: 'baejungson', text: '우리 삼별초는 진도와 제주도에서 끝까지 몽골에 맞섰소.' }],
-];
-const TIMELINE_SPOTS = [GM(33, 27), GM(20, 17), GM(27, 22), GM(31, 47), GM(44, 55), GM(62, 76), GM(37, 83)];
 
 const CATCH_R = 2.4;
 const CHASE_DELAY = 2.5;
@@ -57,7 +41,7 @@ function sailLeg(ctx, leg, easy) {
       if (done) return;
       const b = world.player.position;
       const left = Math.hypot(b.x - leg.to.x, b.z - leg.to.z);
-      hud.setCounter(`도착까지 ${Math.ceil(left)}걸음`);
+      hud.setCounter(`${leg.name}까지 남은 뱃길: 노 젓기 ${Math.ceil(left / 2)}번`); // 바다에서는 걸음 대신 노 젓기로 센다
       if (left < leg.to.r) { audio.play('correct'); return finish(true); }
       t += dt;
       if (t < CHASE_DELAY) return;
@@ -130,12 +114,13 @@ export default {
     const b = await runWithRetries(ctx, easy => sailLeg(ctx, scene.legs[1], easy), { failHint: script.sail.failHint });
     await sayAll(dialogue, script.jeju);
     dialogue.close();
-    // 3. 마무리 연표
+    // 3. 마무리: 고려를 지킨 사람들을 그 사건의 원에 넣기
     ctx.setGoal(script.goals[3]);
-    await sayAll(dialogue, script.timeline.intro);
+    await sayAll(dialogue, script.fit.intro);
     dialogue.close();
-    const timeline = { arena: TIMELINE_ARENA, from: [0, 30], counter: '찾아간 곳', spots: script.timeline.cards.map((label, i) => ({ label, talk: TIMELINE_TALK[i], ...TIMELINE_SPOTS[i] })) };
-    const c = await runWithRetries(ctx, easy => PLAY.stops(ctx, timeline, easy), { failHint: script.timeline.failHint });
+    const F = script.fit, figures = F.figures.map(f => ({ ...f, face: portraitURL(f.look) }));
+    const c = await runWithRetries(ctx, easy => fitFigures(ctx, { title: F.title, figures, circles: F.circles, easy, hint: F.failHint }), { failHint: F.failHint });
+    await sayAll(dialogue, F.done); dialogue.close();
     showAftermath(ctx);
     return { firstTryCorrect: 0, firstTryTotal: 0, easyModeUsed: a.easyModeUsed || b.easyModeUsed || c.easyModeUsed };
   },

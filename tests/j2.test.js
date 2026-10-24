@@ -36,7 +36,7 @@ test('j2: completes with touch-only actions', async () => {
   const s = touchSetup(j2Script.speakers);
   const bot = touchBot(s, { answers, places, orders });
   try {
-    const r = await runChapter(JOSEON[1], j2, s.ctx, memSave());
+    const r = await runChapter(JOSEON.find(c => c.id === 'j2'), j2, s.ctx, memSave());
     eq(r.quizCorrect, 2);
     eq(r.firstTryCorrect, 5);
     eq(r.firstTryTotal, 5);
@@ -44,7 +44,7 @@ test('j2: completes with touch-only actions', async () => {
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
 
-test('j2: a wrong letter place fails with a hint and retries', async () => {
+test('j2: a wrong letter place shows the hint and the student carries on (not from the start)', async () => {
   const s = touchSetup(j2Script.speakers);
   const said = [];
   const say = s.dialogue.say;
@@ -55,14 +55,14 @@ test('j2: a wrong letter place fails with a hint and retries', async () => {
   let wrongOnce = true;
   const off = s.w.onUpdate(() => {
     if (!wrongOnce) return;
-    if (said.includes(j2Script.consonants.fail)) { wrongOnce = false; return; }
+    if (said.some(t => t.includes(j2Script.consonants.fail))) { wrongOnce = false; return; }
     if (s.ctx.testHooks.walkTo) s.ctx.testHooks.walkTo = { x: YARD.origin[0] + mouth.x, z: YARD.origin[1] + mouth.z };
   });
   try {
     j2.buildScene(s.w, s.ctx);
     j2.enterStage(s.ctx, 'minigame');
     const r = await j2.minigame(s.ctx);
-    ok(said.includes(j2Script.consonants.fail), 'hint shown');
+    ok(said.some(t => t.includes(j2Script.consonants.fail)), 'hint shown');
     eq(r.firstTryCorrect, 4);
   } finally { off(); bot.stop(); s.done(); }
 }, { timeout: 150000 });

@@ -10,7 +10,7 @@ test('ch4: script passes validation', () => eq(validateScript(ch4Script, SOURCES
 
 test('ch4: quiz answers and capital reason match the spec', () => {
   eq(ch4Script.quizzes.map(q => q.options[q.answer]), ['몽골군이 바다와 물에서 싸우는 데 약해서', '김윤후']);
-  eq(ch4Script.capital.reason.options.find(o => o.correct).text, '몽골군은 바다와 물에서 싸우는 데 약했다');
+  eq(ch4Script.capital.reason.options.find(o => o.correct).text, '몽골군을 상대로 바다와 물에서 싸우면 고려가 유리할 것입니다.');
   for (const [id, sp] of Object.entries(ch4Script.speakers)) if (id !== 'guide') ok(LOOKS[sp.look], id);
 });
 
@@ -75,11 +75,12 @@ test('ch4: map and reason hints make no unsourced claims', () => {
 });
 
 test('ch4: the envoy incident comes before the invasion, with its source and an open culprit', () => {
-  const intro = ch4Script.intro.map(l => l.text).join(' ');
-  const iEnvoy = intro.indexOf('저고여'), iInvade = intro.indexOf('1231년 8월');
+  const lines = [...ch4Script.intro, ...ch4Script.jeogo.before, ...ch4Script.jeogo.after]; // 해설 카드 → 압록강 가 장면
+  const story = lines.map(l => l.text).join(' ');
+  const iEnvoy = story.indexOf('저고여'), iInvade = story.indexOf('1231년 8월');
   ok(iEnvoy >= 0 && iInvade > iEnvoy, 'envoy story first, then the 1231 invasion');
-  ok(intro.includes('밝혀지지 않았'), 'says the culprit is unknown');
-  ok(ch4Script.intro.some(l => l.text.includes('저고여') && l.src.includes('S22')), 'envoy line cites S22');
+  ok(story.includes('밝혀지지 않았'), 'says the culprit is unknown');
+  ok(lines.some(l => l.text.includes('저고여') && l.src.includes('S22')), 'envoy line cites S22');
   ok(ch4Script.npc.minister.first.some(l => l.text.includes('사신') && l.src && l.src.includes('S22')), 'minister mentions it');
 });
 
@@ -105,7 +106,7 @@ test('ch4: Goryeo archers rise on the wall and a tapped Mongol is shot and falls
     step(2);
     ok(sc.arrows.some(a => a.visible), 'an arrow flies');
     ok(target.group.visible, 'the Mongol does not vanish at once');
-    step(14); // 0.8초 뒤: 화살이 닿아 쓰러지는 중
+    step(22); // 1.2초 뒤: 화살(0.85초 동안 날아감)이 닿아 쓰러지는 중
     ok(target.group.rotation.x < -0.6, `falls backward (rx ${target.group.rotation.x.toFixed(2)})`);
     step(40); // 2초 뒤: 쓰러진 몽골군은 치워진다
     ok(!target.group.visible, 'cleared after falling');

@@ -48,7 +48,7 @@ test('joseon: 장마다 학생 생김새를 바꿔도 같은 플레이어다', (
   } finally { w.dispose(); }
 });
 
-test('chooseCards: 맞는 카드를 모두 고르면 성공, 틀린 카드를 누르면 실패', async () => {
+test('chooseCards: 맞는 카드를 모두 고르면 성공, 틀린 카드를 누르면 해설을 보고 이어서 고른다', async () => {
   const cards = [{ text: '가', correct: true }, { text: '나', correct: false }, { text: '다', correct: true }];
   let c = ctx(), r = null;
   chooseCards(c, { title: '고르기', cards }).then(v => { r = v; });
@@ -58,15 +58,19 @@ test('chooseCards: 맞는 카드를 모두 고르면 성공, 틀린 카드를 �
   c = ctx(); r = null;
   chooseCards(c, { title: '고르기', cards }).then(v => { r = v; });
   btn(c.ui, '가').click(); btn(c.ui, '나').click();
-  await sleep(900);
-  eq(r, false); c.done();
+  await sleep(100);
+  eq(r, null, '틀려도 끝나지 않는다');
+  ok(!c.ui.querySelector('.card-why').hidden, '해설');
+  btn(c.ui, '다').click();
+  await sleep(700);
+  eq(r, 'missed'); c.done();
   c = ctx();
   chooseCards(c, { title: '고르기', cards, easy: true });
   ok(btn(c.ui, '가').classList.contains('hint') && !btn(c.ui, '나').classList.contains('hint'), 'easy hints correct cards');
   c.done();
 });
 
-test('placeOnBoard: 물건마다 맞는 자리를 누르면 성공, 틀리면 실패', async () => {
+test('placeOnBoard: 물건마다 맞는 자리를 누르면 성공, 틀리면 해설을 보고 이어서 놓는다', async () => {
   const opts = { title: '놓기', items: [{ id: 'a', label: '가' }, { id: 'b', label: '나' }],
     slots: [{ id: 'n', label: '북', xy: [50, 20], answer: 'a' }, { id: 's', label: '남', xy: [50, 80], answer: 'b' }] };
   let c = ctx(), r = null;
@@ -79,8 +83,12 @@ test('placeOnBoard: 물건마다 맞는 자리를 누르면 성공, 틀리면 �
   c = ctx(); r = null;
   placeOnBoard(c, opts).then(v => { r = v; });
   c.ui.querySelector('[data-slot="s"]').click();
+  await sleep(100);
+  eq(r, null, '틀려도 끝나지 않는다');
+  ok(!c.ui.querySelector('.card-why').hidden, '해설');
+  c.ui.querySelector('[data-slot="n"]').click(); c.ui.querySelector('[data-slot="s"]').click();
   await sleep(900);
-  eq(r, false); c.done();
+  eq(r, 'missed'); c.done();
   c = ctx();
   placeOnBoard(c, { ...opts, easy: true });
   ok(c.ui.querySelector('[data-slot="n"]').classList.contains('hint'), 'easy hints the right slot');
@@ -91,7 +99,7 @@ test('music: 조선편 장마다 배경음악이 있다', () => {
   for (const id of ['j1', 'j2', 'j3', 'j4', 'j5', 'j6']) ok(THEMES[id] && THEMES[id].motif.length >= 4, id);
 });
 
-test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 실패', async () => {
+test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 해설을 보고 다시 고른다', async () => {
   const { sortCards } = await import('../core/minigame.js');
   const opts = { title: '나누기', bins: [{ id: 'a', label: '가' }, { id: 'b', label: '나' }], cards: [{ text: '하나', bin: 'a' }, { text: '둘', bin: 'b' }] };
   let c = ctx(), r = null;
@@ -103,8 +111,12 @@ test('sortCards: 카드마다 맞는 바구니를 누르면 성공, 틀리면 �
   c = ctx(); r = null;
   sortCards(c, opts).then(v => { r = v; });
   c.ui.querySelector('[data-bin="b"]').click();
-  await sleep(1000);
-  eq(r, false); c.done();
+  await sleep(300);
+  eq(r, null, '틀려도 끝나지 않는다');
+  ok(c.ui.querySelector('[data-bin="a"]').classList.contains('hint'), '맞는 바구니가 빛난다');
+  c.ui.querySelector('[data-bin="a"]').click(); await sleep(300); c.ui.querySelector('[data-bin="b"]').click();
+  await sleep(600);
+  eq(r, 'missed'); c.done();
   c = ctx();
   sortCards(c, { ...opts, easy: true });
   ok(c.ui.querySelector('[data-bin="a"]').classList.contains('hint'));

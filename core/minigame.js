@@ -3,6 +3,14 @@ import * as THREE from 'three';
 import { MAP_OUTLINE } from './screens.js';
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+// 카드 놀이에서 틀렸을 때: 처음부터 다시가 아니라 카드 안에 해설을 보여 주고 맞는 답을 이어서 고르게 한다.
+// 끝까지 하면 한 번이라도 틀린 놀이는 'missed'(성공이지만 첫 시도 성공은 아님)로 끝난다.
+function missNote(card) {
+  const why = el('p', 'card-why'); why.hidden = true; why.setAttribute('role', 'status'); card.append(why);
+  return text => { why.textContent = text; why.hidden = false; };
+}
+const result = missed => (missed ? 'missed' : true);
+const DEFAULT_HINT = '해설을 떠올려 보고 다시 골라 봐요.';
 
 export function showHowTo(ui, { title, steps, keyboard, touch }) {
   return new Promise(resolve => {
@@ -90,37 +98,47 @@ export function actionButton(ctx, label, parent = ctx.ui) {
   };
 }
 
-// 카드 순서 맞추기: 섞인 카드를 정답 순서대로 누른다. 틀리면 그 시도는 실패(false).
-// easy이면 다음에 눌러야 할 카드가 빛난다.
-export function orderCards(ctx, { title, cards, easy = false }) {
+// 카드 순서 맞추기: 섞인 카드를 정답 순서대로 누른다. 틀리면 해설(hint)을 보여 주고, 다음 카드가 빛나 이어서 고른다.
+// easy이면 처음부터 다음에 눌러야 할 카드가 빛난다. 카드는 글자이거나, 그림이 있는 { text, figure(SVG 글) }(그림 카드).
+export function orderCards(ctx, { title, cards, easy = false, hint = DEFAULT_HINT }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order');
     const card = el('div', 'card wide');
     const slots = el('ol', 'order-slots');
     const pile = el('div', 'order-pile');
     card.append(el('div', 'eyebrow', '순서 맞추기'), el('h2', null, title), pile, slots); // 카드 더미가 위: 놓은 카드 줄이 늘어도 더미가 밀려 내려가지 않는다
+    const note = missNote(card);
     screen.append(card);
     ctx.ui.append(screen);
     const order = shuffledOrder(cards).map(c => ({ c }));
-    let next = 0;
+    const txt = c => (typeof c === 'string' ? c : c.text);
+    const fill = (b, c, mark = '') => { // 카드 안: 그림(있으면)과 글
+      b.replaceChildren();
+      if (typeof c !== 'string' && c.figure) { const f = el('span', 'order-pic'); f.innerHTML = c.figure; b.append(f); }
+      b.append(el('span', 'order-text', mark + txt(c)));
+    };
+    if (cards.some(c => typeof c !== 'string')) card.classList.add('pics');
+    let next = 0, missed = false;
     const buttons = order.map(({ c }) => {
-      const b = el('button', 'order-card', c); b.type = 'button';
+      const b = el('button', 'order-card'); b.type = 'button'; fill(b, c);
       b.addEventListener('click', () => {
         if (c === cards[next]) {
-          slots.append(el('li', null, `○ ${c}`)); b.disabled = true; b.classList.add('placed'); next += 1; // 자리는 남겨 두어 옆 카드가 움직이지 않게
-          if (next === cards.length) { setTimeout(() => { screen.remove(); resolve(true); }, 300); return; }
-          hint();
-        } else {
-          b.classList.add('wrong'); b.textContent = `× ${c}`; // 색과 함께 × 표시
-          setTimeout(() => { screen.remove(); resolve(false); }, 600);
-          buttons.forEach(x => { x.disabled = true; });
+          slots.append(el('li', null, `○ ${txt(c)}`)); b.disabled = true; b.classList.add('placed'); next += 1; // 자리는 남겨 두어 옆 카드가 움직이지 않게
+          if (next === cards.length) { setTimeout(() => { screen.remove(); resolve(result(missed)); }, 300); return; }
+          glow();
+        } else if (!b.classList.contains('wrong')) {
+          missed = true;
+          b.classList.add('wrong'); fill(b, c, '× '); // 색과 함께 × 표시
+          note(`× 「${txt(c)}」은(는) 아직 차례가 아니에요. ${hint} 빛나는 카드가 다음 차례예요.`);
+          glow();
+          setTimeout(() => { b.classList.remove('wrong'); fill(b, c); }, 900);
         }
       });
       pile.append(b);
       return b;
     });
-    const hint = () => { if (easy) buttons.forEach(b => b.classList.toggle('hint', b.textContent === cards[next])); };
-    hint();
+    const glow = () => { if (easy || missed) buttons.forEach((b, k) => b.classList.toggle('hint', order[k].c === cards[next])); };
+    glow();
   });
 }
 
@@ -254,9 +272,9 @@ export function pickOnMap(ctx, { title, places }) {
   });
 }
 
-// 카드 고르기: 맞는 카드(correct)를 모두 누르면 성공(true), 틀린 카드를 누르면 그 시도는 실패(false).
+// 카드 고르기: 맞는 카드(correct)를 모두 누르면 성공. 틀린 카드를 누르면 해설(hint)을 보여 주고 그 카드만 지운 채 이어서 고른다.
 // easy이면 맞는 카드가 빛난다. figure(SVG 글)가 있으면 카드 위에 그림을 보여 준다.
-export function chooseCards(ctx, { title, prompt = '', cards, figure = null, easy = false }) {
+export function chooseCards(ctx, { title, prompt = '', cards, figure = null, easy = false, hint = DEFAULT_HINT }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order choose');
     const card = el('div', 'card wide');
@@ -267,8 +285,9 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
     if (prompt) card.append(el('p', null, prompt));
     if (figure) { const f = el('div', 'choose-figure'); f.innerHTML = figure; card.append(f); } // 그림(SVG 글): 해시계, 측우기 등
     card.append(count, pile);
+    const note = missNote(card);
     screen.append(card); ctx.ui.append(screen);
-    let got = 0, over = false;
+    let got = 0, over = false, missed = false;
     const show = () => { count.textContent = `고른 카드 ${got} / ${need}`; };
     const buttons = cards.map(c => {
       const b = el('button', `order-card${easy && c.correct ? ' hint' : ''}`, c.text); b.type = 'button';
@@ -276,11 +295,10 @@ export function chooseCards(ctx, { title, prompt = '', cards, figure = null, eas
         if (over || b.disabled) return;
         if (c.correct) {
           got += 1; b.disabled = true; b.classList.remove('hint'); b.classList.add('picked'); b.textContent = `○ ${c.text}`; show();
-          if (got === need) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 400); }
+          if (got === need) { over = true; setTimeout(() => { screen.remove(); resolve(result(missed)); }, 400); }
         } else {
-          over = true; b.classList.add('wrong'); b.textContent = `× ${c.text}`;
-          buttons.forEach(x => { x.disabled = true; });
-          setTimeout(() => { screen.remove(); resolve(false); }, 700);
+          missed = true; b.disabled = true; b.classList.add('wrong'); b.textContent = `× ${c.text}`;
+          note(`× 「${c.text}」은(는) 맞지 않아요. ${hint} 남은 카드에서 다시 골라 봐요.`);
         }
       });
       pile.append(b);
@@ -334,17 +352,18 @@ export function timingBar(ctx, { title, prompt = '', label = '지금!', zone: [l
   });
 }
 
-// 카드 나누기: 카드가 한 장씩 나오면 알맞은 바구니(bins)를 누른다. 모두 맞게 나누면 true, 틀리면 false.
-// easy이면 맞는 바구니가 빛난다.
-export function sortCards(ctx, { title, bins, cards, easy = false }) {
+// 카드 나누기: 카드가 한 장씩 나오면 알맞은 바구니(bins)를 누른다. 틀리면 해설(hint)을 보여 주고 맞는 바구니가 빛나 다시 고른다.
+// easy이면 처음부터 맞는 바구니가 빛난다.
+export function sortCards(ctx, { title, bins, cards, easy = false, hint = DEFAULT_HINT }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order sort');
     const card = el('div', 'card wide');
     const now = el('p', 'sort-now');
     const row = el('div', 'sort-bins');
     card.append(el('div', 'eyebrow', '카드 나누기'), el('h2', null, title), now, row);
+    const note = missNote(card);
     screen.append(card); ctx.ui.append(screen);
-    let i = 0, over = false, lockUntil = 0; // 카드가 바뀐 직후 잠깐(0.25초)은 누름을 받지 않는다(태블릿 두 번 누르기)
+    let i = 0, over = false, lockUntil = 0, missed = false, glowNow = false; // 카드가 바뀐 직후 잠깐(0.25초)은 누름을 받지 않는다(태블릿 두 번 누르기)
     const counts = bins.map(() => 0);
     const buttons = bins.map((b, k) => {
       const btn = el('button', 'sort-bin', ''); btn.type = 'button'; btn.dataset.bin = b.id;
@@ -354,11 +373,12 @@ export function sortCards(ctx, { title, bins, cards, easy = false }) {
         if (over || performance.now() < lockUntil) return;
         if (cards[i].bin === b.id) {
           counts[k] += 1; show(); i += 1; lockUntil = performance.now() + 250;
-          if (i === cards.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 400); } else ask();
+          if (i === cards.length) { over = true; setTimeout(() => { screen.remove(); resolve(result(missed)); }, 400); } else { glowNow = false; ask(); }
         } else {
-          over = true; btn.classList.add('wrong'); now.textContent = `× ${cards[i].text}`;
-          buttons.forEach(x => { x.disabled = true; });
-          setTimeout(() => { screen.remove(); resolve(false); }, 800);
+          missed = true; glowNow = true; lockUntil = performance.now() + 250;
+          btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 900);
+          note(`× 「${cards[i].text}」은(는) ${b.label}이(가) 아니에요. ${hint} 빛나는 곳을 눌러 봐요.`);
+          ask();
         }
       });
       row.append(btn);
@@ -366,16 +386,16 @@ export function sortCards(ctx, { title, bins, cards, easy = false }) {
     });
     const ask = () => {
       now.textContent = `“${cards[i].text}” (${i + 1} / ${cards.length})`;
-      buttons.forEach((x, k) => x.classList.toggle('hint', easy && bins[k].id === cards[i].bin));
+      buttons.forEach((x, k) => x.classList.toggle('hint', (easy || glowNow) && bins[k].id === cards[i].bin));
     };
     ask();
   });
 }
 
 // 자리 놓기: 판 위의 자리(slots) 중에서 지금 물건(items 차례대로)이 들어갈 자리를 누른다.
-// 모두 맞게 놓으면 true, 틀린 자리를 누르면 false. decor는 판 위의 이름표(산, 강 등). easy이면 맞는 자리가 빛난다.
+// 틀린 자리를 누르면 해설(hint)을 보여 주고 맞는 자리가 빛나 다시 고른다. decor는 판 위의 이름표(산, 강 등). easy이면 처음부터 맞는 자리가 빛난다.
 // boardClass 'map'이면 판을 지도처럼 그린다(북쪽 산).
-export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = false, boardClass = '' }) {
+export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = false, boardClass = '', hint = DEFAULT_HINT }) {
   return new Promise(resolve => {
     const screen = el('section', 'screen order place');
     const card = el('div', 'card wide');
@@ -383,8 +403,9 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
     const board = el('div', `place-board ${boardClass}`);
     for (const d of decor) { const t = el('span', `place-decor ${d.cls || ''}`, d.label); t.style.left = `${d.xy[0]}%`; t.style.top = `${d.xy[1]}%`; board.append(t); }
     card.append(el('div', 'eyebrow', '자리 놓기'), el('h2', null, title), now, board);
+    const note = missNote(card);
     screen.append(card); ctx.ui.append(screen);
-    let i = 0, over = false;
+    let i = 0, over = false, missed = false, glowNow = false;
     const buttons = slots.map(s => {
       const b = el('button', 'place-slot', s.label || '?'); b.type = 'button'; b.dataset.slot = s.id;
       b.style.left = `${s.xy[0]}%`; b.style.top = `${s.xy[1]}%`;
@@ -395,11 +416,12 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
           b.disabled = true; b.classList.add("filled"); // 놓은 물건 이름을 크게, 칸의 설명은 작게 (칸이 길어져 판 밖으로 나가지 않게)
           b.replaceChildren(`○ ${item.label}`, ...(s.label ? [el('small', null, s.label)] : []));
           i += 1;
-          if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(true); }, 500); } else ask();
+          if (i === items.length) { over = true; setTimeout(() => { screen.remove(); resolve(result(missed)); }, 500); } else { glowNow = false; ask(); }
         } else {
-          over = true; b.classList.add('wrong'); b.textContent = `× ${item.label}`;
-          buttons.forEach(x => { x.disabled = true; });
-          setTimeout(() => { screen.remove(); resolve(false); }, 800);
+          missed = true; glowNow = true;
+          b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 900);
+          note(`× 「${item.label}」은(는) 그 자리가 아니에요. ${hint} 빛나는 자리를 눌러 봐요.`);
+          ask();
         }
       });
       board.append(b);
@@ -407,7 +429,7 @@ export function placeOnBoard(ctx, { title, items, slots, decor = [], easy = fals
     });
     const ask = () => {
       now.replaceChildren('놓을 것: ', el('b', 'place-item', items[i].label), ` (${i + 1} / ${items.length})`);
-      buttons.forEach((b, k) => b.classList.toggle('hint', easy && !b.disabled && slots[k].answer === items[i].id));
+      buttons.forEach((b, k) => b.classList.toggle('hint', (easy || glowNow) && !b.disabled && slots[k].answer === items[i].id));
     };
     ask();
   });
@@ -424,4 +446,59 @@ export function shuffledOrder(cards) {
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     if (!same(a, cards) && !same(a, rev)) return a;
   }
+}
+
+// 인물 넣기: 아래 줄의 인물(얼굴 카드)을 하나 골라 누르고, 그 사람이 활약한 사건의 원을 누르면 원 안에 들어간다.
+// 모두 넣으면 성공. 틀린 원을 누르면 해설(hint)을 보여 주고 맞는 원이 빛나 다시 고른다(끝나면 'missed').
+// figures: [{ id, name, face(그림 주소) }], circles: [{ id, label, answer(인물 id) }]. easy이면 고른 인물의 맞는 원이 처음부터 빛난다.
+export function fitFigures(ctx, { title, figures, circles, easy = false, hint = DEFAULT_HINT }) {
+  return new Promise(resolve => {
+    const screen = el('section', 'screen order fit');
+    const card = el('div', 'card wide');
+    const ring = el('div', 'fit-circles');
+    const row = el('div', 'fit-figures');
+    const now = el('p', 'fit-now', '먼저 아래에서 인물을 한 명 골라요.');
+    card.append(el('div', 'eyebrow', '인물 넣기'), el('h2', null, title), ring, now, row);
+    const note = missNote(card);
+    screen.append(card); ctx.ui.append(screen);
+    let picked = null, placed = 0, missed = false;
+    const glow = () => cBtns.forEach((b, k) => b.classList.toggle('hint', !!picked && !b.disabled && (easy || picked.glow) && circles[k].answer === picked.f.id));
+    const fBtns = figures.map(f => {
+      const b = el('button', 'fit-figure'); b.type = 'button'; b.dataset.figure = f.id;
+      if (f.face) { const img = el('img'); img.src = f.face; img.alt = ''; b.append(img); }
+      b.append(el('span', null, f.name));
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        picked = { f, b, glow: false };
+        fBtns.forEach(x => x.classList.toggle('picked', x === b));
+        now.textContent = `${f.name}: 어느 원에 넣을까요?`;
+        glow();
+      });
+      row.append(b);
+      return b;
+    });
+    const cBtns = circles.map(c => {
+      const b = el('button', 'fit-circle'); b.type = 'button'; b.dataset.circle = c.id;
+      const inside = el('span', 'fit-inside');
+      b.append(inside, el('span', 'fit-label', c.label));
+      b.addEventListener('click', () => {
+        if (b.disabled || !picked) return;
+        if (c.answer === picked.f.id) {
+          b.disabled = true; b.classList.add('filled');
+          inside.replaceChildren(...[...picked.b.childNodes].map(n => n.cloneNode(true))); // 원 안에 그 인물이 들어간다
+          picked.b.disabled = true; picked.b.classList.remove('picked'); picked.b.classList.add('placed');
+          picked = null; placed += 1; glow();
+          now.textContent = placed === circles.length ? '모두 넣었어요!' : '다음 인물을 골라요.';
+          if (placed === circles.length) setTimeout(() => { screen.remove(); resolve(result(missed)); }, 600);
+        } else {
+          missed = true; picked.glow = true;
+          b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 900);
+          note(`× ${picked.f.name}은(는) 「${c.label}」의 인물이 아니에요. ${hint} 빛나는 원에 넣어 봐요.`);
+          glow();
+        }
+      });
+      ring.append(b);
+      return b;
+    });
+  });
 }

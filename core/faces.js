@@ -199,10 +199,12 @@ function drawHat(g, hat, cx, cy, R, hairColor = '#1e1c1a') {
 export const drawHatForTest = drawHat; // 테스트용
 
 // 대화창 초상화: 둥근 배경 위에 어깨, 머리, 모자, 얼굴. 같은 인물은 한 번만 그린다.
+// lookId는 LOOKS 이름이나 생김새 묶음(학생 역할처럼 LOOKS에 없는 생김새)
 const portraitCache = new Map();
 export function portraitURL(lookId) {
+  if (typeof lookId === 'object') lookId = JSON.stringify(lookId);
   if (portraitCache.has(lookId)) return portraitCache.get(lookId);
-  const L = LOOKS[lookId];
+  const L = LOOKS[lookId] || JSON.parse(lookId);
   const cv = document.createElement('canvas'); cv.width = cv.height = 160;
   const g = cv.getContext('2d', { willReadFrequently: true }); // CPU 그림판: 어느 브라우저에서나 그린 그대로 이미지가 된다
   g.fillStyle = '#e9dcc3'; g.beginPath(); g.arc(80, 80, 80, 0, Math.PI * 2); g.fill();

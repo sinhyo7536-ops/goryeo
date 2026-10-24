@@ -90,7 +90,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '서희가 담판으로 얻은 땅은?', options: ['동북 9성', '강동 6주', '강화도'], answer: 1, explain: '압록강 동쪽의 흥화진, 용주, 통주, 철주, 귀주, 곽주예요.', src: ['S1'] },
-    { kind: 'quiz', question: '서희가 "고려는 고구려를 이은 나라"라고 말한 근거는?', options: ['나라 이름이 \'고려\'이다', '송나라와 친하다', '군사가 많다'], answer: 0, explain: '나라 이름 \'고려\'가 고구려를 이었다는 증거였어요.', src: ['S18'] },
+    { kind: 'quiz', year: 993, question: '서희가 담판으로 얻은 땅은?', options: ['동북 9성', '강동 6주', '강화도'], answer: 1, explain: '압록강 동쪽의 흥화진, 용주, 통주, 철주, 귀주, 곽주예요.', src: ['S1'] },
+    { kind: 'quiz', year: 993, question: '서희가 "고려는 고구려를 이은 나라"라고 말한 근거는?', options: ['나라 이름이 \'고려\'이다', '송나라와 친하다', '군사가 많다'], answer: 0, explain: '나라 이름 \'고려\'가 고구려를 이었다는 증거였어요.', src: ['S18'] },
   ],
 };

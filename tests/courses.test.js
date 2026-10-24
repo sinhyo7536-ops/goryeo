@@ -9,7 +9,7 @@ test('courses: 다섯 편, 이름과 장 묶음', () => {
   eq(COURSES.map(c => c.session), [1, 2, 3, 4, 5]);
   ok(COURSES.every(c => c.chapters.length === 6), '편마다 6장');
   eq(courseOfChapter('h6').id, 'present');
-  eq(courseById('joseon').chapters.map(c => c.id), ['j1', 'j2', 'j3', 'j4', 'j5', 'j6']);
+  eq(courseById('joseon').chapters.map(c => c.id), ['j1', 'j3', 'j2', 'j4', 'j5', 'j6']); // 일어난 차례: 과학 기구(1434~) 다음 훈민정음(1443~)
   eq(courseById('nope').id, 'goryeo');
   eq(courseOfChapter('ch4').id, 'goryeo');
   eq(courseOfChapter('j2').id, 'joseon');

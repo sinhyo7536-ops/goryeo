@@ -67,7 +67,7 @@ export default {
     },
     sort: {
       type: 'deliver', src: ['S51', 'S55', 'S56'], title: '한인 애국단일까요, 한국광복군일까요? 알맞은 깃발 아래로 가져가요', counter: '가져다 놓은 것',
-      howto: '머리 위의 글을 「한인 애국단」이나 「한국광복군」 깃발 아래로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 글을 「한인 애국단」이나 「한국광복군」 깃발 아래로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'kimgu', text: '나는 한인 애국단을 만들었고, 임시 정부는 한국광복군을 만들었소. 일을 알맞은 쪽으로 나눠 주시오.' }],
       bins: [{ id: 'aegukdan', label: '한인 애국단' }, { id: 'gwangbok', label: '한국광복군' }],
       cards: [
@@ -82,7 +82,7 @@ export default {
   },
   result: [{ who: 'narr', text: '하지만 일제가 갑자기 항복하면서 한국광복군의 국내 진공 계획은 실행하지 못했어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '한인 애국단을 만든 사람은?', options: ['김구', '서재필', '전봉준'], answer: 0, explain: '김구가 한인 애국단을 만들었어요.', src: ['S51'] },
-    { kind: 'quiz', question: '임시 정부가 충칭에서 만든 군대는?', options: ['의병', '한국광복군', '별무반'], answer: 1, explain: '임시 정부는 충칭에서 한국광복군을 만들었어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1931, question: '한인 애국단을 만든 사람은?', options: ['김구', '서재필', '전봉준'], answer: 0, explain: '김구가 한인 애국단을 만들었어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1940, question: '임시 정부가 충칭에서 만든 군대는?', options: ['의병', '한국광복군', '별무반'], answer: 1, explain: '임시 정부는 충칭에서 한국광복군을 만들었어요.', src: ['S51'] },
   ],
 };

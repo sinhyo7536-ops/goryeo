@@ -51,7 +51,7 @@ test('j1: completes with touch-only actions', async () => {
   } finally { bot.stop(); s.done(); }
 }, { timeout: 150000 });
 
-test('j1: a wrong sign fails with a hint, then retry succeeds', async () => {
+test('j1: a wrong sign shows the hint, then the student carries on', async () => {
   const s = touchSetup(j1Script.speakers);
   const said = [];
   const say = s.dialogue.say;
@@ -64,14 +64,14 @@ test('j1: a wrong sign fails with a hint, then retry succeeds', async () => {
   const wrong = REASON_SPOTS[j1Script.reasons.cards.findIndex(c => c.text === '명나라 군사가 고려보다 적다')];
   const off = s.w.onUpdate(() => {
     if (!wrongOnce) return;
-    if (said.includes(j1Script.reasons.fail)) { wrongOnce = false; return; }
+    if (said.some(t => t.includes(j1Script.reasons.fail))) { wrongOnce = false; return; }
     if (s.ctx.testHooks.walkTo) s.ctx.testHooks.walkTo = { x: CAMP.origin[0] + wrong.x, z: CAMP.origin[1] + wrong.z };
   });
   try {
     j1.buildScene(s.w, s.ctx);
     j1.enterStage(s.ctx, 'minigame');
     const r = await j1.minigame(s.ctx);
-    ok(said.includes(j1Script.reasons.fail), 'hint shown');
+    ok(said.some(t => t.includes(j1Script.reasons.fail)), 'hint shown');
     eq(r.firstTryCorrect, 1, 'signs failed the first time, Hanyang right the first time');
     eq(r.easyModeUsed, false);
   } finally { off(); bot.stop(); s.done(); }

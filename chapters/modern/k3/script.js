@@ -68,7 +68,7 @@ export default {
     },
     demands: {
       type: 'find', src: ['S51'], title: '농민군 진영에서 농민군이 요구한 개혁안을 찾아요', counter: '찾은 요구',
-      howto: '팻말 가운데 농민군이 요구한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '팻말 가운데 농민군이 요구한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'farmer', text: '우리가 나라에 바라는 것들을 적어 두었어. 진짜 요구만 찾아 줘!' }],
       items: [
         { text: '탐관오리를 모두 쫓아낼 것', correct: true, look: 'peasant' },
@@ -96,7 +96,7 @@ export default {
   },
   result: [{ who: 'narr', text: '정부는 농민군의 요구를 일부 받아들여 갑오개혁을 했고, 신분제와 과거제가 없어졌어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '동학 농민 운동을 이끈 사람은?', options: ['전봉준', '김옥균', '안중근'], answer: 0, explain: '동학 지도자 전봉준이 농민들을 이끌었어요.', src: ['S51'] },
-    { kind: 'quiz', question: '갑오개혁으로 없어진 제도는?', options: ['학교', '신분제', '우편'], answer: 1, explain: '갑오개혁으로 신분제와 과거제가 없어졌어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1894, question: '동학 농민 운동을 이끈 사람은?', options: ['전봉준', '김옥균', '안중근'], answer: 0, explain: '동학 지도자 전봉준이 농민들을 이끌었어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1894, question: '갑오개혁으로 없어진 제도는?', options: ['학교', '신분제', '우편'], answer: 1, explain: '갑오개혁으로 신분제와 과거제가 없어졌어요.', src: ['S51'] },
   ],
 };

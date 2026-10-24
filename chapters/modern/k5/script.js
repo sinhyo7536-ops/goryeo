@@ -53,7 +53,7 @@ export default {
   parts: {
     match: {
       type: 'deliver', src: ['S51'], title: '근대 문물을 하는 일에 맞게 가져가요', counter: '가져다 놓은 것',
-      howto: '머리 위의 이름을 그 문물이 하는 일 팻말로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 이름을 그 문물이 하는 일 팻말로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'gentleman', text: '요즘 한성에는 신기한 물건이 많소. 무엇이 어떤 일을 하는지 알맞게 가져가 보시오.' }],
       bins: [{ id: 'lamp', label: '밤거리를 밝혀요' }, { id: 'tram', label: '사람을 싣고 선로를 달려요' }, { id: 'tele', label: '글자를 전기 신호로 보내요' }, { id: 'phone', label: '먼 곳과 목소리로 이야기해요' }],
       cards: [
@@ -79,7 +79,7 @@ export default {
     },
     then: {
       type: 'find', src: ['S51'], title: '거리에서 개항 뒤 새로 들어온 근대 문물을 찾아요', counter: '찾은 문물',
-      howto: '거리의 팻말 가운데 새로 들어온 근대 문물을 찾아 대화 버튼을 눌러요. 그 전부터 있던 것을 고르면 다시 해요.',
+      howto: '거리의 팻말 가운데 새로 들어온 근대 문물을 찾아 대화 버튼을 눌러요. 그 전부터 있던 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'student', text: '거리 구경을 해 볼까요? 개항 뒤 새로 들어온 것만 찾아보세요.' }],
       items: [
         { text: '전차', correct: true }, { text: '갓', correct: false }, { text: '전화기', correct: true, look: 'gentleman' },
@@ -90,7 +90,7 @@ export default {
   },
   result: [{ who: 'narr', text: '근대 문물이 들어오면서 사람들의 생활 모습이 크게 달라졌어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '1899년 서대문에서 청량리까지 다닌 것은?', options: ['기차', '전차', '자동차'], answer: 1, explain: '1899년 서대문에서 청량리까지 전차가 다니기 시작했어요.', src: ['S51'] },
-    { kind: 'quiz', question: '전신은 무엇일까요?', options: ['글자나 숫자를 전기 신호로 바꾸어 보내는 통신', '밤을 밝히는 등', '선로 위를 달리는 차'], answer: 0, explain: '전신은 문자나 숫자를 전기 신호로 바꾸어 보내는 통신이에요.', src: ['S51'] },
+    { kind: 'quiz', year: 1885, question: '전신은 무엇일까요?', options: ['글자나 숫자를 전기 신호로 바꾸어 보내는 통신', '밤을 밝히는 등', '선로 위를 달리는 차'], answer: 0, explain: '전신은 문자나 숫자를 전기 신호로 바꾸어 보내는 통신이에요.', src: ['S51'] },
+    { kind: 'quiz', year: 1899, question: '1899년 서대문에서 청량리까지 다닌 것은?', options: ['기차', '전차', '자동차'], answer: 1, explain: '1899년 서대문에서 청량리까지 전차가 다니기 시작했어요.', src: ['S51'] },
   ],
 };

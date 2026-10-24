@@ -94,7 +94,7 @@ export default {
   },
   result: [{ who: 'narr', text: '3·1 운동은 일제의 탄압으로 좌절되었지만, 독립을 향한 한국인의 열망과 의지를 전 세계에 알렸어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '3·1 운동이 일어난 해는?', options: ['1894년', '1919년', '1945년'], answer: 1, explain: '1919년 3월 1일 3·1 운동이 일어났어요.', src: ['S51'] },
-    { kind: 'quiz', question: '학생과 시민이 독립 선언서를 읽고 만세 시위를 시작한 곳은?', options: ['탑골 공원', '남한산성', '위화도'], answer: 0, explain: '학생과 시민은 탑골 공원에서 독립 선언서를 읽었어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1919, question: '3·1 운동이 일어난 해는?', options: ['1894년', '1919년', '1945년'], answer: 1, explain: '1919년 3월 1일 3·1 운동이 일어났어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1919, question: '학생과 시민이 독립 선언서를 읽고 만세 시위를 시작한 곳은?', options: ['탑골 공원', '남한산성', '위화도'], answer: 0, explain: '학생과 시민은 탑골 공원에서 독립 선언서를 읽었어요.', src: ['S51'] },
   ],
 };

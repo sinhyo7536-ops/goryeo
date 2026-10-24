@@ -1,14 +1,15 @@
 // 상황 놀이 부품: 카드 대신 장면 속에서 직접 해 보는 미니게임. 근대·일제 강점기·현대편 장의 parts에 쓴다.
-// 모두 (ctx, part, easy) → Promise<boolean>(성공이면 true). 실패하면 장 틀(tryPart)이 힌트를 보여 주고 다시 하게 한다.
+// 모두 (ctx, part, easy) → Promise(성공이면 true, 도중에 틀렸다가 고쳐 끝내면 'missed', 시간이 다 되는 등 실패면 false).
+// 실패하면 장 틀(tryPart)이 힌트를 보여 주고 다시 하게 한다. 틀린 답은 처음부터 다시가 아니라 해설(part.fail)을 듣고 고쳐 고른다.
 //
 //   drive  : 배·전차·트럭을 몰아(또는 걸어서) 지점을 차례로 지나간다. 암초·기뢰·적 배에 부딪히면 앞 지점으로.
 //            { arena?, vehicle?: 'boat'|'truck'|'tram'|'car'|'train', from, route: [{ x, z, label?, say? }], hazards?: [{ x, z, r, kind, to?, speed? }],
 //              seconds, counter?, speed?, followers?: { looks, per } }
-//   stops  : 바닥에 이름표가 선 곳들을 일어난 차례대로 찾아가 대화 버튼을 누른다. 틀린 곳을 고르면 다시.
+//   stops  : 바닥에 이름표가 선 곳들을 일어난 차례대로 찾아가 대화 버튼을 누른다. 틀린 곳이면 해설을 듣고, 화살표를 따라 맞는 곳을 고른다.
 //            { arena?, from, spots: [{ x, z, label, say? }] (정답 차례), seconds? }
-//   deliver: 머리 위에 든 것(글)을 알맞은 곳(바구니 자리)에 가져다 놓는다. 틀린 곳이면 다시.
+//   deliver: 머리 위에 든 것(글)을 들고 알맞은 곳(바구니 자리)에 들어가면 놓인다. 놓으면(틀려도) 처음 자리(from)로 돌아가 다음 것을 든다.
 //            { arena?, from, bins: [{ id, label, x, z }], cards: [{ text, bin }] }
-//   find   : 곳곳에 선 팻말 가운데 맞는 것만 찾아 대화 버튼을 누른다. 틀린 것을 고르면 다시.
+//   find   : 곳곳에 선 팻말 가운데 맞는 것만 찾아 대화 버튼을 누른다. 틀린 것이면 해설을 듣고 이어서 고른다.
 //            { arena?, from, items: [{ text, correct, x, z }] }
 //   ambush : 위에서 내려다보는 골짜기(바다)에 적이 들어오면 그 위의 버튼을 눌러 물리친다(연기를 내며 물러난다).
 //            { arena?, camera: { pos, target }, path: [[x, z], [x, z]], zone: { x, z, r }, enemies, need, interval, speed, unit: 'soldier'|'ship', label }
@@ -133,7 +134,7 @@ function vehicleMesh(kind) {
 function rideVehicle(world, kind, speed) {
   const p = world.player, hidden = [...p.children];
   hidden.forEach(c => { c.visible = false; });
-  const v = vehicleMesh(kind); p.add(v);
+  const v = vehicleMesh(kind); v.scale.setScalar(1 / (p.scale.x || 1)); p.add(v); // 아이 역할(작은 키)이어도 탈것은 제 크기
   world.speedScale = speed;
   return () => { p.remove(v); hidden.forEach(c => { c.visible = true; }); world.speedScale = 1; };
 }
@@ -166,10 +167,18 @@ function session(ctx, part, easy) {
   cleanups.push(off);
   const s = {
     arena, at: arena.at, t: () => t,
+    missed: false, // 도중에 틀린 적이 있으면 true(끝까지 하면 'missed'로 끝난다)
     finish(ok) {
       if (done) return; done = true;
       for (const f of cleanups.reverse()) f();
-      resolveFn(ok);
+      resolveFn(ok && s.missed ? 'missed' : ok);
+    },
+    // 틀린 답: 소리와 함께 해설을 들려준다(대화 동안 시간이 멈춘다). 그 뒤 화살표가 맞는 곳을 알려 준다.
+    wrong(text) {
+      s.missed = true;
+      ctx.audio.play('wrong');
+      const why = typeof part.fail === 'string' ? part.fail : ctx.partHint; // 해설: 부분의 fail, 없으면 장이 tryPart에 준 힌트
+      s.say([{ who: 'guide', text: why ? `${text} ${why}` : text }]);
     },
     get done() { return done; },
     get busy() { return busy; },
@@ -342,7 +351,7 @@ export function stops(ctx, part, easy) {
     ctx.hud.setCounter(`${part.counter || '찾아간 곳'} ${next}/${spots.length}`);
     const n = spots[next];
     ctx.testHooks.walkTo = n ? n.pos : null;
-    world.setGoal(easy && n ? n.pos : null);
+    world.setGoal((easy || s.missed) && n ? n.pos : null);
   };
   show();
   pickWithButton(ctx, s, () => spots.filter(x => !x.done), sp => {
@@ -353,8 +362,9 @@ export function stops(ctx, part, easy) {
       next += 1; show();
       s.say(sp.talk, () => { if (next === spots.length) setTimeout(() => s.finish(true), 500); });
     } else {
-      audio.play('wrong'); toast(ctx, `× ${sp.label}: 아직 이 차례가 아니에요.`, 'bad');
-      setTimeout(() => s.finish(false), 700);
+      toast(ctx, `× ${sp.label}: 아직 이 차례가 아니에요.`, 'bad');
+      s.wrong(`「${sp.label}」은(는) 아직 차례가 아니에요. 바로 앞의 일 다음에 무엇이 일어났는지 떠올려 봐요. 이제 화살표가 맞는 곳을 알려 줄게요.`);
+      show();
     }
   });
   return s.promise;
@@ -371,33 +381,48 @@ export function deliver(ctx, part, easy) {
     const r = ring(0xd9a441, 2.0, 2.3); r.position.set(b.x, 0.08, b.z); g.add(r);
     const lab = labelSprite(b.label, { size: 1.25 }); lab.position.set(b.x, 3.4, b.z); g.add(lab);
     if (b.look) standPerson(g, b.look, b.x, b.z - 2.6);
-    return { ...b, pos: s.at(b.x, b.z) };
+    return { ...b, disc, pos: s.at(b.x, b.z) };
   });
   let i = 0, held = null;
+  const missedCards = new Set();
   const hold = () => {
     if (held) world.player.remove(held);
     const c = part.cards[i];
     held = c ? labelSprite(c.text, { bg: 'rgba(255,250,240,0.97)', border: '#d9a441' }) : null;
-    if (held) { held.position.set(0, 3.1, 0); world.player.add(held); }
+    if (held) { held.position.set(0, 3.1 / (world.player.scale.y || 1), 0); held.scale.divideScalar(world.player.scale.x || 1); world.player.add(held); } // 키가 작아도 글은 같은 크기·높이
     ctx.hud.setCounter(`${part.counter || '가져다 놓은 것'} ${i}/${part.cards.length}`);
     const target = c && bins.find(b => b.id === c.bin);
     ctx.testHooks.walkTo = target ? target.pos : null;
-    world.setGoal(easy && target ? target.pos : null);
+    world.setGoal((easy || missedCards.has(c)) && target ? target.pos : null); // 한 번 틀린 것은 화살표가 맞는 곳을 알려 준다
   };
   hold();
   s.cleanup(() => { if (held) world.player.remove(held); });
-  pickWithButton(ctx, s, () => bins, b => {
+  // 놓은 뒤에는 처음 자리로 돌아가 다음 것을 든다
+  const home = () => { if (part.from) { const a = s.at(...part.from); place(world, [a.x, a.z], part.face ?? Math.PI); } };
+  // 지나가다 밟은 것은 놓지 않는다: 원 안에서 멈춰 잠깐(DWELL초) 서 있어야 놓인다. 원은 서 있는 동안 점점 밝아진다.
+  const DWELL = 0.7;
+  let inside = null, stay = 0;
+  const last = world.player.position.clone();
+  s.update(dt => {
+    const moved = world.player.position.distanceTo(last) / Math.max(dt, 1e-3); last.copy(world.player.position);
     const c = part.cards[i];
-    if (!c) return;
+    const b = c && bins.find(x => near(world.player.position, x.pos, 2.1));
+    if (b !== inside) { if (inside) inside.disc.material.opacity = 0.35; inside = b; stay = 0; }
+    if (!b || stay < 0) return;
+    if (moved > 1.5) { stay = 0; b.disc.material.opacity = 0.35; return; } // 걷는 중
+    stay += dt; b.disc.material.opacity = 0.35 + Math.min(1, stay / DWELL) * 0.5;
+    if (stay < DWELL) return;
+    stay = -1; b.disc.material.opacity = 0.35; // 같은 원 안에서는 한 번만
     if (b.id === c.bin) {
       audio.play('correct'); toast(ctx, `○ ${c.text} → ${b.label}`, 'good');
-      i += 1; hold();
+      i += 1; home(); hold();
       s.say(c.talk, () => { if (i === part.cards.length) setTimeout(() => s.finish(true), 500); });
     } else {
-      audio.play('wrong'); toast(ctx, `× ${c.text}: ${b.label}이(가) 아니에요.`, 'bad');
-      setTimeout(() => s.finish(false), 700);
+      toast(ctx, `× ${c.text}: ${b.label}이(가) 아니에요.`, 'bad');
+      missedCards.add(c); home(); hold();
+      s.wrong(`「${c.text}」은(는) ${b.label}이(가) 아니에요. 다시 들고 가 봐요. 이번에는 화살표가 맞는 곳을 알려 줄게요.`);
     }
-  }, 2.4);
+  });
   return s.promise;
 }
 
@@ -430,8 +455,10 @@ export function find(ctx, part, easy) {
       toast(ctx, `○ ${it.text}`, 'good'); got += 1; show();
       s.say(it.talk, () => { if (got === need) setTimeout(() => s.finish(true), 500); });
     } else {
-      audio.play('wrong'); toast(ctx, `× ${it.text}`, 'bad');
-      setTimeout(() => s.finish(false), 700);
+      toast(ctx, `× ${it.text}`, 'bad');
+      it.got = true; it.m.material.color.set(0x8a2f24); it.lab.material.opacity = 0.4; // 틀린 팻말은 다시 고르지 않게 흐리게
+      s.wrong(`「${it.text}」은(는) 맞지 않아요.${it.why ? ' ' + it.why : ''} 남은 팻말 가운데 맞는 것을 찾아봐요.`);
+      show();
     }
   });
   return s.promise;

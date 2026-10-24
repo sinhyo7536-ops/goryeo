@@ -81,7 +81,7 @@ export default {
   ],
 
   quizzes: [
-    { kind: 'quiz', question: '한산도 대첩에서 이순신이 쓴 진법은?', options: ['물막이 작전', '학익진', '성 쌓기'], answer: 1, explain: '학이 날개를 편 모양으로 배를 늘어세워 적을 둘러쌌어요.', src: ['S35'] },
-    { kind: 'quiz', question: '임진왜란 때 나라를 지키려고 스스로 일어난 사람들은?', options: ['삼별초', '의병', '집현전 학자'], answer: 1, explain: '곽재우 같은 의병이 각지에서 일어났어요.', src: ['S34'] },
+    { kind: 'quiz', year: 1592, question: '임진왜란 때 나라를 지키려고 스스로 일어난 사람들은?', options: ['삼별초', '의병', '집현전 학자'], answer: 1, explain: '곽재우 같은 의병이 각지에서 일어났어요.', src: ['S34'] },
+    { kind: 'quiz', year: 1592, question: '한산도 대첩에서 이순신이 쓴 진법은?', options: ['물막이 작전', '학익진', '성 쌓기'], answer: 1, explain: '학이 날개를 편 모양으로 배를 늘어세워 적을 둘러쌌어요.', src: ['S35'] },
   ],
 };

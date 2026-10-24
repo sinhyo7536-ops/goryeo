@@ -18,13 +18,18 @@ test('order: correct taps resolve true and place cards', async () => {
   c.done();
 });
 
-test('order: wrong taps fail and easy mode highlights the next card', async () => {
+test('order: a wrong tap shows the explanation and the next card glows; easy mode glows from the start', async () => {
   const c = ctx();
   let p = orderCards(c, { title: '순서', cards: ['가', '나', '다'] });
   cardBtn(c.ui, '가').click();
   ok(c.ui.querySelector('.order-slots').textContent.includes('가'), 'placed');
   cardBtn(c.ui, '다').click();
-  eq(await p, false);
+  ok(!c.ui.querySelector('.card-why').hidden, 'explanation shown');
+  ok(cardBtn(c.ui, '나').classList.contains('hint'), 'the right next card glows');
+  cardBtn(c.ui, '나').click();
+  await sleep(950);
+  cardBtn(c.ui, '다').click();
+  eq(await p, 'missed');
   eq(c.ui.querySelectorAll('.order-card').length, 0, 'screen closed');
   p = orderCards(c, { title: '순서', cards: ['가', '나', '다'], easy: true });
   ok(cardBtn(c.ui, '가').classList.contains('hint'), 'next card glows');

@@ -64,7 +64,7 @@ export default {
     },
     reform: {
       type: 'find', src: ['S51'], title: '방에 붙은 개혁안 가운데 갑신정변 때 발표한 내용을 찾아요', counter: '찾은 내용',
-      howto: '마당의 방(벽보) 가운데 개화 세력이 발표한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '마당의 방(벽보) 가운데 개화 세력이 발표한 개혁안을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [{ who: 'kimokgyun', text: '우리가 발표한 개혁안이 방에 붙어 있소. 진짜 개혁안만 골라 보시오.' }],
       items: [
         { text: '청에 바치던 예물을 없앤다', correct: true, talk: [{ who: 'kimokgyun', text: '청에서 벗어나 자주적인 나라가 되어야 하오.' }] },
@@ -78,7 +78,7 @@ export default {
   },
   result: [{ who: 'narr', text: '김옥균 등은 일본으로 몸을 피했고, 그 뒤 청의 간섭은 더욱 심해졌어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '갑신정변을 일으킨 개화 세력의 인물은?', options: ['전봉준', '김옥균', '서재필'], answer: 1, explain: '김옥균 등 개화 세력이 1884년 갑신정변을 일으켰어요.', src: ['S51'] },
-    { kind: 'quiz', question: '갑신정변은 며칠 만에 끝났나요?', options: ['3일', '30일', '3년'], answer: 0, explain: '청이 군사를 동원하면서 3일 만에 끝났어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1884, question: '갑신정변을 일으킨 개화 세력의 인물은?', options: ['전봉준', '김옥균', '서재필'], answer: 1, explain: '김옥균 등 개화 세력이 1884년 갑신정변을 일으켰어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1884, question: '갑신정변은 며칠 만에 끝났나요?', options: ['3일', '30일', '3년'], answer: 0, explain: '청이 군사를 동원하면서 3일 만에 끝났어요.', src: ['S51'] },
   ],
 };

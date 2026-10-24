@@ -49,7 +49,7 @@ export default {
   parts: {
     charter: {
       type: 'find', src: ['S51'], title: '임시 정부 청사에서 대한민국 임시 헌법(1919년 9월)의 내용을 찾아요', counter: '찾은 조항',
-      howto: '청사 곳곳의 팻말 가운데 임시 헌법의 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 다시 해요.',
+      howto: '청사 곳곳의 팻말 가운데 임시 헌법의 내용을 찾아 대화 버튼을 눌러요. 틀린 것을 고르면 해설을 듣고 이어서 찾아요.',
       intro: [
         { who: 'ahnchangho', text: '우리는 왕이 다스리는 나라가 아니라, 국민이 주인인 나라를 세우려 하오.' },
         { who: 'ahnchangho', text: '임시 헌법에 담긴 조항을 찾아보시오.' },
@@ -82,7 +82,7 @@ export default {
     },
     roles: {
       type: 'deliver', src: ['S51'], title: '임시 정부의 활동을 알맞은 부서로 가져가요', counter: '가져다 놓은 것',
-      howto: '머리 위의 글을 알맞은 부서 책상으로 가져가 대화 버튼을 눌러요.',
+      howto: '머리 위의 글을 알맞은 부서 책상으로 가져가 그 안에서 멈춰 잠깐 서 있어요. 놓으면 처음 자리로 돌아와 다음 것을 들어요.',
       intro: [{ who: 'kimgu', text: '임시 정부는 할 일이 많소. 각 부서에 일을 나누어 주시오.' }],
       bins: [{ id: 'home', label: '나라 안과 연락', look: 'citizen' }, { id: 'diplo', label: '외교와 자금', look: 'ahnchangho' }, { id: 'army', label: '무장 투쟁', look: 'independenceArmy' }],
       cards: [
@@ -98,7 +98,7 @@ export default {
   },
   result: [{ who: 'narr', text: '대한민국 임시 정부는 독립운동을 이끌며 우리 민족의 희망이 되었어요.', src: ['S51'] }],
   quizzes: [
-    { kind: 'quiz', question: '1919년 대한민국 임시 정부가 세워진 도시는?', options: ['상하이', '충칭', '하얼빈'], answer: 0, explain: '1919년 9월 상하이에서 통합된 임시 정부가 세워졌어요.', src: ['S51'] },
-    { kind: 'quiz', question: '임시 헌법에 쓴 대한민국의 정치 체제는?', options: ['왕이 다스리는 나라', '민주 공화제', '귀족 정치'], answer: 1, explain: '대한민국은 민주 공화제로 한다고 정했어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1919, question: '1919년 대한민국 임시 정부가 세워진 도시는?', options: ['상하이', '충칭', '하얼빈'], answer: 0, explain: '1919년 9월 상하이에서 통합된 임시 정부가 세워졌어요.', src: ['S51'] },
+    { kind: 'quiz', year: 1919, question: '임시 헌법에 쓴 대한민국의 정치 체제는?', options: ['왕이 다스리는 나라', '민주 공화제', '귀족 정치'], answer: 1, explain: '대한민국은 민주 공화제로 한다고 정했어요.', src: ['S51'] },
   ],
 };
